@@ -1,0 +1,15 @@
+{% load sitetree %}
+<ul>
+	{% for item in sitetree_items %}
+	<li>
+		{% if item.is_current %}
+			{{ item.title_resolved }}
+		{% else %}
+			<a href="{% sitetree_url for item %}" {% if item.hint %}title="{{ item.hint }}"{% endif %}>{{ item.title_resolved }}</a>
+		{% endif %}
+		{% if item.has_children %}
+			{% sitetree_children of item for menu template "sitetree/menu.html" %}
+		{% endif %}
+	</li>
+	{% endfor %}
+</ul>

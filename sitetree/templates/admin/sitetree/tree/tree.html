@@ -1,0 +1,24 @@
+{% load i18n sitetree adminmedia %}
+{% for item in sitetree_items %}
+	<tr>
+		<td class="align-center"><img src="{% admin_media_prefix %}img/admin/icon-{% if item.hidden %}yes{% else %}no{% endif %}.gif" alt="{{ item.hidden }}" /></td>
+		<td class="align-center"><img src="{% admin_media_prefix %}img/admin/icon-{% if item.inmenu %}yes{% else %}no{% endif %}.gif" alt="{{ item.inmenu }}" /></td>
+		<td class="align-center"><img src="{% admin_media_prefix %}img/admin/icon-{% if item.inbreadcrumbs %}yes{% else %}no{% endif %}.gif" alt="{{ item.inbreadcrumbs }}" /></td>
+		<td class="align-center"><img src="{% admin_media_prefix %}img/admin/icon-{% if item.insitetree %}yes{% else %}no{% endif %}.gif" alt="{{ item.insitetree }}" /></td>
+		
+		<td>
+		{% for d in item.depth_range %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% endfor %}
+		{% if item.parent %}|&#8212;{% endif %}
+		<a href="item_{{ item.id }}">{{ item.title }}</a></td>
+		<td>{{ item.url }}</td>
+		<td>
+			&nbsp;&nbsp;
+			<a href="item_{{ item.id }}/move_up/"><img src="{% admin_media_prefix %}img/admin/arrow-up.gif" border="0" alt="{% trans "Move up" %}"/></a>
+			&nbsp;&nbsp;&nbsp;
+			<a href="item_{{ item.id }}/move_down/"><img src="{% admin_media_prefix %}img/admin/arrow-down.gif" border="0" alt="{% trans "Move down" %}"/></a>
+		</td>
+	</tr>
+	{% if item.has_children %}
+		{% sitetree_children of item for sitetree template "admin/sitetree/tree/tree.html" %}
+	{% endif %}
+{% endfor %}
