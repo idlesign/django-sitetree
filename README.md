@@ -17,7 +17,7 @@ django-sitetree is a reusable application for Django introducing site tree, menu
 
 1. Add the 'sitetree' application to 'INSTALLED_APPS' in your settings file (usually 'settings.py').
 2. Run './manage.py syncdb' to install sitetree tables into database.
-3. Go to Django Admin site and add some menus and menu items.
+3. Go to Django Admin site and add some trees and tree items.
 4. Add '{% load sitetree %}' tag to the top of a template.
 
   Now you can use the following template tags:
@@ -44,6 +44,7 @@ Renders site tree items under 'trunk' and 'topmenu' aliased items.
   + 'this-siblings' - get items under parent of item resolved as current for the current page (current item included)
 
   Site tree item could be addressed not only by aliases but also by IDs.
+
 + **Optional 'template' argument** could be supplied to all above mentioned tags:  
 {% sitetree\_menu from "mytree" include "trunk,topmenu" template "mytrees/mymenu.html" %}  
 {% sitetree\_breadcrumbs from "mytree" template "mytrees/mybreadcrumbs.html" %}

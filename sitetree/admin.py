@@ -36,6 +36,7 @@ class TreeItemAdmin(admin.ModelAdmin):
         response = super(TreeItemAdmin, self).response_change(request, obj)
         if request.POST.has_key("_addanother"):
             return HttpResponseRedirect('../item_add/')
+        return response
     
     def get_form(self, request, obj=None, **kwargs):
         """Returns modified form for TreeItem model.
