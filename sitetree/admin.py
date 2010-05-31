@@ -160,7 +160,7 @@ class TreeAdmin(admin.ModelAdmin):
             (r'^(?P<tree_id>\d+)/item_(?P<item_id>\d+)/$', self.admin_site.admin_view(self.tree_admin.item_edit)),
             (r'^(?P<tree_id>\d+)/item_(?P<item_id>\d+)/history/$', self.admin_site.admin_view(self.tree_admin.item_history)),
             (r'^(?P<tree_id>\d+)/item_(?P<item_id>\d+)/delete/$', self.admin_site.admin_view(self.tree_admin.item_delete)),
-            (r'^(?P<tree_id>\d+)/item_(?P<item_id>\d+)/move_(?P<direction>\w{1})/$', self.admin_site.admin_view(self.tree_admin.item_move)),
+            (r'^(?P<tree_id>\d+)/item_(?P<item_id>\d+)/move_(?P<direction>(up|down))/$', self.admin_site.admin_view(self.tree_admin.item_move)),
         )
         return sitetree_urls + urls
 
