@@ -216,15 +216,17 @@ class SiteTree():
         parent_ids = []
         parent_aliases = []
         
+        current_item = self.get_tree_current_item(tree_alias)
+        
         for branch_id in tree_branches.split(','):
             branch_id = branch_id.strip()
             if branch_id == 'trunk':
                 parent_isnull = True
-            elif branch_id == 'this-children':
-                branch_id = self.get_tree_current_item(tree_alias).id
+            elif branch_id == 'this-children' and current_item is not None:
+                branch_id = current_item.id
                 parent_ids.append(branch_id)
-            elif branch_id == 'this-siblings':
-                branch_id = self.get_tree_current_item(tree_alias).parent.id
+            elif branch_id == 'this-siblings' and current_item is not None:
+                branch_id = current_item.parent.id
                 parent_ids.append(branch_id)
             elif branch_id.isdigit():
                 parent_ids.append(branch_id)
