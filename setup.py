@@ -1,8 +1,8 @@
 import os
 from setuptools import setup, find_packages
-from sitemetrics import VERSION
+from sitetree import VERSION
 
-f = open(os.path.join(os.path.dirname(__file__), 'README'))
+f = open(os.path.join(os.path.dirname(__file__), 'README.md'))
 readme = f.read()
 f.close()
 
