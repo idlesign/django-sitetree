@@ -46,12 +46,12 @@ class TreeItem(models.Model):
     parent = models.ForeignKey('self', verbose_name=_('Parent'), help_text=_('Parent site tree item.'), db_index=True, null=True, blank=True)
     sort_order = models.IntegerField(_('Sort order'), help_text=_('Item position among other site tree items under the same parent.'), db_index=True, default=0)
     
-    def save(self, force_insert=False, force_update=False, using=None):
+    def save(self, force_insert=False, force_update=False, **kwargs):
         """We override parent save method to set item's sort order to its' primary
         key value.
         
         """
-        super(TreeItem, self).save(force_insert, force_update, using)
+        super(TreeItem, self).save(force_insert, force_update, **kwargs)
         if self.sort_order == 0:
             self.sort_order = self.id
             self.save()
