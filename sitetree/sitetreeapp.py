@@ -2,6 +2,7 @@ from collections import defaultdict
 
 from django import template
 from django.db.models import signals
+from django.utils.http import urlquote
 from django.template.defaulttags import url as url_tag
 
 from sitetree.models import Tree, TreeItem
@@ -121,7 +122,8 @@ class SiteTree():
             current_item = self.cache_current_item[tree_alias] 
         else:
             if 'request' in self.global_context:
-                current_url = self.global_context['request'].path
+                # urlquote is a try to support non-ascii in url
+                current_url = urlquote(self.global_context['request'].path)
                 if tree_alias in self.cache_urls:
                     for url_item in self.cache_urls[tree_alias]:
                         self.cache_urls[tree_alias][url_item][1].is_current = False
@@ -157,7 +159,14 @@ class SiteTree():
             # We should try to resolve URL parameters from site tree item
             view_arguments = []
             for view_argument in view_path[1:]:
-                view_arguments.append(self.resolve_var(view_argument))
+                resolved = self.resolve_var(view_argument)
+                # In case of non-ascii data we leave variable unresolved
+                if isinstance(resolved, unicode):
+                    if resolved.encode("ascii", "ignore").decode("ascii") != resolved:
+                        resolved = view_argument
+                
+                view_arguments.append(resolved)
+            
             # URL parameters from site tree item should be concatenated with
             # those from template. 
             view_arguments = tag_arguments + view_arguments
@@ -177,21 +186,19 @@ class SiteTree():
             resolved_url = self.cache_urls[tree_alias][url_pattern][0]
         else:
             if sitetree_item.urlaspattern:
-                # Form token to pass to Django 'url' tag
+                # Form token to pass to Django 'url' tag                
                 url_token =  u'url %s as item.url_resolved' % (url_pattern)
                 url_tag(template.Parser(None), template.Token(token_type=template.TOKEN_BLOCK, contents=url_token)).render(context)
         
                 # We make an anchor link from an unresolved URL as a reminder
                 if context['item.url_resolved'] == '':
                     resolved_url = u'#unresolved'
-                    #print 'Unresolved URL: %s' % url_token
                 else:
                     resolved_url = context['item.url_resolved']
             else:
                 resolved_url = url_pattern
 
             self.cache_urls[tree_alias][url_pattern] = (resolved_url, sitetree_item)
-        
         return resolved_url
         
     
@@ -349,7 +356,7 @@ class SiteTree():
         varname = varname.strip();
         if varname != ''  and varname.find(' ') == -1 and ',' not in varname:
             try:
-                varname = template.Variable(varname).resolve(context) 
+                varname = template.Variable(varname).resolve(context)
             except template.VariableDoesNotExist:
                 varname = varname
                 
