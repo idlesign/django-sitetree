@@ -1,6 +1,6 @@
 from django import template
 
-from ..sitetree.sitetreeapp import SiteTree
+from ..sitetreeapp import SiteTree
 
 register = template.Library()
 

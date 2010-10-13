@@ -1,8 +1,8 @@
 import os
-from setuptools import setup, find_packages
+from setuptools import setup
 from sitetree import VERSION
 
-f = open(os.path.join(os.path.dirname(__file__), 'README.md'))
+f = open(os.path.join(os.path.dirname(__file__), 'README'))
 readme = f.read()
 f.close()
 
@@ -14,7 +14,10 @@ setup(
     author="Igor 'idle sign' Starikov",
     author_email='idlesign@yandex.ru',
     url='http://github.com/idlesign/django-sitetree',
-    packages=find_packages(),
+    packages=['sitetree'],
+    include_package_data=True,
+    install_requires=['setuptools'],
+    zip_safe=False,
     classifiers=[
 	'Development Status :: 4 - Beta',
         'Environment :: Web Environment',

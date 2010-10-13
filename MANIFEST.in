@@ -1,0 +1,4 @@
+include README
+recursive-include sitetree/locale *
+recursive-include sitetree/templates *
+recursive-include sitetree/templatetags *

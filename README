@@ -1,0 +1,122 @@
+django-sitetree
+===============
+http://github.com/idlesign/django-sitetree
+
+What's that
+-----------
+
+django-sitetree is a reusable application for Django introducing site tree, menu and breadcrumbs navigation elements.
+
+
+Requirements
+------------
+
+1. Django 1.1+
+2. Admin site Django contrib package
+
+
+How to use
+----------
+
+1. Add the 'sitetree' application to 'INSTALLED_APPS' in your settings file (usually 'settings.py').
+2. Run './manage.py syncdb' to install sitetree tables into database.
+3. Go to Django Admin site and add some trees and tree items.
+4. Add '{% load sitetree %}' tag to the top of a template.
+
+Now you can use the following template tags:
+
+**'sitetree_menu'** tag renders menu:
+::
+
+{% sitetree_menu from "mytree" include "trunk" %}
+
+**'sitetree_breadcrumbs'** tag renders breadcrumbs path:  
+::
+
+{% sitetree_breadcrumbs from "mytree" %}
+
+**'sitetree_tree'** tag renders entire site tree:  
+::
+
+{% sitetree_tree from "mytree" %}
+
+
+More about template tags
+------------------------
+
+**Tree tag argument** (part in double quotes, following 'from' word) could be a template variable.
+
+**'sitetree_menu'** tag:
+
+::
+
+{% sitetree_menu from "mytree" include "trunk,topmenu" %}  
+
+This command renders site tree items under 'trunk' and 'topmenu' aliased items.
+
+  Aliases are given to items through the 'Admin site'. The following aliases are reserved:  
+
+  + **trunk** — get items without parents (root items)
+  + **this-children** — get items under item resolved as current for the current page
+  + **this-siblings** — get items under parent of item resolved as current for the current page (current item included)
+
+  Site tree item could be addressed not only by aliases but also by IDs.
+
+**Optional 'template' argument** could be supplied to all above mentioned tags:
+::
+
+{% sitetree_menu from "mytree" include "trunk,topmenu" template "mytrees/mymenu.html" %}  
+{% sitetree_breadcrumbs from "mytree" template "mytrees/mybreadcrumbs.html" %}
+
+
+Overriding sitetree built-in templates
+--------------------------------------
+
+To customize navigation elements view you should override the built-in sitetree templates as follows:
+
+1. Switch to sitetree folder
+2. Switch further to 'templates/sitetree'
+3. There you'll find the following templates:  
+
+  * breadcrumbs.html
+  * menu.html
+  * tree.html
+
+4. Copy whichever of them you need into your project templates directory and feel free to customize it.
+5. See 'Notes on advanced sitetree tags' below for clarification on two advanced sitetree template tags.
+
+
+Notes on advanced sitetree tags
+-------------------------------
+
+SiteTree introduces some advanced template tags which you have to deal with in case you override the built-in sitetree templates.
+
+1. **'sitetree_children'** tag:
+::
+
+{% sitetree_children of someitem for menu template "sitetree/mychildren.html" %}  
+
+Implements site tree recursion. Used to render child items of specific site tree 'someitem' using template "sitetree/mychildren.html" for 'menu' navigation type.
+
+Basically template argument should contain path to current template itself.  
+
+Allowed navigation types: 1) menu; 2) sitetree.
+
+2. **'sitetree_url'** tag:
+::
+
+{% sitetree_url for someitem params %}  
+
+Resolves site tree item's url or url pattern.  
+
+This tag is much the same as Django built-in 'url' tag. The difference is that after 'for' it should get site tree item object.  
+
+And, yes, you can pass some params after that object.
+
+
+Translating django-sitetree
+---------------------------
+
+You can translate application into your language if it is supported by Django.  
+
+For translation tips refer to Django documentation: http://docs.djangoproject.com/en/1.1/topics/i18n/localization/

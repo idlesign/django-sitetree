@@ -5,7 +5,7 @@ from django.db.models import signals
 from django.utils.http import urlquote
 from django.template.defaulttags import url as url_tag
 
-from sitetree.models import Tree, TreeItem
+from models import Tree, TreeItem
 
 class SiteTree():
     

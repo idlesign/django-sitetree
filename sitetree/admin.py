@@ -7,8 +7,8 @@ from django.http import HttpResponseRedirect
 from django.contrib import admin
 from django.contrib import messages
 
-from sitetree.models import Tree, TreeItem
-from sitetree.templatetags.sitetree import sitetree_tree
+from models import Tree, TreeItem
+from templatetags.sitetree import sitetree_tree
 
 class TreeItemAdmin(admin.ModelAdmin):
     exclude = ('tree', 'sort_order')
