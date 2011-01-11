@@ -129,6 +129,18 @@ def sitetree_url(parser, token):
     else:
         raise template.TemplateSyntaxError, "%r tag should look like {%% sitetree_url for someitem params %%}." % tokens[0]
 
+@register.tag
+def sitetree_page_title(parser, token):
+    """"""
+    tokens = token.split_contents()
+    template = detect_clause('template', tokens)
+
+    if len(tokens) == 3:
+        tree_alias = tokens[2][1:-1]
+        return sitetree_page_titleNode(tree_alias)
+    else:
+        raise template.TemplateSyntaxError, "%r tag requires two arguments. E.g. {%% sitetree_page_title from \"mytree\" %%}." % tokens[0]
+
 class sitetree_treeNode(template.Node):
     """Renders tree items from specified site tree."""
     def __init__(self, tree_alias, use_template):
@@ -188,6 +200,15 @@ class sitetree_urlNode(template.Node):
     def render(self, context):
         resolved_url = sitetree.url(self.sitetree_item, self.tag_arguments, context)
         return resolved_url
+    
+class sitetree_page_titleNode(template.Node):
+    """Renders page title from specified site tree."""
+    def __init__(self, tree_alias):
+        self.tree_alias = tree_alias
+        
+    def render(self, context):
+        return sitetree.get_tree_current_item(self.tree_alias).title_resolved
+    
     
 def detect_clause(clause_name, tokens):
     """Helper function detects a certain clause in tag tokens list.

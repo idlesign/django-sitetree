@@ -5,7 +5,23 @@ http://github.com/idlesign/django-sitetree
 What's that
 -----------
 
-django-sitetree is a reusable application for Django introducing site tree, menu and breadcrumbs navigation elements.
+*django-sitetree is a reusable application for Django introducing site tree, menu and breadcrumbs navigation elements.*
+
+Site structure in django-sitetree is described through Django admin interface in a so called site tree (there could be more than one tree).
+Every item of such a tree describes some a site page or set of pages through the relation of URI or URL to human-friendly title, eg.::
+
+  URI             Title
+    /             - Site Root
+    |_users/      - Site Users
+      |_users/13/ - Definite User
+
+      
+Alas the example above makes a little sense if you have more than just a few users, that's why django-sitetree supports Django template tags in item titles and Django named URLs in item URIs. If we define a named URL for user personal page in urls.py, for example, 'users-personal', we could change a scheme in the following way::
+
+  URI                           Title
+    /                           - Site Root
+    |_users/                    - Site Users
+      |_users-personal user.id  - User Called {{ user.first_name }}
 
 
 Requirements
@@ -25,20 +41,22 @@ How to use
 
 Now you can use the following template tags:
 
-**'sitetree_menu'** tag renders menu:
-::
+**'sitetree_menu'** tag renders menu based on sitetree::
 
 {% sitetree_menu from "mytree" include "trunk" %}
 
-**'sitetree_breadcrumbs'** tag renders breadcrumbs path:  
-::
+**'sitetree_breadcrumbs'** tag renders breadcrumbs path based on sitetree::
 
 {% sitetree_breadcrumbs from "mytree" %}
 
-**'sitetree_tree'** tag renders entire site tree:  
-::
+**'sitetree_tree'** tag renders entire site tree::
 
 {% sitetree_tree from "mytree" %}
+
+
+**'sitetree_page_title'** tag renders page title resolved against definite sitetree::
+
+{% sitetree_page_title from "mytree" %}
 
 
 More about template tags
@@ -46,19 +64,17 @@ More about template tags
 
 **Tree tag argument** (part in double quotes, following 'from' word) could be a template variable.
 
-**'sitetree_menu'** tag:
-
-::
+**'sitetree_menu'** tag::
 
 {% sitetree_menu from "mytree" include "trunk,topmenu" %}  
 
 This command renders site tree items under 'trunk' and 'topmenu' aliased items.
 
-  Aliases are given to items through the 'Admin site'. The following aliases are reserved:  
+  Aliases are given to items through the 'Admin site'. The following aliases are reserved: 
 
-  + **trunk** — get items without parents (root items)
-  + **this-children** — get items under item resolved as current for the current page
-  + **this-siblings** — get items under parent of item resolved as current for the current page (current item included)
+  + **trunk** - get items without parents (root items)
+  + **this-children** - get items under item resolved as current for the current page
+  + **this-siblings** - get items under parent of item resolved as current for the current page (current item included)
 
   Site tree item could be addressed not only by aliases but also by IDs.
 
