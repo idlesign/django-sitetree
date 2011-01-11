@@ -5,10 +5,10 @@ http://github.com/idlesign/django-sitetree
 What's that
 -----------
 
-*django-sitetree is a reusable application for Django introducing site tree, menu and breadcrumbs navigation elements.*
+*django-sitetree is a reusable application for Django, introducing site tree, menu and breadcrumbs navigation elements.*
 
-Site structure in django-sitetree is described through Django admin interface in a so called site tree (there could be more than one tree).
-Every item of such a tree describes some a site page or set of pages through the relation of URI or URL to human-friendly title, eg.::
+Site structure in django-sitetree is described through Django admin interface in a so called site trees.
+Every item of such a tree describes a page or a set of pages through the relation of URI or URL to human-friendly title. Eg. using site tree editor in Django admin::
 
   URI             Title
     /             - Site Root
@@ -16,13 +16,15 @@ Every item of such a tree describes some a site page or set of pages through the
       |_users/13/ - Definite User
 
       
-Alas the example above makes a little sense if you have more than just a few users, that's why django-sitetree supports Django template tags in item titles and Django named URLs in item URIs. If we define a named URL for user personal page in urls.py, for example, 'users-personal', we could change a scheme in the following way::
+Alas the example above makes a little sense if you have more than just a few users, that's why django-sitetree supports Django template tags in item titles and Django named URLs in item URIs. 
+If we define a named URL for user personal page in urls.py, for example, 'users-personal', we could change a scheme in the following way::
 
   URI                           Title
     /                           - Site Root
     |_users/                    - Site Users
       |_users-personal user.id  - User Called {{ user.first_name }}
 
+After setting up site structure as a sitetree you should be able to use convenient and highly customizable site navigation means (menus, breadcrumbs and full site trees). 
 
 Requirements
 ------------
