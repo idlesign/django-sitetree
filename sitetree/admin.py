@@ -57,7 +57,7 @@ class TreeItemAdmin(admin.ModelAdmin):
 
         # We build choices dropdown using 'sitetree_tree' tag
         tree_token =  u'sitetree_tree from "%s" template "admin/sitetree/tree/tree_combo.html"' % (self.tree.alias)
-        my_context =  template.Context()
+        my_context =  template.RequestContext(request, current_app='admin')
         choices_str = sitetree_tree(template.Parser(None), 
                                     template.Token(token_type=template.TOKEN_BLOCK, contents=tree_token)).render(my_context)
         

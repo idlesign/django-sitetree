@@ -206,9 +206,8 @@ class sitetree_page_titleNode(template.Node):
         self.tree_alias = tree_alias
         
     def render(self, context):
-        return sitetree.get_tree_current_item(self.tree_alias).title_resolved
-    
-    
+        return sitetree.get_current_page_title(self.tree_alias, context)
+
 def detect_clause(clause_name, tokens):
     """Helper function detects a certain clause in tag tokens list.
     Returns its value.
