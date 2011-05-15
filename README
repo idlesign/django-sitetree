@@ -37,9 +37,10 @@ How to use
 ----------
 
 1. Add the 'sitetree' application to 'INSTALLED_APPS' in your settings file (usually 'settings.py').
-2. Run './manage.py syncdb' to install sitetree tables into database.
-3. Go to Django Admin site and add some trees and tree items (`Detailed instruction at StackOverflow <http://stackoverflow.com/questions/4766807/how-to-use-django-sitetree/4887916#4887916>`_).
-4. Add '{% load sitetree %}' tag to the top of a template.
+2. Verify "django.core.context_processors.request" is enabled in TEMPLATE_CONTEXT_PROCESSORS in your settings file.
+3. Run './manage.py syncdb' to install sitetree tables into database.
+4. Go to Django Admin site and add some trees and tree items (`Detailed instruction at StackOverflow <http://stackoverflow.com/questions/4766807/how-to-use-django-sitetree/4887916#4887916>`_).
+5. Add '{% load sitetree %}' tag to the top of a template.
 
 Now you can use the following template tags:
 
@@ -138,3 +139,5 @@ Translating django-sitetree
 You can translate application into your language if it is supported by Django.  
 
 For translation tips refer to Django documentation: http://docs.djangoproject.com/en/1.1/topics/i18n/localization/
+
+Or you may use Transifex: https://www.transifex.net/projects/p/django-sitetree/

@@ -1,0 +1,184 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-04-24 11:22+0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: admin.py:16
+msgid "Basic settings"
+msgstr ""
+
+#: admin.py:19
+msgid "Display settings"
+msgstr ""
+
+#: admin.py:23
+msgid "Additional settings"
+msgstr ""
+
+#: admin.py:142
+msgid "Item's parent left unchanged. Item couldn't be parent to itself."
+msgstr ""
+
+#: models.py:23 models.py:39
+msgid "Alias"
+msgstr ""
+
+#: models.py:23
+msgid "Short name to address site tree from a template."
+msgstr ""
+
+#: models.py:26 models.py:37
+msgid "Site Tree"
+msgstr ""
+
+#: models.py:27
+msgid "Site Trees"
+msgstr ""
+
+#: models.py:33 templates/admin/sitetree/tree/change_form.html:38
+msgid "Title"
+msgstr ""
+
+#: models.py:33
+msgid ""
+"Site tree item title. Can contain template variables E.g.: {{ mytitle }}."
+msgstr ""
+
+#: models.py:34
+msgid "Hint"
+msgstr ""
+
+#: models.py:34
+msgid "Some additional information about this item that is used as a hint."
+msgstr ""
+
+#: models.py:35 templates/admin/sitetree/tree/change_form.html:39
+msgid "URL"
+msgstr ""
+
+#: models.py:35
+msgid "Exact URL or URL pattern (see \"Additional settings\") for this item."
+msgstr ""
+
+#: models.py:36
+msgid "URL as Pattern"
+msgstr ""
+
+#: models.py:36
+msgid ""
+"Whether the given URL should be treated as a pattern.<br/><b>Note:</b> Refer "
+"to Django \"URL dispatcher\" documentation (e.g. \"Naming URL patterns\" "
+"part)."
+msgstr ""
+
+#: models.py:37
+msgid "Site tree this item belongs to."
+msgstr ""
+
+#: models.py:38 templates/admin/sitetree/tree/change_form.html:34
+msgid "Hidden"
+msgstr ""
+
+#: models.py:38
+msgid "Whether to show this item in navigation."
+msgstr ""
+
+#: models.py:39
+msgid ""
+"Short name to address site tree item from a template.<br /><b>Reserved "
+"aliases:</b> \"trunk\", \"this-children\" and \"this-siblings\"."
+msgstr ""
+
+#: models.py:40
+msgid "Description"
+msgstr ""
+
+#: models.py:40
+msgid "Additional comments on this item."
+msgstr ""
+
+#: models.py:41
+msgid "Show in menu"
+msgstr ""
+
+#: models.py:41
+msgid "Whether to show this item in a menu."
+msgstr ""
+
+#: models.py:42
+msgid "Show in breadcrumb path"
+msgstr ""
+
+#: models.py:42
+msgid "Whether to show this item in a breadcrumb path."
+msgstr ""
+
+#: models.py:43
+msgid "Show in site tree"
+msgstr ""
+
+#: models.py:43
+msgid "Whether to show this item in a site tree."
+msgstr ""
+
+#: models.py:46
+msgid "Parent"
+msgstr ""
+
+#: models.py:46
+msgid "Parent site tree item."
+msgstr ""
+
+#: models.py:47 templates/admin/sitetree/tree/change_form.html:40
+msgid "Sort order"
+msgstr ""
+
+#: models.py:47
+msgid "Item position among other site tree items under the same parent."
+msgstr ""
+
+#: models.py:60
+msgid "Site Tree Item"
+msgstr ""
+
+#: models.py:61 templates/admin/sitetree/tree/change_form.html:17
+msgid "Site Tree Items"
+msgstr ""
+
+#: templates/admin/sitetree/tree/change_form.html:24
+msgid "Add Site Tree item"
+msgstr ""
+
+#: templates/admin/sitetree/tree/change_form.html:35
+msgid "Menu"
+msgstr ""
+
+#: templates/admin/sitetree/tree/change_form.html:36
+msgid "Breadcrumbs"
+msgstr ""
+
+#: templates/admin/sitetree/tree/change_form.html:37
+msgid "Tree"
+msgstr ""
+
+#: templates/admin/sitetree/tree/tree.html:16
+msgid "Move up"
+msgstr ""
+
+#: templates/admin/sitetree/tree/tree.html:18
+msgid "Move down"
+msgstr ""
