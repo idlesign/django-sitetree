@@ -23,12 +23,12 @@ def sitetree_tree(parser, token):
     
     """
     tokens = token.split_contents()
-    template = detect_clause('template', tokens)
+    use_template = detect_clause('template', tokens)
     tokensNum = len(tokens)
 
     if tokensNum in (3, 5):
         tree_alias = tokens[2][1:-1]
-        return sitetree_treeNode(tree_alias, template)    
+        return sitetree_treeNode(tree_alias, use_template)
     else:
         raise template.TemplateSyntaxError, "%r tag requires two arguments. E.g. {%% sitetree_tree from \"mytree\" %%}." % tokens[0]
 
@@ -73,12 +73,12 @@ def sitetree_breadcrumbs(parser, token):
     
     """
     tokens = token.split_contents()
-    template = detect_clause('template', tokens)
+    use_template = detect_clause('template', tokens)
     tokensNum = len(tokens)
 
     if tokensNum == 3:
         tree_alias = tokens[2][1:-1]
-        return sitetree_breadcrumbsNode(tree_alias, template)    
+        return sitetree_breadcrumbsNode(tree_alias, use_template)
     else:
         raise template.TemplateSyntaxError, "%r tag requires two arguments. E.g. {%% sitetree_breadcrumbs from \"mytree\" %%}." % tokens[0]
 
@@ -102,13 +102,13 @@ def sitetree_menu(parser, token):
     
     """
     tokens = token.split_contents()
-    template = detect_clause('template', tokens)
+    use_template = detect_clause('template', tokens)
     tokensNum = len(tokens)
 
     if tokensNum == 5 and tokens[3] == 'include':
         tree_alias = tokens[2][1:-1]
         tree_branches = tokens[4][1:-1]
-        return sitetree_menuNode(tree_alias, tree_branches, template)
+        return sitetree_menuNode(tree_alias, tree_branches, use_template)
     else:
         raise template.TemplateSyntaxError, "%r tag requires four arguments. E.g. {%% sitetree_menu from \"mytree\" include \"trunk,1,level3\" %%}." % tokens[0]
 
@@ -133,7 +133,6 @@ def sitetree_url(parser, token):
 def sitetree_page_title(parser, token):
     """"""
     tokens = token.split_contents()
-    template = detect_clause('template', tokens)
 
     if len(tokens) == 3:
         tree_alias = tokens[2][1:-1]
