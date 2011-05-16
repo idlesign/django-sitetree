@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
+from django.contrib.auth.models import Permission
 
 # This allows South to handle our custom 'CharFieldNullable' field 
 if 'south' in settings.INSTALLED_APPS:
@@ -27,13 +28,21 @@ class Tree(models.Model):
         verbose_name_plural = _('Site Trees')
         
     def __unicode__(self):
-        return u'%s' % (self.alias)
+        return u'%s' % self.alias
 
 class TreeItem(models.Model):
+    PERM_TYPE_ANY = 1
+    PERM_TYPE_ALL = 2
+
+    PERM_TYPE_CHOICES = (
+        (PERM_TYPE_ANY, _('Any')),
+        (PERM_TYPE_ALL, _('All'))
+    )
+
     title = models.CharField(_('Title'), max_length=100, help_text=_('Site tree item title. Can contain template variables E.g.: {{ mytitle }}.'))
     hint = models.CharField(_('Hint'), max_length=200, help_text=_('Some additional information about this item that is used as a hint.'), blank=True, default='')
     url = models.CharField(_('URL'), max_length=200, help_text=_('Exact URL or URL pattern (see "Additional settings") for this item.'), db_index=True)
-    urlaspattern = models.BooleanField(_('URL as Pattern'), help_text=_('Whether the given URL should be treated as a pattern.<br/><b>Note:</b> Refer to Django "URL dispatcher" documentation (e.g. "Naming URL patterns" part).'), db_index=True, default=False)
+    urlaspattern = models.BooleanField(_('URL as Pattern'), help_text=_('Whether the given URL should be treated as a pattern.<br /><b>Note:</b> Refer to Django "URL dispatcher" documentation (e.g. "Naming URL patterns" part).'), db_index=True, default=False)
     tree = models.ForeignKey(Tree, verbose_name=_('Site Tree'), help_text=_('Site tree this item belongs to.'), db_index=True)    
     hidden = models.BooleanField(_('Hidden'), help_text=_('Whether to show this item in navigation.'), db_index=True, default=False)    
     alias = CharFieldNullable(_('Alias'), max_length=80, help_text=_('Short name to address site tree item from a template.<br /><b>Reserved aliases:</b> "trunk", "this-children" and "this-siblings".'), db_index=True, blank=True, null=True)
@@ -41,6 +50,9 @@ class TreeItem(models.Model):
     inmenu = models.BooleanField(_('Show in menu'), help_text=_('Whether to show this item in a menu.'), db_index=True, default=True)
     inbreadcrumbs = models.BooleanField(_('Show in breadcrumb path'), help_text=_('Whether to show this item in a breadcrumb path.'), db_index=True, default=True)
     insitetree = models.BooleanField(_('Show in site tree'), help_text=_('Whether to show this item in a site tree.'), db_index=True, default=True)
+    access_restricted = models.BooleanField(_('Restrict access'), help_text=_('Check it to restrict user access to this item, using Django permissions system.'), db_index=True, default=False)
+    access_permissions = models.ManyToManyField(Permission, verbose_name=_('Permissions granting access'), blank=True)
+    access_perm_type = models.IntegerField(_('Permissions interpretation'), help_text='<b>Any</b> &mdash; user should have any of chosen permissions. <b>All</b> &mdash; user should have all chosen permissions.', choices=PERM_TYPE_CHOICES, default=PERM_TYPE_ANY)
     # These two are for 'adjacency list' model.
     # This is the current approach of tree representation for sitetree.
     parent = models.ForeignKey('self', verbose_name=_('Parent'), help_text=_('Parent site tree item.'), db_index=True, null=True, blank=True)
@@ -62,6 +74,6 @@ class TreeItem(models.Model):
         unique_together = ('tree', 'alias')
         
     def __unicode__(self):
-        return u'%s' % (self.title)
+        return u'%s' % self.title
     
       

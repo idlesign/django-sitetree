@@ -2,6 +2,7 @@ django-sitetree
 ===============
 http://github.com/idlesign/django-sitetree
 
+
 What's that
 -----------
 
@@ -26,21 +27,25 @@ If we define a named URL for user personal page in urls.py, for example, 'users-
 
 After setting up site structure as a sitetree you should be able to use convenient and highly customizable site navigation means (menus, breadcrumbs and full site trees). 
 
+
 Requirements
 ------------
 
-1. Django 1.1+
+1. Django 1.2+
 2. Admin site Django contrib package
+3. South 0.7.1+ for Django
+4. Auth Django contrib package
 
 
 How to use
 ----------
 
 1. Add the 'sitetree' application to 'INSTALLED_APPS' in your settings file (usually 'settings.py').
-2. Verify "django.core.context_processors.request" is enabled in TEMPLATE_CONTEXT_PROCESSORS in your settings file.
-3. Run './manage.py syncdb' to install sitetree tables into database.
-4. Go to Django Admin site and add some trees and tree items (`Detailed instruction at StackOverflow <http://stackoverflow.com/questions/4766807/how-to-use-django-sitetree/4887916#4887916>`_).
-5. Add '{% load sitetree %}' tag to the top of a template.
+2. Check that "django.core.context_processors.request" is enabled in TEMPLATE_CONTEXT_PROCESSORS in your settings file.
+3. Check that "django.contrib.auth.context_processors.auth" is enabled in TEMPLATE_CONTEXT_PROCESSORS too.
+4. Run './manage.py syncdb' to install sitetree tables into database.
+5. Go to Django Admin site and add some trees and tree items (`Detailed instruction at StackOverflow <http://stackoverflow.com/questions/4766807/how-to-use-django-sitetree/4887916#4887916>`_).
+6. Add '{% load sitetree %}' tag to the top of a template.
 
 Now you can use the following template tags:
 

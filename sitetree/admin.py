@@ -1,6 +1,6 @@
 from django import template
 from django.forms import ChoiceField
-from django.conf.urls.defaults import patterns, url
+from django.conf.urls.defaults import patterns
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
 from django.http import HttpResponseRedirect
@@ -16,6 +16,10 @@ class TreeItemAdmin(admin.ModelAdmin):
         (_('Basic settings'), {
             'fields': ('parent', 'title', 'url',)
         }),
+        (_('Access settings'), {
+            'classes': ('collapse',),
+            'fields': ('access_restricted', 'access_permissions', 'access_perm_type')
+        }),
         (_('Display settings'), {
             'classes': ('collapse',),
             'fields': ('hidden', 'inmenu', 'inbreadcrumbs', 'insitetree')
@@ -25,6 +29,7 @@ class TreeItemAdmin(admin.ModelAdmin):
             'fields': ('hint', 'description', 'alias', 'urlaspattern')
         }),
     )
+    filter_horizontal = ('access_permissions',)
     
     def response_change(self, request, obj):
         """Redirects to the appropriate item's add page.
@@ -56,7 +61,7 @@ class TreeItemAdmin(admin.ModelAdmin):
                 return TreeItem.objects.get(pk=value)
 
         # We build choices dropdown using 'sitetree_tree' tag
-        tree_token =  u'sitetree_tree from "%s" template "admin/sitetree/tree/tree_combo.html"' % (self.tree.alias)
+        tree_token =  u'sitetree_tree from "%s" template "admin/sitetree/tree/tree_combo.html"' % self.tree.alias
         my_context =  template.RequestContext(request, current_app='admin')
         choices_str = sitetree_tree(template.Parser(None), 
                                     template.Token(token_type=template.TOKEN_BLOCK, contents=tree_token)).render(my_context)

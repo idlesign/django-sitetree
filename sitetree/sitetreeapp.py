@@ -33,6 +33,8 @@ class SiteTree():
         signals.post_save.connect(self.cache_flush_tree, sender=Tree)
         signals.post_save.connect(self.cache_flush_tree, sender=TreeItem)
         signals.post_delete.connect(self.cache_flush_tree, sender=TreeItem)
+        # Listen to the changes in item permissions table.
+        signals.m2m_changed.connect(self.cache_flush_tree, sender=TreeItem.access_permissions)
     
     def set_global_context(self, context):
         """Saves context as global context if not already set or if changed.
@@ -63,6 +65,8 @@ class SiteTree():
             sitetree_item.depth_range = range(sitetree_item.depth)
             # Resolve item's URL.
             self.url(sitetree_item)
+            # Resolve item permissions.
+            sitetree_item.perms = set([u'%s.%s' % (perm.content_type.app_label, perm.codename) for perm in sitetree_item.access_permissions.select_related()])
 
         # Generate parents mappings.
         self.get_parents(alias)
@@ -200,8 +204,6 @@ class SiteTree():
         
                 # We make an anchor link from an unresolved URL as a reminder.
                 if context['item.url_resolved'] == '':
-                    if settings.DEBUG and  context.current_app!='admin':
-                        raise SiteTreeError, 'Unable to resolve URL from urlpattern "%s" supplied to sitetree_url tag.' % url_pattern
                     resolved_url = u'#unresolved'
                 else:
                     resolved_url = context['item.url_resolved']
@@ -273,17 +275,30 @@ class SiteTree():
         menu_items = []
         for item in sitetree_items:
             if item.inmenu and item.hidden == False:
-                if item.parent is None:
-                    if parent_isnull:
-                        menu_items.append(item)
-                else:
-                    if item.parent.id in parent_ids or item.parent.alias in parent_aliases:
-                        menu_items.append(item)
+                if self.check_access(item, context):
+                    if item.parent is None:
+                        if parent_isnull:
+                            menu_items.append(item)
+                    else:
+                        if item.parent.id in parent_ids or item.parent.alias in parent_aliases:
+                            menu_items.append(item)
 
         # Parse titles for variables.
         menu_items = self.parse_titles(menu_items, context)
         return menu_items
-    
+
+    def check_access(self, item, context):
+        """Checks whether user have access to certain item."""
+        if item.access_restricted:
+            user_perms = set(context['user'].get_all_permissions())
+            if item.access_perm_type==TreeItem.PERM_TYPE_ALL:
+                if len(item.perms)!=len(item.perms.intersection(user_perms)):
+                    return False
+            else:
+                if len(item.perms.intersection(user_perms))==0:
+                    return False
+        return True
+
     def breadcrumbs(self, tree_alias, context):
         """Builds and returns breadcrumb trail structure for 'sitetree_breadcrumbs' tag."""
         tree_alias, sitetree_items = self.init_tree(tree_alias, context)
@@ -322,7 +337,7 @@ class SiteTree():
         tree_items = self.filter_items(tree_items, navigation_type)
         
         my_template = template.loader.get_template(use_template)
-        my_context =  template.Context({'sitetree_items': tree_items,})
+        my_context =  template.Context({'sitetree_items': tree_items, 'user': context['user']})
         
         return my_template.render(my_context)
     
