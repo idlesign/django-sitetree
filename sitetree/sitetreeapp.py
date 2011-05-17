@@ -1,4 +1,5 @@
 from collections import defaultdict
+from copy import copy
 
 from django.conf import settings
 from django import template
@@ -347,13 +348,13 @@ class SiteTree():
     def filter_items(self, items, navigation_type=None):
         """Filters site tree item's children if hidden and by navigation type.
         
-        We do not apply any filters to 'tree' navigation items here,
-        instead one should do it in a template.
+        NB: We do not apply any filters to sitetree in admin app.
         
         """
-        if navigation_type != 'sitetree':
+        items = copy(items)
+        if self.global_context.current_app != 'admin':
             for item in items:
-                if item.hidden == True ^ (navigation_type is not None and getattr(item, 'in'+navigation_type) != True):
+                if item.hidden == True ^ (not self.check_access(item, self.global_context)) ^ (navigation_type is not None and getattr(item, 'in'+navigation_type) != True):
                     items.remove(item)
         return items
     
@@ -373,7 +374,7 @@ class SiteTree():
    
     def tree_climber(self, tree_alias, start_from):
         """Climbs up the site tree to build breadcrumb path."""
-        if start_from.inbreadcrumbs and start_from.hidden == False:
+        if start_from.inbreadcrumbs and start_from.hidden == False and self.check_access(start_from, self.global_context):
             self.cache_breadcrumbs[tree_alias].append(start_from)
         if hasattr(start_from, 'parent') and start_from.parent is not None:
             self.tree_climber(tree_alias, self.get_item_by_id(tree_alias, start_from.parent.id))
@@ -452,4 +453,4 @@ class SiteTree():
 
 class SiteTreeError(Exception):
     """Exception class for sitetree application."""
-    pass;
+    pass
