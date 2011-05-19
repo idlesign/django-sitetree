@@ -19,7 +19,7 @@ setup(
     install_requires=['setuptools'],
     zip_safe=False,
     classifiers=[
-	'Development Status :: 4 - Beta',
+    'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
         'Framework :: Django',
         'Intended Audience :: Developers',
