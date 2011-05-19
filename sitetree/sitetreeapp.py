@@ -62,7 +62,7 @@ class SiteTree():
             
         for sitetree_item in sitetree:
             if not hasattr(sitetree_item, 'depth'): 
-                sitetree_item.depth = self.get_item_depth(alias, sitetree_item.id)
+                sitetree_item.depth = self.calculate_item_depth(alias, sitetree_item.id)
             sitetree_item.depth_range = range(sitetree_item.depth)
             # Resolve item's URL.
             self.url(sitetree_item)
@@ -78,12 +78,12 @@ class SiteTree():
                         
         return sitetree
        
-    def get_item_depth(self, tree_alias, item_id, depth=0):
+    def calculate_item_depth(self, tree_alias, item_id, depth=0):
         """Calculates depth of the item in the tree."""
         item = self.get_item_by_id(tree_alias, item_id)
         if not hasattr(item, 'depth'):
             if item.parent is not None:
-                depth = self.get_item_depth(tree_alias, item.parent.id, depth+1)
+                depth = self.calculate_item_depth(tree_alias, item.parent.id, depth+1)
         else:
             depth = item.depth+1
         return depth
