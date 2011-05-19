@@ -65,7 +65,7 @@ class SiteTree():
                 sitetree_item.depth = self.calculate_item_depth(alias, sitetree_item.id)
             sitetree_item.depth_range = range(sitetree_item.depth)
             # Resolve item's URL.
-            self.url(sitetree_item)
+            sitetree_item.url_resolved = self.url(sitetree_item)
             # Resolve item permissions.
             sitetree_item.perms = set([u'%s.%s' % (perm.content_type.app_label, perm.codename) for perm in sitetree_item.access_permissions.select_related()])
 
