@@ -103,15 +103,18 @@ class SiteTree():
         """Creates parents mappings."""
         if not self.cache_parents.has_key(tree_alias):
             # Group items under parents
-            parents_mapping = defaultdict(list)
+            parents = defaultdict(list)
+
             for item in self.cache_sitetrees[tree_alias]:
+                item.has_children = False
                 parent = getattr(item, 'parent')
-                parents_mapping[parent].append(item)
-            parents = self.cache_parents[tree_alias] = parents_mapping
-            
+                parents[parent].append(item)
+            self.cache_parents[tree_alias] = parents
+
             for item in self.cache_sitetrees[tree_alias]:
                 if item in parents:
-                    item.has_children = True 
+                    item.has_children = True
+
         else:
             parents = self.cache_parents[tree_alias]
         
