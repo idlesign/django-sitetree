@@ -1,4 +1,9 @@
 include README
+include AUTHORS
+include LICENSE
+include docs/Makefile
+recursive-include docs .rst
+recursive-include docs .py
 recursive-include sitetree/locale *
 recursive-include sitetree/templates *
 recursive-include sitetree/templatetags *
