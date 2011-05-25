@@ -235,7 +235,7 @@ class SiteTree():
         sitetree_items = self.get_sitetree(tree_alias)
         # No items in tree, fail silently.
         if not sitetree_items:
-            return False
+            return False, False
         return tree_alias, sitetree_items
 
     def get_current_page_title(self, tree_alias, context):
