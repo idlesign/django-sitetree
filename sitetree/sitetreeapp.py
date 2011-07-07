@@ -69,8 +69,9 @@ class SiteTree():
             # Resolve item's URL.
             sitetree_item.url_resolved = self.url(sitetree_item)
             # Resolve item permissions.
-            sitetree_item.perms = set([u'%s.%s' % (perm.content_type.app_label, perm.codename) for perm in
-                                       sitetree_item.access_permissions.select_related()])
+            if sitetree_item.access_restricted:
+                sitetree_item.perms = set([u'%s.%s' % (perm.content_type.app_label, perm.codename) for perm in
+                                           sitetree_item.access_permissions.select_related()])
 
         # Generate parents mappings.
         self.get_parents(alias)
