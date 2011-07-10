@@ -1,15 +1,27 @@
 {% load sitetree %}
+{% if not 'this-root-submenu' in tree_branches %}
 <ul>
+{% endif %}
 	{% for item in sitetree_items %}
-	<li>
-		{% if item.is_current %}
-			{{ item.title_resolved }}
+		{% if not 'this-root-submenu' in tree_branches %}
+		<li>
+			{% if item.is_current %}
+				{% if item.is_current_branch %} + {% endif %}
+				{{ item.title_resolved }}
+			{% else %}
+				{% if item.is_current_branch %} + {% endif %}
+				<a href="{% sitetree_url for item %}" {% if item.hint %}title="{{ item.hint }}"{% endif %}>{{ item.title_resolved }}</a>
+			{% endif %}
+			{% if item.has_children %}
+				{% sitetree_children of item for menu template "sitetree/menu.html" %}
+			{% endif %}
+		</li>
 		{% else %}
-			<a href="{% sitetree_url for item %}" {% if item.hint %}title="{{ item.hint }}"{% endif %}>{{ item.title_resolved }}</a>
+			{% if item.has_children %}
+				{% sitetree_children of item for menu template "sitetree/menu.html" %}
+			{% endif %}
 		{% endif %}
-		{% if item.has_children %}
-			{% sitetree_children of item for menu template "sitetree/menu.html" %}
-		{% endif %}
-	</li>
 	{% endfor %}
+{% if not 'this-root-submenu' in tree_branches %}
 </ul>
+{% endif %}
