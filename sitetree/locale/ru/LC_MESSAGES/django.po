@@ -2,13 +2,13 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 #
-# Igor Starikov <idlesign@yandex.ru>, 2011
+# Igor Starikov <idlesign@yandex.ru>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: django-sitetree\n"
 "Report-Msgid-Bugs-To: https://github.com/idlesign/django-sitetree/issues\n"
-"POT-Creation-Date: 2011-05-25 22:58+0700\n"
-"PO-Revision-Date: 2011-05-25 23:28+0600\n"
+"POT-Creation-Date: 2011-07-11 22:04+0700\n"
+"PO-Revision-Date: 2011-07-11 22:15+0600\n"
 "Last-Translator: Igor 'idle sign' Starikov <idlesign@yandex.ru>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -17,23 +17,23 @@ msgstr ""
 "Language: ru\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
 
-#: admin.py:16
+#: admin.py:17
 msgid "Basic settings"
 msgstr "Основные настройки"
 
-#: admin.py:19
+#: admin.py:20
 msgid "Access settings"
 msgstr "Настройки доступа"
 
-#: admin.py:23
+#: admin.py:24
 msgid "Display settings"
 msgstr "Настройки отображения"
 
-#: admin.py:27
+#: admin.py:28
 msgid "Additional settings"
 msgstr "Дополнительные настройки"
 
-#: admin.py:147
+#: admin.py:148
 msgid "Item's parent left unchanged. Item couldn't be parent to itself."
 msgstr "Родитель элемента оставлен без изменений. Элемент не может являться родителем сам для себя."
 
@@ -64,7 +64,7 @@ msgid "All"
 msgstr "Все"
 
 #: models.py:45
-#: templates/admin/sitetree/tree/change_form.html:38
+#: templates/admin/sitetree/tree/change_form.html:40
 msgid "Title"
 msgstr "Заголовок"
 
@@ -81,7 +81,7 @@ msgid "Some additional information about this item that is used as a hint."
 msgstr "Дополнительная информация об элементе, которая будет использована в качестве подсказки."
 
 #: models.py:47
-#: templates/admin/sitetree/tree/change_form.html:39
+#: templates/admin/sitetree/tree/change_form.html:41
 msgid "URL"
 msgstr "URL"
 
@@ -147,43 +147,51 @@ msgid "Whether to show this item in a site tree."
 msgstr "Следует ли показывать данный элемент в древе сайта."
 
 #: models.py:56
-msgid "Restrict access"
-msgstr "Ограничить доступ"
+msgid "Logged in only"
+msgstr "Только для авторизовавшихся"
 
 #: models.py:56
+msgid "Check it to grant access to this item to authenticated users only."
+msgstr "Поставьте галочку, чтобы разрешить доступ к этому элементу дерева только авторизовавшимся пользователям."
+
+#: models.py:57
+msgid "Restrict access to permissions"
+msgstr "Ограничить доступ правами"
+
+#: models.py:57
 msgid "Check it to restrict user access to this item, using Django permissions system."
 msgstr "Поставьте галочку, чтобы включить ограничение доступа к этому элементу, используя систему прав Django."
 
-#: models.py:57
+#: models.py:58
 msgid "Permissions granting access"
 msgstr "Права, необходимые для доступа"
 
-#: models.py:58
+#: models.py:59
 msgid "Permissions interpretation"
 msgstr "Интерпретация прав"
 
-#: models.py:61
+#: models.py:62
 msgid "Parent"
 msgstr "Родитель"
 
-#: models.py:61
+#: models.py:62
 msgid "Parent site tree item."
 msgstr "Родительский элемент древа."
 
-#: models.py:62
-#: templates/admin/sitetree/tree/change_form.html:40
+#: models.py:63
+#: templates/admin/sitetree/tree/change_form.html:42
 msgid "Sort order"
 msgstr "Порядок сортировки"
 
-#: models.py:62
+#: models.py:63
 msgid "Item position among other site tree items under the same parent."
 msgstr "Позиция элемента среди других элементов того же родителя."
 
-#: models.py:75
+#: models.py:76
 msgid "Site Tree Item"
 msgstr "Элемент древа сайта"
 
-#: models.py:76
+#: models.py:77
 #: templates/admin/sitetree/tree/change_form.html:17
 msgid "Site Tree Items"
 msgstr "Элементы древа сайта"
@@ -204,11 +212,19 @@ msgstr "Цепочка"
 msgid "Tree"
 msgstr "Древо"
 
-#: templates/admin/sitetree/tree/tree.html:16
+#: templates/admin/sitetree/tree/change_form.html:38
+msgid "Rights Restriction"
+msgstr "Ограничение правами"
+
+#: templates/admin/sitetree/tree/change_form.html:39
+msgid "For logged in"
+msgstr "Для авторизовавшихся"
+
+#: templates/admin/sitetree/tree/tree.html:18
 msgid "Move up"
 msgstr "Передвинуть выше"
 
-#: templates/admin/sitetree/tree/tree.html:18
+#: templates/admin/sitetree/tree/tree.html:20
 msgid "Move down"
 msgstr "Передвинуть ниже"
 
