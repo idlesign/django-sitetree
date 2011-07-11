@@ -10,7 +10,7 @@ from django.template.defaulttags import url as url_tag
 from models import Tree, TreeItem
 
 
-class SiteTree():
+class SiteTree(object):
 
     def __init__(self):
         # This points to global sitetree context.
