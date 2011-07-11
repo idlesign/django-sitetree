@@ -297,6 +297,10 @@ class SiteTree(object):
 
     def check_access(self, item, context):
         """Checks whether user have access to certain item."""
+
+        if item.access_loggedin and not self.global_context['request'].user.is_authenticated():
+            return False
+
         if item.access_restricted:
             user_perms = set(context['user'].get_all_permissions())
             if item.access_perm_type == TreeItem.PERM_TYPE_ALL:
