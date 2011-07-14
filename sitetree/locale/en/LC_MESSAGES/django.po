@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-11 22:04+0700\n"
+"POT-Creation-Date: 2011-07-15 00:16+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -112,7 +112,8 @@ msgstr ""
 #: models.py:51
 msgid ""
 "Short name to address site tree item from a template.<br /><b>Reserved "
-"aliases:</b> \"trunk\", \"this-children\" and \"this-siblings\"."
+"aliases:</b> \"trunk\", \"this-children\", \"this-siblings\" and \"this-"
+"ancestor-children\"."
 msgstr ""
 
 #: models.py:52
