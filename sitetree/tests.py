@@ -7,12 +7,22 @@ from sitetreeapp import SiteTree, SiteTreeError
 
 class MockRequest(object):
 
-    def __init__(self, path):
+    def __init__(self, path, user_authorized):
         self.path = path
+        self.user = MockUser(user_authorized)
 
 
-def get_mock_context(app=None, path=None):
-    return template.Context({'request': MockRequest(path), 't2_root2_title': 'my_real_title', 'art_id': 10}, current_app=app)
+class MockUser(object):
+
+    def __init__(self, authorized):
+        self.authorized = authorized
+
+    def is_authenticated(self):
+        return self.authorized
+
+
+def get_mock_context(app=None, path=None, user_authorized=False):
+    return template.Context({'request': MockRequest(path, user_authorized), 't2_root2_title': 'my_real_title', 'art_id': 10}, current_app=app)
 
 
 class TreeModelTest(unittest.TestCase):
@@ -68,6 +78,9 @@ class TreeItemModelTest(unittest.TestCase):
         t2_root2 = TreeItem(title='put {{ t2_root2_title }} inside', tree=t2, url='/sub/')
         t2_root2.save(force_insert=True)
 
+        t2_root3 = TreeItem(title='for logged in only', tree=t2, url='/some/', access_loggedin=True)
+        t2_root3.save(force_insert=True)
+
         cls.t1 = t1
         cls.t1_root = t1_root
         cls.t1_root_child1 = t1_root_child1
@@ -78,6 +91,7 @@ class TreeItemModelTest(unittest.TestCase):
         cls.t2 = t2
         cls.t2_root1 = t2_root1
         cls.t2_root2 = t2_root2
+        cls.t2_root3 = t2_root3
 
     def test_no_tree(self):
         ti = TreeItem(title='notree_item')
@@ -148,9 +162,13 @@ class TreeItemModelTest(unittest.TestCase):
         self.assertEqual(st1[0].has_children, True)
 
         st2 = self.sitetree.tree('tree2', get_mock_context(path='/'))
-        self.assertEqual(len(st2), 2)
+        self.assertEqual(len(st2), 3)
         self.assertEqual(st2[0].id, self.t2_root1.id)
         self.assertEqual(st2[1].id, self.t2_root2.id)
+
+        self.assertEqual(self.t2_root1.access_loggedin, False)
+        self.assertEqual(self.t2_root2.access_loggedin, False)
+        self.assertEqual(self.t2_root3.access_loggedin, True)
 
         self.assertEqual(st2[0].title, '{{ t2_root1_title }}')
         self.assertEqual(st2[1].title, 'put {{ t2_root2_title }} inside')

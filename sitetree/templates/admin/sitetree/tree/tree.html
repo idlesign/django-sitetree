@@ -5,6 +5,8 @@
 		<td class="align-center"><img src="{% admin_media_prefix %}img/admin/icon-{% if item.inmenu %}yes{% else %}no{% endif %}.gif" alt="{{ item.inmenu }}" /></td>
 		<td class="align-center"><img src="{% admin_media_prefix %}img/admin/icon-{% if item.inbreadcrumbs %}yes{% else %}no{% endif %}.gif" alt="{{ item.inbreadcrumbs }}" /></td>
 		<td class="align-center"><img src="{% admin_media_prefix %}img/admin/icon-{% if item.insitetree %}yes{% else %}no{% endif %}.gif" alt="{{ item.insitetree }}" /></td>
+		<td class="align-center"><img src="{% admin_media_prefix %}img/admin/icon-{% if item.access_restricted %}yes{% else %}no{% endif %}.gif" alt="{{ item.access_restricted }}" /></td>
+        <td class="align-center"><img src="{% admin_media_prefix %}img/admin/icon-{% if item.access_loggedin %}yes{% else %}no{% endif %}.gif" alt="{{ item.access_loggedin }}" /></td>
 		
 		<td>
 		{% for d in item.depth_range %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% endfor %}

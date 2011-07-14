@@ -10,6 +10,7 @@ from django.contrib import messages
 from models import Tree, TreeItem
 from templatetags.sitetree import sitetree_tree
 
+
 class TreeItemAdmin(admin.ModelAdmin):
     exclude = ('tree', 'sort_order')
     fieldsets = (
@@ -18,7 +19,7 @@ class TreeItemAdmin(admin.ModelAdmin):
         }),
         (_('Access settings'), {
             'classes': ('collapse',),
-            'fields': ('access_restricted', 'access_permissions', 'access_perm_type')
+            'fields': ('access_loggedin', 'access_restricted', 'access_permissions', 'access_perm_type')
         }),
         (_('Display settings'), {
             'classes': ('collapse',),
@@ -30,83 +31,83 @@ class TreeItemAdmin(admin.ModelAdmin):
         }),
     )
     filter_horizontal = ('access_permissions',)
-    
+
     def response_change(self, request, obj):
         """Redirects to the appropriate item's add page.
-        
+
         As we administer tree items within tree itself, we
         should make some changes to redirection process.
-        
+
         """
         response = super(TreeItemAdmin, self).response_change(request, obj)
-        if request.POST.has_key("_addanother"):
+        if '_addanother' in request.POST:
             return HttpResponseRedirect('../item_add/')
         return response
-    
+
     def get_form(self, request, obj=None, **kwargs):
         """Returns modified form for TreeItem model.
-        'Parent' field choices are built by sitetree itself. 
-        
+        'Parent' field choices are built by sitetree itself.
+
         """
 
         class TreeItemChoiceField(ChoiceField):
-            """We use custom ChoiceField as to have a chance to 
+            """We use custom ChoiceField as to have a chance to
             resolve TreeItem by ID from dropdown.
-            
+
             """
             def clean(self, value):
                 if value == '':
                     return None
-                
+
                 return TreeItem.objects.get(pk=value)
 
         # We build choices dropdown using 'sitetree_tree' tag
-        tree_token =  u'sitetree_tree from "%s" template "admin/sitetree/tree/tree_combo.html"' % self.tree.alias
-        my_context =  template.RequestContext(request, current_app='admin')
-        choices_str = sitetree_tree(template.Parser(None), 
+        tree_token = u'sitetree_tree from "%s" template "admin/sitetree/tree/tree_combo.html"' % self.tree.alias
+        my_context = template.RequestContext(request, current_app='admin')
+        choices_str = sitetree_tree(template.Parser(None),
                                     template.Token(token_type=template.TOKEN_BLOCK, contents=tree_token)).render(my_context)
-        
-        tree_choices = [ ( '', '---------' ) ]
+
+        tree_choices = [('', '---------')]
         for line in choices_str.splitlines():
             if line.strip() != '':
-                splitted = line.split( ':::' )
-                tree_choices.append( ( splitted[0], mark_safe(splitted[1]) ) ) 
-        
+                splitted = line.split(':::')
+                tree_choices.append((splitted[0], mark_safe(splitted[1])))
+
         if obj is not None and obj.parent is not None:
             self.previous_parent = obj.parent
             previous_parent_id = self.previous_parent.id
         else:
             previous_parent_id = None
-        
-        my_choice_field = TreeItemChoiceField(choices=tree_choices, initial = previous_parent_id) 
+
+        my_choice_field = TreeItemChoiceField(choices=tree_choices, initial=previous_parent_id)
         form = super(TreeItemAdmin, self).get_form(request, obj, **kwargs)
         my_choice_field.label = form.base_fields['parent'].label
         my_choice_field.help_text = form.base_fields['parent'].help_text
         # Replace 'parent' TreeItem field with new appropriate one
         form.base_fields['parent'] = my_choice_field
         return form
-    
+
     def get_tree(self, tree_id):
         """Fetches Tree for current TreeItem."""
         self.tree = Tree._default_manager.get(pk=tree_id)
-        return self.tree 
+        return self.tree
 
     def item_add(self, request, tree_id):
         tree = self.get_tree(tree_id)
         return self.add_view(request)
-    
+
     def item_edit(self, request, tree_id, item_id):
         tree = self.get_tree(tree_id)
-        return self.change_view(request, item_id, extra_context={ 'tree':tree })
-    
+        return self.change_view(request, item_id, extra_context={'tree': tree})
+
     def item_delete(self, request, tree_id, item_id):
         tree = self.get_tree(tree_id)
         return self.delete_view(request, item_id)
-    
+
     def item_history(self, request, tree_id, item_id):
         tree = self.get_tree(tree_id)
         return self.history_view(request, item_id)
-    
+
     def item_move(self, request, tree_id, item_id, direction):
         """Moves item up or down by swapping 'sort_order' field values of neighboring items."""
         current_item = TreeItem._default_manager.get(pk=item_id)
@@ -115,30 +116,30 @@ class TreeItemAdmin(admin.ModelAdmin):
         else:
             sort_order = '-sort_order'
         siblings = TreeItem._default_manager.filter(parent=current_item.parent).order_by(sort_order)
-        
+
         previous_item = None
         for item in siblings:
             if item != current_item:
                 previous_item = item
             else:
                 break
-        
+
         if previous_item is not None:
-            current_item_sort_order = current_item.sort_order    
+            current_item_sort_order = current_item.sort_order
             previous_item_sort_order = previous_item.sort_order
-            
+
             current_item.sort_order = previous_item_sort_order
             previous_item.sort_order = current_item_sort_order
 
             current_item.save()
             previous_item.save()
-        
+
         return HttpResponseRedirect('../../')
-    
+
     def save_model(self, request, obj, form, change):
         """Saves TreeItem model under certain Tree.
         Handles item's parent assignment exception.
-        
+
         """
         if change:
             # No, you're not allowed to make item parent of itself
@@ -154,9 +155,9 @@ class TreeAdmin(admin.ModelAdmin):
     search_fields = ['alias']
     ordering = ['alias']
     actions = None
-    
+
     tree_admin = TreeItemAdmin(TreeItem, admin.site)
-    
+
     def get_urls(self):
         """Manages not only TreeAdmin URLs but also TreeItemAdmin URLs."""
         urls = super(TreeAdmin, self).get_urls()

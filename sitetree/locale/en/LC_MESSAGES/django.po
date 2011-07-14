@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-25 22:58+0700\n"
+"POT-Creation-Date: 2011-07-11 22:04+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,23 +17,23 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: admin.py:16
+#: admin.py:17
 msgid "Basic settings"
 msgstr ""
 
-#: admin.py:19
+#: admin.py:20
 msgid "Access settings"
 msgstr ""
 
-#: admin.py:23
+#: admin.py:24
 msgid "Display settings"
 msgstr ""
 
-#: admin.py:27
+#: admin.py:28
 msgid "Additional settings"
 msgstr ""
 
-#: admin.py:147
+#: admin.py:148
 msgid "Item's parent left unchanged. Item couldn't be parent to itself."
 msgstr ""
 
@@ -61,7 +61,7 @@ msgstr ""
 msgid "All"
 msgstr ""
 
-#: models.py:45 templates/admin/sitetree/tree/change_form.html:38
+#: models.py:45 templates/admin/sitetree/tree/change_form.html:40
 msgid "Title"
 msgstr ""
 
@@ -78,7 +78,7 @@ msgstr ""
 msgid "Some additional information about this item that is used as a hint."
 msgstr ""
 
-#: models.py:47 templates/admin/sitetree/tree/change_form.html:39
+#: models.py:47 templates/admin/sitetree/tree/change_form.html:41
 msgid "URL"
 msgstr ""
 
@@ -148,44 +148,52 @@ msgid "Whether to show this item in a site tree."
 msgstr ""
 
 #: models.py:56
-msgid "Restrict access"
+msgid "Logged in only"
 msgstr ""
 
 #: models.py:56
+msgid "Check it to grant access to this item to authenticated users only."
+msgstr ""
+
+#: models.py:57
+msgid "Restrict access to permissions"
+msgstr ""
+
+#: models.py:57
 msgid ""
 "Check it to restrict user access to this item, using Django permissions "
 "system."
 msgstr ""
 
-#: models.py:57
+#: models.py:58
 msgid "Permissions granting access"
 msgstr ""
 
-#: models.py:58
+#: models.py:59
 msgid "Permissions interpretation"
 msgstr ""
 
-#: models.py:61
+#: models.py:62
 msgid "Parent"
 msgstr ""
 
-#: models.py:61
+#: models.py:62
 msgid "Parent site tree item."
 msgstr ""
 
-#: models.py:62 templates/admin/sitetree/tree/change_form.html:40
+#: models.py:63 templates/admin/sitetree/tree/change_form.html:42
 msgid "Sort order"
 msgstr ""
 
-#: models.py:62
+#: models.py:63
 msgid "Item position among other site tree items under the same parent."
 msgstr ""
 
-#: models.py:75
+#: models.py:76
 msgid "Site Tree Item"
 msgstr ""
 
-#: models.py:76 templates/admin/sitetree/tree/change_form.html:17
+#: models.py:77 templates/admin/sitetree/tree/change_form.html:17
 msgid "Site Tree Items"
 msgstr ""
 
@@ -205,10 +213,18 @@ msgstr ""
 msgid "Tree"
 msgstr ""
 
-#: templates/admin/sitetree/tree/tree.html:16
-msgid "Move up"
+#: templates/admin/sitetree/tree/change_form.html:38
+msgid "Rights Restriction"
+msgstr ""
+
+#: templates/admin/sitetree/tree/change_form.html:39
+msgid "For logged in"
 msgstr ""
 
 #: templates/admin/sitetree/tree/tree.html:18
+msgid "Move up"
+msgstr ""
+
+#: templates/admin/sitetree/tree/tree.html:20
 msgid "Move down"
 msgstr ""
