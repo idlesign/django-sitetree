@@ -52,8 +52,7 @@ def sitetree_children(parser, token):
     use_template = detect_clause('template', tokens)
     tokensNum = len(tokens)
 
-    if tokensNum == 5 and tokens[1] == 'of' and tokens[3] == 'for' and \
-       tokens[4] in ('menu', 'sitetree') and use_template is not None:
+    if tokensNum == 5 and tokens[1] == 'of' and tokens[3] == 'for' and tokens[4] in ('menu', 'sitetree') and use_template is not None:
         tree_item = tokens[2]
         navigation_type = tokens[4]
         return sitetree_childrenNode(tree_item, navigation_type, use_template)
@@ -100,8 +99,6 @@ def sitetree_menu(parser, token):
             * 'this-children' - items under item resolved as current for the current page
             * 'this-siblings' - items under parent of item resolved as current for
               the current page (current item included)
-            * 'this-root-submenu' - items under root item where one of its children or
-              root item is current
 
         {% sitetree_menu from "mytree" include "trunk,1,level3" template "sitetree/mymenu.html" %}
 
@@ -205,7 +202,7 @@ class sitetree_menuNode(template.Node):
 
     def render(self, context):
         tree_items = sitetree.menu(self.tree_alias, self.tree_branches, context)
-        my_context = template.Context({'sitetree_items': tree_items, 'user': context['user'], 'tree_branches': self.tree_branches})
+        my_context = template.Context({'sitetree_items': tree_items, 'user': context['user']})
         return self.template.render(my_context)
 
 

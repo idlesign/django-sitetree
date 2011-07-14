@@ -227,3 +227,4 @@ msgstr "Передвинуть выше"
 #: templates/admin/sitetree/tree/tree.html:20
 msgid "Move down"
 msgstr "Передвинуть ниже"
+

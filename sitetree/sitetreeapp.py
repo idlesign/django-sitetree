@@ -129,17 +129,6 @@ class SiteTree(object):
         request path against URL of given tree item.
 
         """
-
-        def mark_branch(self, parent, init=0):
-            for branch_item in self.cache_urls[tree_alias]:
-                if init == 1:
-                    self.cache_urls[tree_alias][branch_item][1].is_current_branch = False
-                if self.cache_urls[tree_alias][branch_item][1].id == parent:
-                    self.cache_urls[tree_alias][branch_item][1].is_current_branch = True
-                    if self.cache_urls[tree_alias][branch_item][1].parent_id is not None:
-                        mark_branch(self, self.cache_urls[tree_alias][branch_item][1].parent_id)
-                        break
-
         current_item = None
 
         if tree_alias in self.cache_current_item:
@@ -155,7 +144,6 @@ class SiteTree(object):
                         self.cache_urls[tree_alias][url_item][1].is_current = False
                         if self.cache_urls[tree_alias][url_item][0] == current_url:
                             current_item = self.cache_urls[tree_alias][url_item][1]
-                            mark_branch(self, current_item.parent_id, 1)
 
             self.cache_current_item[tree_alias] = current_item
 
@@ -272,7 +260,6 @@ class SiteTree(object):
 
         # Support item addressing both through identifiers and aliases.
         parent_isnull = False
-        is_current_branch = False
         parent_ids = []
         parent_aliases = []
 
@@ -285,12 +272,12 @@ class SiteTree(object):
             elif branch_id == 'this-children' and current_item is not None:
                 branch_id = current_item.id
                 parent_ids.append(branch_id)
+            elif branch_id == 'this-ancestor-children' and current_item is not None:
+                branch_id = self.get_ancestor_item(tree_alias, current_item).id
+                parent_ids.append(branch_id)
             elif branch_id == 'this-siblings' and current_item is not None:
-                if current_item.parent is not None:
-                    branch_id = current_item.parent.id
-                    parent_ids.append(branch_id)
-            elif branch_id == 'this-root-submenu' and current_item is not None:
-                is_current_branch = True
+                branch_id = current_item.parent.id
+                parent_ids.append(branch_id)
             elif branch_id.isdigit():
                 parent_ids.append(branch_id)
             elif branch_id.isalnum():
@@ -302,8 +289,6 @@ class SiteTree(object):
                 if self.check_access(item, context):
                     if item.parent is None:
                         if parent_isnull:
-                            menu_items.append(item)
-                        if is_current_branch and hasattr(item, 'is_current_branch') and (item.is_current_branch or item.is_current):
                             menu_items.append(item)
                     else:
                         if item.parent.id in parent_ids or item.parent.alias in parent_aliases:
@@ -392,19 +377,31 @@ class SiteTree(object):
         if self.cache_breadcrumbs[tree_alias]:
             breadcrumbs = self.cache_breadcrumbs[tree_alias]
         else:
-            self.tree_climber(tree_alias, start_item)
+            self.breadcrumbs_climber(tree_alias, start_item)
             self.cache_breadcrumbs[tree_alias].reverse()
             breadcrumbs = self.cache_breadcrumbs[tree_alias]
 
         return breadcrumbs
 
-    def tree_climber(self, tree_alias, start_from):
+    def get_ancestor_item(self, tree_alias, start_from):
+        """Climbs up the site tree to resolve root item for chosen one."""
+        parent = None
+
+        if hasattr(start_from, 'parent') and start_from.parent is not None:
+            parent = self.get_ancestor_item(tree_alias, self.get_item_by_id(tree_alias, start_from.parent.id))
+
+        if parent is None:
+            return start_from
+
+        return parent
+
+    def breadcrumbs_climber(self, tree_alias, start_from):
         """Climbs up the site tree to build breadcrumb path."""
         if start_from.inbreadcrumbs and start_from.hidden == False and self.check_access(start_from,
                                                                                          self.global_context):
             self.cache_breadcrumbs[tree_alias].append(start_from)
         if hasattr(start_from, 'parent') and start_from.parent is not None:
-            self.tree_climber(tree_alias, self.get_item_by_id(tree_alias, start_from.parent.id))
+            self.breadcrumbs_climber(tree_alias, self.get_item_by_id(tree_alias, start_from.parent.id))
 
     def resolve_var(self, varname, context=None):
         """Tries to resolve name as a variable in a given context.
