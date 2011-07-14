@@ -272,6 +272,9 @@ class SiteTree(object):
             elif branch_id == 'this-children' and current_item is not None:
                 branch_id = current_item.id
                 parent_ids.append(branch_id)
+            elif branch_id == 'this-ancestor-children' and current_item is not None:
+                branch_id = self.get_ancestor_item(tree_alias, current_item).id
+                parent_ids.append(branch_id)
             elif branch_id == 'this-siblings' and current_item is not None:
                 branch_id = current_item.parent.id
                 parent_ids.append(branch_id)
@@ -374,19 +377,31 @@ class SiteTree(object):
         if self.cache_breadcrumbs[tree_alias]:
             breadcrumbs = self.cache_breadcrumbs[tree_alias]
         else:
-            self.tree_climber(tree_alias, start_item)
+            self.breadcrumbs_climber(tree_alias, start_item)
             self.cache_breadcrumbs[tree_alias].reverse()
             breadcrumbs = self.cache_breadcrumbs[tree_alias]
 
         return breadcrumbs
 
-    def tree_climber(self, tree_alias, start_from):
+    def get_ancestor_item(self, tree_alias, start_from):
+        """Climbs up the site tree to resolve root item for chosen one."""
+        parent = None
+
+        if hasattr(start_from, 'parent') and start_from.parent is not None:
+            parent = self.get_ancestor_item(tree_alias, self.get_item_by_id(tree_alias, start_from.parent.id))
+
+        if parent is None:
+            return start_from
+
+        return parent
+
+    def breadcrumbs_climber(self, tree_alias, start_from):
         """Climbs up the site tree to build breadcrumb path."""
         if start_from.inbreadcrumbs and start_from.hidden == False and self.check_access(start_from,
                                                                                          self.global_context):
             self.cache_breadcrumbs[tree_alias].append(start_from)
         if hasattr(start_from, 'parent') and start_from.parent is not None:
-            self.tree_climber(tree_alias, self.get_item_by_id(tree_alias, start_from.parent.id))
+            self.breadcrumbs_climber(tree_alias, self.get_item_by_id(tree_alias, start_from.parent.id))
 
     def resolve_var(self, varname, context=None):
         """Tries to resolve name as a variable in a given context.
