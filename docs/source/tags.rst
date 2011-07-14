@@ -35,7 +35,8 @@ This command renders as a menu sitetree items from tree named 'mytree', includin
 
   + **trunk** - get items without parents (root items);
   + **this-children** - get items under item resolved as current for the current page;
-  + **this-siblings** - get items under parent of item resolved as current for the current page (current item included).
+  + **this-siblings** - get items under parent of item resolved as current for the current page (current item included);
+  + **this-ancestor-children** - items under grandparent item (closest to root) for the item resolved as current for the current page.
 
   Thus in the example above 'trunk' is reserved alias, and 'topmenu' alias is given to an item through admin site.
 

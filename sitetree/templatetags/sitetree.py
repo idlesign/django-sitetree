@@ -99,6 +99,8 @@ def sitetree_menu(parser, token):
             * 'this-children' - items under item resolved as current for the current page
             * 'this-siblings' - items under parent of item resolved as current for
               the current page (current item included)
+            * 'this-ancestor-children' - items under grandparent item (closest to root)
+              for the item resolved as current for the current page
 
         {% sitetree_menu from "mytree" include "trunk,1,level3" template "sitetree/mymenu.html" %}
 
