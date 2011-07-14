@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-sitetree\n"
 "Report-Msgid-Bugs-To: https://github.com/idlesign/django-sitetree/issues\n"
-"POT-Creation-Date: 2011-07-11 22:04+0700\n"
-"PO-Revision-Date: 2011-07-11 22:15+0600\n"
+"POT-Creation-Date: 2011-07-15 00:16+0700\n"
+"PO-Revision-Date: 2011-07-15 00:20+0600\n"
 "Last-Translator: Igor 'idle sign' Starikov <idlesign@yandex.ru>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -111,8 +111,8 @@ msgid "Whether to show this item in navigation."
 msgstr "Следует ли скрыть данный элемент для всех типов навигации."
 
 #: models.py:51
-msgid "Short name to address site tree item from a template.<br /><b>Reserved aliases:</b> \"trunk\", \"this-children\" and \"this-siblings\"."
-msgstr "Короткое имя для обращения к элементу из шаблона.<br /><b>Зарезервированные псевдонимы:</b> «trunk», «this-children» и «this-siblings»."
+msgid "Short name to address site tree item from a template.<br /><b>Reserved aliases:</b> \"trunk\", \"this-children\", \"this-siblings\" and \"this-ancestor-children\"."
+msgstr "Короткое имя для обращения к элементу из шаблона.<br /><b>Зарезервированные псевдонимы:</b> «trunk», «this-children»,  «this-siblings» и «this-ancestor-children»."
 
 #: models.py:52
 msgid "Description"
