@@ -204,7 +204,7 @@ class sitetree_menuNode(template.Node):
 
     def render(self, context):
         tree_items = sitetree.menu(self.tree_alias, self.tree_branches, context)
-        my_context = template.Context({'sitetree_items': tree_items, 'user': context['user']})
+        my_context = template.Context({'sitetree_items': tree_items, 'user': context['user'], 'request': context['request']})
         return self.template.render(my_context)
 
 
