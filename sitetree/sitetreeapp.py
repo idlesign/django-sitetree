@@ -3,11 +3,14 @@ from copy import copy
 
 from django.conf import settings
 from django import template
+from django.core.cache import cache
 from django.db.models import signals
 from django.utils.http import urlquote
 from django.template.defaulttags import url as url_tag
 
 from models import Tree, TreeItem
+
+CACHE_TIMEOUT = 3600 * 24 * 365 * 10
 
 
 class SiteTree(object):
@@ -15,22 +18,6 @@ class SiteTree(object):
     def __init__(self):
         # This points to global sitetree context.
         self.global_context = None
-        # Cache. This stores all requested sitetrees with items.
-        self.cache_sitetrees = {}
-        # Cache. Current tree item - tree item resolved for current page.
-        self.cache_current_item = {}
-        # Cache. Relations between item title and its rendered name.
-        self.cache_titles = {}
-        # Cache. Relations between item url and its resolved form.
-        self.cache_urls = {}
-        # Cache. Breadcrumb path.
-        self.cache_breadcrumbs = {}
-        # Cache. Tree structures as lists.
-        self.cache_treestruct = {}
-        # Cache. Parents mappings.
-        self.cache_parents = {}
-        # Cache. Utility dictionary with site tree items indexed by IDs.
-        self.cache_items_by_ids = {}
         # Listen for signals from the models.
         signals.post_save.connect(self.cache_flush_tree, sender=Tree)
         signals.post_save.connect(self.cache_flush_tree, sender=TreeItem)
@@ -53,11 +40,13 @@ class SiteTree(object):
         Returns items.
 
         """
-        if alias in self.cache_sitetrees:
-            sitetree = self.cache_sitetrees[alias]
+        cache_sitetrees = cache.get('cache_sitetrees', {})
+        if alias in cache_sitetrees:
+            sitetree = cache_sitetrees[alias]
         else:
-            sitetree = self.cache_sitetrees[alias] = TreeItem.objects.select_related('parent', 'tree').filter(
+            sitetree = cache_sitetrees[alias] = TreeItem.objects.select_related('parent', 'tree').filter(
                 tree__alias__exact=alias).order_by('parent', 'sort_order')
+            cache.set('cache_sitetrees', cache_sitetrees, CACHE_TIMEOUT)
 
         # Create shortcuts dictionary.
         self.link_items_to_ids(alias)
@@ -94,33 +83,38 @@ class SiteTree(object):
 
     def link_items_to_ids(self, tree_alias):
         """Creates utility shortcuts dictionary where tree items indexed by IDs."""
-        if tree_alias not in self.cache_items_by_ids:
-            self.cache_items_by_ids[tree_alias] = {}
-            for item in self.cache_sitetrees[tree_alias]:
-                self.cache_items_by_ids[tree_alias][item.id] = item
+        cache_items_by_ids = cache.get('cache_items_by_ids', {})
+        if tree_alias not in cache_items_by_ids:
+            cache_items_by_ids[tree_alias] = {}
+            for item in cache.get('cache_sitetrees', {})[tree_alias]:
+                cache_items_by_ids[tree_alias][item.id] = item
+            cache.set('cache_items_by_ids', cache_items_by_ids, CACHE_TIMEOUT)
 
     def get_item_by_id(self, tree_alias, item_id):
         """Get the item from the tree by its ID."""
-        return self.cache_items_by_ids[tree_alias][item_id]
+        return cache.get('cache_items_by_ids', {})[tree_alias][item_id]
 
     def get_parents(self, tree_alias):
         """Creates parents mappings."""
-        if tree_alias not in self.cache_parents:
+        cache_parents = cache.get('cache_parents', {})
+        cache_sitetrees = cache.get('cache_sitetrees', {})
+        if tree_alias not in cache_parents:
             # Group items under parents
             parents = defaultdict(list)
 
-            for item in self.cache_sitetrees[tree_alias]:
+            for item in cache_sitetrees[tree_alias]:
                 item.has_children = False
                 parent = getattr(item, 'parent')
                 parents[parent].append(item)
-            self.cache_parents[tree_alias] = parents
+            cache_parents[tree_alias] = parents
 
-            for item in self.cache_sitetrees[tree_alias]:
+            for item in cache_sitetrees[tree_alias]:
                 if item in parents:
                     item.has_children = True
+            cache.set('cache_parents', cache_parents, CACHE_TIMEOUT)
 
         else:
-            parents = self.cache_parents[tree_alias]
+            parents = cache_parents[tree_alias]
 
         return parents
 
@@ -130,22 +124,26 @@ class SiteTree(object):
 
         """
         current_item = None
+        cache_current_item = cache.get('cache_current_item', {})
 
-        if tree_alias in self.cache_current_item:
-            current_item = self.cache_current_item[tree_alias]
+        if tree_alias in cache_current_item:
+            current_item = cache_current_item[tree_alias]
         else:
             if 'request' not in self.global_context and self.global_context.current_app != 'admin':
                 raise SiteTreeError('Sitetree needs "django.core.context_processors.request" template processor to be enabled. Please add it to TEMPLATE_CONTEXT_PROCESSORS in your settings file.')
             else:
                 # urlquote is a try to support non-ascii in url.
                 current_url = urlquote(self.global_context['request'].path)
-                if tree_alias in self.cache_urls:
-                    for url_item in self.cache_urls[tree_alias]:
-                        self.cache_urls[tree_alias][url_item][1].is_current = False
-                        if self.cache_urls[tree_alias][url_item][0] == current_url:
-                            current_item = self.cache_urls[tree_alias][url_item][1]
+                cache_urls = cache.get('cache_urls', {})
+                if tree_alias in cache_urls:
+                    for url_item in cache_urls[tree_alias]:
+                        cache_urls[tree_alias][url_item][1].is_current = False
+                        if cache_urls[tree_alias][url_item][0] == current_url:
+                            current_item = cache_urls[tree_alias][url_item][1]
+                    cache.set('cache_urls', cache_urls, CACHE_TIMEOUT)
 
-            self.cache_current_item[tree_alias] = current_item
+            cache_current_item[tree_alias] = current_item
+            cache.set('cache_current_item', cache_current_item, CACHE_TIMEOUT)
 
         if current_item is not None:
             current_item.is_current = True
@@ -199,11 +197,13 @@ class SiteTree(object):
 
         # Create 'cache_urls' for this tree.
         tree_alias = sitetree_item.tree.alias
-        if tree_alias not in self.cache_urls:
-            self.cache_urls[tree_alias] = {}
+        cache_urls = cache.get('cache_urls', {})
+        if tree_alias not in cache_urls:
+            cache_urls[tree_alias] = {}
+            cache.set('cache_urls', cache_urls, CACHE_TIMEOUT)
 
-        if url_pattern in self.cache_urls[tree_alias]:
-            resolved_url = self.cache_urls[tree_alias][url_pattern][0]
+        if url_pattern in cache_urls[tree_alias]:
+            resolved_url = cache_urls[tree_alias][url_pattern][0]
         else:
             if sitetree_item.urlaspattern:
                 # Form token to pass to Django 'url' tag.
@@ -219,7 +219,8 @@ class SiteTree(object):
             else:
                 resolved_url = url_pattern
 
-            self.cache_urls[tree_alias][url_pattern] = (resolved_url, sitetree_item)
+            cache_urls[tree_alias][url_pattern] = (resolved_url, sitetree_item)
+            cache.set('cache_urls', cache_urls, CACHE_TIMEOUT)
         return resolved_url
 
     def init_tree(self, tree_alias, context):
@@ -354,7 +355,7 @@ class SiteTree(object):
         return my_template.render(my_context)
 
     def get_children(self, tree_alias, item):
-        return self.cache_parents[tree_alias][item]
+        return cache.get('cache_parents', {})[tree_alias][item]
 
     def filter_items(self, items, navigation_type=None):
         """Filters site tree item's children if hidden and by navigation type.
@@ -371,15 +372,17 @@ class SiteTree(object):
 
     def get_breadcrumbs(self, tree_alias, start_item):
         """Returns breadcrumb path to the given 'start_item' site tree item."""
-        if tree_alias not in self.cache_breadcrumbs:
-            self.cache_breadcrumbs[tree_alias] = []
+        cache_breadcrumbs = cache.get('cache_breadcrumbs', {})
+        if tree_alias not in cache_breadcrumbs:
+            cache_breadcrumbs[tree_alias] = []
+            cache.set('cache_breadcrumbs', cache_breadcrumbs, CACHE_TIMEOUT)
 
-        if self.cache_breadcrumbs[tree_alias]:
-            breadcrumbs = self.cache_breadcrumbs[tree_alias]
+        if cache_breadcrumbs[tree_alias]:
+            breadcrumbs = cache_breadcrumbs[tree_alias]
         else:
             self.breadcrumbs_climber(tree_alias, start_item)
-            self.cache_breadcrumbs[tree_alias].reverse()
-            breadcrumbs = self.cache_breadcrumbs[tree_alias]
+            cache_breadcrumbs[tree_alias].reverse()
+            breadcrumbs = cache_breadcrumbs[tree_alias]
 
         return breadcrumbs
 
@@ -397,9 +400,11 @@ class SiteTree(object):
 
     def breadcrumbs_climber(self, tree_alias, start_from):
         """Climbs up the site tree to build breadcrumb path."""
+        cache_breadcrumbs = cache.get('cache_breadcrumbs', {})
         if start_from.inbreadcrumbs and start_from.hidden == False and self.check_access(start_from,
                                                                                          self.global_context):
-            self.cache_breadcrumbs[tree_alias].append(start_from)
+            cache_breadcrumbs[tree_alias].append(start_from)
+            cache.set('cache_breadcrumbs', cache_breadcrumbs, CACHE_TIMEOUT)
         if hasattr(start_from, 'parent') and start_from.parent is not None:
             self.breadcrumbs_climber(tree_alias, self.get_item_by_id(tree_alias, start_from.parent.id))
 
@@ -438,9 +443,9 @@ class SiteTree(object):
         for item in items:
             if not hasattr(item, 'title_resolved'):
                 item.title_resolved = item.title
-
-            if item.title in self.cache_titles:
-                item.title_resolved = self.cache_titles[item.title]
+            cache_titles = cache.get('cache_titles', {})
+            if item.title in cache_titles:
+                item.title_resolved = cache_titles[item.title]
             else:
                 if item.title.find(template.VARIABLE_TAG_START) != -1:
                     my_lexer = template.Lexer(item.title, template.UNKNOWN_SOURCE)
@@ -452,24 +457,25 @@ class SiteTree(object):
 
                     my_parser = template.Parser(my_tokens)
                     item.title_resolved = my_parser.parse().render(context)
-                self.cache_titles[item.title] = item.title_resolved
+                cache_titles[item.title] = item.title_resolved
+                cache.set('cache_titles', cache_titles, CACHE_TIMEOUT)
         return items
 
     def cache_flush_contextual_data(self, **kwargs):
         """Flushes cached site tree items titles data."""
-        self.cache_current_item = {}
-        self.cache_titles = {}
-        self.cache_breadcrumbs = {}
+        cache.delete('cache_current_item')
+        cache.delete('cache_titles')
+        cache.delete('cache_breadcrumbs')
 
     def cache_flush_tree(self, **kwargs):
         """Flushes cached site tree data."""
-        self.cache_sitetrees = {}
-        self.cache_current_item = {}
-        self.cache_titles = {}
-        self.cache_breadcrumbs = {}
-        self.cache_urls = {}
-        self.cache_parents = {}
-        self.cache_items_by_ids = {}
+        cache.delete('cache_sitetrees')
+        cache.delete('cache_current_item')
+        cache.delete('cache_titles')
+        cache.delete('cache_breadcrumbs')
+        cache.delete('cache_urls')
+        cache.delete('cache_parents')
+        cache.delete('cache_items_by_ids')
 
 
 class SiteTreeError(Exception):
