@@ -463,19 +463,12 @@ class SiteTree(object):
 
     def cache_flush_contextual_data(self, **kwargs):
         """Flushes cached site tree items titles data."""
-        cache.delete('cache_current_item')
-        cache.delete('cache_titles')
-        cache.delete('cache_breadcrumbs')
+        cache.delete_many(['cache_current_item', 'cache_titles', 'cache_breadcrumbs'])
 
     def cache_flush_tree(self, **kwargs):
         """Flushes cached site tree data."""
-        cache.delete('cache_sitetrees')
-        cache.delete('cache_current_item')
-        cache.delete('cache_titles')
-        cache.delete('cache_breadcrumbs')
-        cache.delete('cache_urls')
-        cache.delete('cache_parents')
-        cache.delete('cache_items_by_ids')
+        cache.delete_many(['cache_sitetrees', 'cache_current_item', 'cache_titles',
+                           'cache_breadcrumbs', 'cache_urls', 'cache_parents', 'cache_items_by_ids'])
 
 
 class SiteTreeError(Exception):
