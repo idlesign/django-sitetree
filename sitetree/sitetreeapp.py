@@ -19,6 +19,7 @@ class SiteTree(object):
         # This points to global sitetree context.
         self.global_context = None
 
+        # Cache dictionary with predefined enties.
         self.cache = {'sitetrees': {}, 'urls': {}, 'parents': {}, 'items_by_ids': {}}
 
         # Listen for signals from the models.
@@ -29,14 +30,17 @@ class SiteTree(object):
         signals.m2m_changed.connect(self.cache_flush_tree, sender=TreeItem.access_permissions)
 
     def get_cache_entry(self, entry_name, key):
+        """Returns cache entry parameter value by its name."""
         return self.cache[entry_name].get(key, False)
 
     def update_cache_entry_value(self, entry_name, key, value):
+        """Updates cache entry parameter with new data."""
         if key not in self.cache[entry_name]:
             self.cache[entry_name][key] = {}
         self.cache[entry_name][key].update(value)
 
     def set_cache_entry(self, entry_name, key, value):
+        """Replaces entire cache entry parameter data by its name with new data."""
         self.cache[entry_name][key] = value
 
     def set_global_context(self, context):
@@ -424,7 +428,6 @@ class SiteTree(object):
     def cache_flush_tree(self, **kwargs):
         """Flushes cached site tree data."""
         self.cache = {'sitetrees': {}, 'urls': {}, 'treestruct': {}, 'parents': {}, 'items_by_ids': {}}
-        self.cache_contextual = {'titles': {}, 'breadcrumbs': {}}
 
 
 class SiteTreeError(Exception):
