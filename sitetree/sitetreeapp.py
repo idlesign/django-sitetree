@@ -120,7 +120,7 @@ class SiteTree(object):
         current_item = None
 
         if 'request' not in self.global_context and self.global_context.current_app != 'admin':
-            raise SiteTreeError('Sitetree needs "django.core.context_processors.request" template processor to be enabled. Please add it to TEMPLATE_CONTEXT_PROCESSORS in your settings file.')
+            raise SiteTreeError('Sitetree needs "django.core.context_processors.request" to be in TEMPLATE_CONTEXT_PROCESSORS in your settings file. If it is, check that your view pushes request data into the template.')
         else:
             # urlquote is a try to support non-ascii in url.
             current_url = urlquote(self.global_context['request'].path)
