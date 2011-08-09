@@ -60,10 +60,10 @@ class TreeItemModelTest(unittest.TestCase):
         t1_root_child1 = TreeItem(title='child1', tree=t1, parent=t1_root, url='/about/')
         t1_root_child1.save(force_insert=True)
 
-        t1_root_child2 = TreeItem(title='child2', tree=t1, parent=t1_root, url='articles-list', urlaspattern=True)
+        t1_root_child2 = TreeItem(title='child2', tree=t1, parent=t1_root, url='articles_list', urlaspattern=True)
         t1_root_child2.save(force_insert=True)
 
-        t1_root_child2_sub1 = TreeItem(title='subchild1', tree=t1, parent=t1_root_child2, url='articles-detailed art_id', urlaspattern=True)
+        t1_root_child2_sub1 = TreeItem(title='subchild1', tree=t1, parent=t1_root_child2, url='articles_detailed art_id', urlaspattern=True)
         t1_root_child2_sub1.save(force_insert=True)
 
         t1_root_child2_sub2 = TreeItem(title='subchild2', tree=t1, parent=t1_root_child2, url='/not_articles/10/')
@@ -138,7 +138,7 @@ class TreeItemModelTest(unittest.TestCase):
 
         self.assertEqual(bc1[0].id, self.t1_root.id)
         self.assertEqual(bc1[1].id, self.t1_root_child2.id)
-        self.assertEqual(bc1[1].url_resolved, '#unresolved')
+        self.assertEqual(bc1[1].url_resolved, '/articles/')
         self.assertEqual(bc1[2].id, self.t1_root_child2_sub2.id)
 
         self.assertEqual(bc1[0].is_current, False)
@@ -152,6 +152,13 @@ class TreeItemModelTest(unittest.TestCase):
         self.assertEqual(bc1[0].depth, 0)
         self.assertEqual(bc1[1].depth, 1)
         self.assertEqual(bc1[2].depth, 2)
+
+    def test_page_title(self):
+        title = self.sitetree.get_current_page_title('tree1', get_mock_context(path='/articles/'))
+        self.assertEqual(title, self.t1_root_child2.title)
+
+        title = self.sitetree.get_current_page_title('tree1', get_mock_context(path='/not_articles/'))
+        self.assertEqual(title, '')
 
     def test_sitetree(self):
         st1 = self.sitetree.tree('tree1', get_mock_context(path='/articles/'))
