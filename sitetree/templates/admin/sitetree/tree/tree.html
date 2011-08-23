@@ -1,12 +1,13 @@
-{% load i18n sitetree adminmedia %}
+{% load i18n sitetree static %}
+
 {% for item in sitetree_items %}
 	<tr>
-		<td class="align-center"><img src="{% admin_media_prefix %}img/admin/icon-{% if item.hidden %}yes{% else %}no{% endif %}.gif" alt="{{ item.hidden }}" /></td>
-		<td class="align-center"><img src="{% admin_media_prefix %}img/admin/icon-{% if item.inmenu %}yes{% else %}no{% endif %}.gif" alt="{{ item.inmenu }}" /></td>
-		<td class="align-center"><img src="{% admin_media_prefix %}img/admin/icon-{% if item.inbreadcrumbs %}yes{% else %}no{% endif %}.gif" alt="{{ item.inbreadcrumbs }}" /></td>
-		<td class="align-center"><img src="{% admin_media_prefix %}img/admin/icon-{% if item.insitetree %}yes{% else %}no{% endif %}.gif" alt="{{ item.insitetree }}" /></td>
-		<td class="align-center"><img src="{% admin_media_prefix %}img/admin/icon-{% if item.access_restricted %}yes{% else %}no{% endif %}.gif" alt="{{ item.access_restricted }}" /></td>
-        <td class="align-center"><img src="{% admin_media_prefix %}img/admin/icon-{% if item.access_loggedin %}yes{% else %}no{% endif %}.gif" alt="{{ item.access_loggedin }}" /></td>
+		<td class="align-center"><img src="{% get_static_prefix %}sitetree/img/icon-{% if item.hidden %}yes{% else %}no{% endif %}.gif" alt="{{ item.hidden }}" /></td>
+		<td class="align-center"><img src="{% get_static_prefix %}sitetree/img/icon-{% if item.inmenu %}yes{% else %}no{% endif %}.gif" alt="{{ item.inmenu }}" /></td>
+		<td class="align-center"><img src="{% get_static_prefix %}sitetree/img/icon-{% if item.inbreadcrumbs %}yes{% else %}no{% endif %}.gif" alt="{{ item.inbreadcrumbs }}" /></td>
+		<td class="align-center"><img src="{% get_static_prefix %}sitetree/img/icon-{% if item.insitetree %}yes{% else %}no{% endif %}.gif" alt="{{ item.insitetree }}" /></td>
+		<td class="align-center"><img src="{% get_static_prefix %}sitetree/img/icon-{% if item.access_restricted %}yes{% else %}no{% endif %}.gif" alt="{{ item.access_restricted }}" /></td>
+        <td class="align-center"><img src="{% get_static_prefix %}sitetree/img/icon-{% if item.access_loggedin %}yes{% else %}no{% endif %}.gif" alt="{{ item.access_loggedin }}" /></td>
 		
 		<td>
 		{% for d in item.depth_range %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% endfor %}
@@ -15,9 +16,9 @@
 		<td>{{ item.url }}</td>
 		<td>
 			&nbsp;&nbsp;
-			<a href="item_{{ item.id }}/move_up/"><img src="{% admin_media_prefix %}img/admin/arrow-up.gif" border="0" alt="{% trans "Move up" %}"/></a>
+			<a href="item_{{ item.id }}/move_up/"><img src="{% get_static_prefix %}sitetree/img/arrow-up.gif" border="0" alt="{% trans "Move up" %}"/></a>
 			&nbsp;&nbsp;&nbsp;
-			<a href="item_{{ item.id }}/move_down/"><img src="{% admin_media_prefix %}img/admin/arrow-down.gif" border="0" alt="{% trans "Move down" %}"/></a>
+			<a href="item_{{ item.id }}/move_down/"><img src="{% get_static_prefix %}sitetree/img/arrow-down.gif" border="0" alt="{% trans "Move down" %}"/></a>
 		</td>
 	</tr>
 	{% if item.has_children %}
