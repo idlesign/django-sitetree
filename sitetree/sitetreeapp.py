@@ -90,6 +90,7 @@ class SiteTree(object):
             item.url_resolved = self.url(item)
             item.title_resolved = item.title
             item.is_current = False
+            item.in_current_branch = False
 
         # Get current item for the given sitetree.
         self.get_tree_current_item(alias)
@@ -253,6 +254,9 @@ class SiteTree(object):
 
         current_item = self.get_tree_current_item(tree_alias)
 
+        if current_item is not None:
+            self.tree_climber(tree_alias, current_item)
+
         for branch_id in tree_branches.split(','):
             branch_id = branch_id.strip()
             if branch_id == 'trunk':
@@ -370,6 +374,12 @@ class SiteTree(object):
             return start_from
 
         return parent
+
+    def tree_climber(self, tree_alias, start_from):
+        """Climbs up the site tree to mark items of current branch."""
+        start_from.in_current_branch = True
+        if hasattr(start_from, 'parent') and start_from.parent is not None:
+            self.tree_climber(tree_alias, self.get_item_by_id(tree_alias, start_from.parent.id))
 
     def breadcrumbs_climber(self, tree_alias, start_from):
         """Climbs up the site tree to build breadcrumb path."""
