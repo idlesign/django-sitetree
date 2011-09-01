@@ -90,6 +90,7 @@ class TreeItemModelTest(unittest.TestCase):
 
         cls.t2 = t2
         cls.t2_root1 = t2_root1
+        
         cls.t2_root2 = t2_root2
         cls.t2_root3 = t2_root3
 
@@ -113,19 +114,22 @@ class TreeItemModelTest(unittest.TestCase):
         self.assertRaises(SiteTreeError, self.sitetree.menu, 'tree1', 'trunk', context)
 
     def test_menu(self):
-        menu = self.sitetree.menu('tree1', 'trunk', get_mock_context(path='/'))
+        menu = self.sitetree.menu('tree1', 'trunk', get_mock_context(path='/about/'))
         self.assertEqual(len(menu), 1)
         self.assertEqual(menu[0].id, self.t1_root.id)
-        self.assertEqual(menu[0].is_current, True)
+        self.assertEqual(menu[0].is_current, False)
         self.assertEqual(menu[0].depth, 0)
         self.assertEqual(menu[0].has_children, True)
+        self.assertEqual(menu[0].in_current_branch, True)
 
         menu = self.sitetree.menu('tree2', 'trunk', get_mock_context(path='/sub/'))
         self.assertEqual(len(menu), 2)
         self.assertEqual(menu[0].id, self.t2_root1.id)
         self.assertEqual(menu[1].id, self.t2_root2.id)
         self.assertEqual(menu[0].is_current, False)
+        self.assertEqual(menu[0].in_current_branch, False)
         self.assertEqual(menu[1].is_current, True)
+        self.assertEqual(menu[1].in_current_branch, True)
         self.assertEqual(menu[0].depth, 0)
         self.assertEqual(menu[1].depth, 0)
         self.assertEqual(menu[0].has_children, False)
