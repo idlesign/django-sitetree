@@ -32,8 +32,17 @@ class TreeItemAdmin(admin.ModelAdmin):
     )
     filter_horizontal = ('access_permissions',)
 
+    def response_add(self, request, obj, post_url_continue='../item_%s/'):
+        """Redirects to the appropriate items' 'continue' page on item add.
+
+        As we administer tree items within tree itself, we
+        should make some changes to redirection process.
+
+        """
+        return super(TreeItemAdmin, self).response_add(request, obj, post_url_continue)
+
     def response_change(self, request, obj):
-        """Redirects to the appropriate item's add page.
+        """Redirects to the appropriate items' 'add' page on item change.
 
         As we administer tree items within tree itself, we
         should make some changes to redirection process.
