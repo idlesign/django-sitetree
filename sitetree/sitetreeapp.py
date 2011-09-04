@@ -10,24 +10,40 @@ from django.template.defaulttags import url as url_tag
 
 from models import Tree, TreeItem
 
-CACHE_TIMEOUT = 3600 * 24 * 365 * 10
+# Sitetree objects are stored in Django cache for a year (60 * 60 * 24 * 365 = 31536000 sec).
+# Cache is only invalidated on sitetree or sitetree item change.
+CACHE_TIMEOUT = 31536000
 
 
 class SiteTree(object):
 
     def __init__(self):
+        self.cache = None
         # This points to global sitetree context.
         self.global_context = None
-
-        # Cache dictionary with predefined enties.
-        self.cache = {'sitetrees': {}, 'urls': {}, 'parents': {}, 'items_by_ids': {}}
-
         # Listen for signals from the models.
-        signals.post_save.connect(self.cache_flush_tree, sender=Tree)
-        signals.post_save.connect(self.cache_flush_tree, sender=TreeItem)
-        signals.post_delete.connect(self.cache_flush_tree, sender=TreeItem)
+        signals.post_save.connect(self.cache_empty, sender=Tree)
+        signals.post_save.connect(self.cache_empty, sender=TreeItem)
+        signals.post_delete.connect(self.cache_empty, sender=TreeItem)
         # Listen to the changes in item permissions table.
-        signals.m2m_changed.connect(self.cache_flush_tree, sender=TreeItem.access_permissions)
+        signals.m2m_changed.connect(self.cache_empty, sender=TreeItem.access_permissions)
+
+    def cache_init(self):
+        """Initializes local cache from Django cache."""
+        cache_ = cache.get('sitetrees')
+        if cache_ is None:
+            # Init cache dictionary with predefined enties.
+            cache_ = {'sitetrees': {}, 'urls': {}, 'parents': {}, 'items_by_ids': {}}
+        self.cache = cache_
+
+    def cache_save(self):
+        """Saves sitetree data to Django cache."""
+        cache.set('sitetrees', self.cache, CACHE_TIMEOUT)
+
+    def cache_empty(self, **kwargs):
+        """Empties cached sitetree data."""
+        self.cache = False
+        cache.delete('sitetrees')
 
     def get_cache_entry(self, entry_name, key):
         """Returns cache entry parameter value by its name."""
@@ -57,9 +73,14 @@ class SiteTree(object):
         Returns items.
 
         """
-        sitetree = self.get_cache_entry('sitetrees', alias) or \
-                   TreeItem.objects.select_related('parent', 'tree').\
+        self.cache_init()
+        sitetree_needs_caching = False
+        sitetree = self.get_cache_entry('sitetrees', alias)
+        if not sitetree:
+            sitetree = TreeItem.objects.select_related('parent', 'tree').\
                    filter(tree__alias__exact=alias).order_by('parent', 'sort_order')
+            self.set_cache_entry('sitetrees', alias, sitetree)
+            sitetree_needs_caching = True
 
         parents = self.get_cache_entry('parents', alias)
         if not parents:
@@ -70,22 +91,24 @@ class SiteTree(object):
             self.set_cache_entry('parents', alias, parents)
 
         for item in sitetree:
-            # Prepare items by ids cache.
-            self.update_cache_entry_value('items_by_ids', alias, {item.id: item})
 
-            if item in parents:
-                item.has_children = True
-            else:
-                item.has_children = False
+            if sitetree_needs_caching:
+                # Prepare items by ids cache.
+                self.update_cache_entry_value('items_by_ids', alias, {item.id: item})
 
-            if not hasattr(item, 'depth'):
-                item.depth = self.calculate_item_depth(alias, item.id)
-            item.depth_range = range(item.depth)
+                if item in parents:
+                    item.has_children = True
+                else:
+                    item.has_children = False
 
-            # Resolve item permissions.
-            if item.access_restricted:
-                item.perms = set([u'%s.%s' % (perm.content_type.app_label, perm.codename) for perm in
-                                           item.access_permissions.select_related()])
+                if not hasattr(item, 'depth'):
+                    item.depth = self.calculate_item_depth(alias, item.id)
+                item.depth_range = range(item.depth)
+
+                # Resolve item permissions.
+                if item.access_restricted:
+                    item.perms = set([u'%s.%s' % (perm.content_type.app_label, perm.codename) for perm in
+                                               item.access_permissions.select_related()])
             # Contextual properties.
             item.url_resolved = self.url(item)
             item.title_resolved = item.title
@@ -96,6 +119,10 @@ class SiteTree(object):
         self.get_tree_current_item(alias)
         # Parse titles.
         self.parse_titles(sitetree)
+
+        # Save sitetree data into cache if needed.
+        if sitetree_needs_caching:
+            self.cache_save()
 
         return sitetree
 
@@ -434,10 +461,6 @@ class SiteTree(object):
                 item.title_resolved = my_parser.parse().render(context)
                 
         return items
-
-    def cache_flush_tree(self, **kwargs):
-        """Flushes cached site tree data."""
-        self.cache = {'sitetrees': {}, 'urls': {}, 'treestruct': {}, 'parents': {}, 'items_by_ids': {}}
 
 
 class SiteTreeError(Exception):
