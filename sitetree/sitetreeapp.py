@@ -459,7 +459,7 @@ class SiteTree(object):
 
                 my_parser = template.Parser(my_tokens)
                 item.title_resolved = my_parser.parse().render(context)
-                
+
         return items
 
 
