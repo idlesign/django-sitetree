@@ -368,6 +368,8 @@ class SiteTree(object):
         tree_alias = self.resolve_var(tree_alias)
         # Get tree.
         self.get_sitetree(tree_alias)
+        # Mark path to current item.
+        self.tree_climber(tree_alias, self.get_tree_current_item(tree_alias))
         tree_items = self.get_children(tree_alias, parent_item)
         tree_items = self.filter_items(tree_items, navigation_type)
         my_template = template.loader.get_template(use_template)
