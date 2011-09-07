@@ -6,5 +6,6 @@ recursive-include docs .rst
 recursive-include docs .py
 recursive-include sitetree/locale *
 recursive-include sitetree/migrations *
+recursive-include sitetree/static *
 recursive-include sitetree/templates *
 recursive-include sitetree/templatetags *
