@@ -1,4 +1,7 @@
+from django.conf import settings
 from django import template
+from django import VERSION
+from django.templatetags.static import PrefixNode
 
 from ..sitetreeapp import SiteTree
 
@@ -6,6 +9,8 @@ register = template.Library()
 
 # All utility methods are implemented in SiteTree class
 sitetree = SiteTree()
+
+DJANGO_VERSION_INT = int('%s%s%s' % VERSION[:3])
 
 
 @register.tag
@@ -148,6 +153,15 @@ def sitetree_page_title(parser, token):
         return sitetree_page_titleNode(tree_alias)
     else:
         raise template.TemplateSyntaxError, "%r tag requires two arguments. E.g. {%% sitetree_page_title from \"mytree\" %%}." % tokens[0]
+
+
+@register.simple_tag
+def sitetree_admin_img_url_prefix():
+    """Returns static admin images URL prefix. """
+    if DJANGO_VERSION_INT >= 140:
+        return '%sadmin/img' % PrefixNode.handle_simple('STATIC_URL')
+
+    return '%simg/admin' % PrefixNode.handle_simple('ADMIN_MEDIA_PREFIX')
 
 
 class sitetree_treeNode(template.Node):
