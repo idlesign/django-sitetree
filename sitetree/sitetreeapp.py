@@ -280,9 +280,7 @@ class SiteTree(object):
         parent_aliases = []
 
         current_item = self.get_tree_current_item(tree_alias)
-
-        if current_item is not None:
-            self.tree_climber(tree_alias, current_item)
+        self.tree_climber(tree_alias, current_item)
 
         for branch_id in tree_branches.split(','):
             branch_id = branch_id.strip()
@@ -388,7 +386,7 @@ class SiteTree(object):
         if self.global_context.current_app != 'admin':
             for item in items:
                 if item.hidden == True ^ (not self.check_access(item, self.global_context)) ^ (
-                navigation_type is not None and getattr(item, 'in' + navigation_type) != True):
+                navigation_type is not None and getattr(item, 'in' + navigation_type, False) != True):
                     items.remove(item)
         return items
 
@@ -406,9 +404,10 @@ class SiteTree(object):
 
     def tree_climber(self, tree_alias, start_from):
         """Climbs up the site tree to mark items of current branch."""
-        start_from.in_current_branch = True
-        if hasattr(start_from, 'parent') and start_from.parent is not None:
-            self.tree_climber(tree_alias, self.get_item_by_id(tree_alias, start_from.parent.id))
+        if start_from is not None:
+            start_from.in_current_branch = True
+            if hasattr(start_from, 'parent') and start_from.parent is not None:
+                self.tree_climber(tree_alias, self.get_item_by_id(tree_alias, start_from.parent.id))
 
     def breadcrumbs_climber(self, tree_alias, start_from):
         """Climbs up the site tree to build breadcrumb path."""
