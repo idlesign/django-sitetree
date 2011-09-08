@@ -1,13 +1,12 @@
 {% load i18n sitetree adminmedia %}
 {% for item in sitetree_items %}
 	<tr>
-		<td class="align-center"><img src="{% admin_media_prefix %}img/admin/icon-{% if item.hidden %}yes{% else %}no{% endif %}.gif" alt="{{ item.hidden }}" /></td>
-		<td class="align-center"><img src="{% admin_media_prefix %}img/admin/icon-{% if item.inmenu %}yes{% else %}no{% endif %}.gif" alt="{{ item.inmenu }}" /></td>
-		<td class="align-center"><img src="{% admin_media_prefix %}img/admin/icon-{% if item.inbreadcrumbs %}yes{% else %}no{% endif %}.gif" alt="{{ item.inbreadcrumbs }}" /></td>
-		<td class="align-center"><img src="{% admin_media_prefix %}img/admin/icon-{% if item.insitetree %}yes{% else %}no{% endif %}.gif" alt="{{ item.insitetree }}" /></td>
-		<td class="align-center"><img src="{% admin_media_prefix %}img/admin/icon-{% if item.access_restricted %}yes{% else %}no{% endif %}.gif" alt="{{ item.access_restricted }}" /></td>
-        <td class="align-center"><img src="{% admin_media_prefix %}img/admin/icon-{% if item.access_loggedin %}yes{% else %}no{% endif %}.gif" alt="{{ item.access_loggedin }}" /></td>
-		
+		<td class="align-center"><img src="{% admin_media_prefix %}img/admin/icon-{{ item.hidden|yesno }}.gif" alt="{{ item.hidden }}" /></td>
+		<td class="align-center"><img src="{% admin_media_prefix %}img/admin/icon-{{ item.inmenu|yesno }}.gif" alt="{{ item.inmenu }}" /></td>
+		<td class="align-center"><img src="{% admin_media_prefix %}img/admin/icon-{{ item.inbreadcrumbs|yesno }}.gif" alt="{{ item.inbreadcrumbs }}" /></td>
+		<td class="align-center"><img src="{% admin_media_prefix %}img/admin/icon-{{ item.insitetree|yesno }}.gif" alt="{{ item.insitetree }}" /></td>
+		<td class="align-center"><img src="{% admin_media_prefix %}img/admin/icon-{{ item.access_restricted|yesno }}.gif" alt="{{ item.access_restricted }}" /></td>
+        <td class="align-center"><img src="{% admin_media_prefix %}img/admin/icon-{{ item.access_loggedin|yesno }}.gif" alt="{{ item.access_loggedin }}" /></td>
 		<td>
 		{% for d in item.depth_range %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% endfor %}
 		{% if item.parent %}|&#8212;{% endif %}
