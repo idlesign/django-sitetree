@@ -170,7 +170,7 @@ class SiteTree(object):
         'sitetree_item' points to TreeItem object, 'url' property of which
             is processed as URL pattern or simple URL.
 
-        'tag_arguments' id a list of additional arguments passed to
+        'tag_arguments' is a list of additional arguments passed to
             'sitetree_url' in template.
 
         """
@@ -199,8 +199,17 @@ class SiteTree(object):
 
             # URL parameters from site tree item should be concatenated with
             # those from template.
-            view_arguments = tag_arguments + view_arguments
-            view_arguments = [str(view_argument) for view_argument in view_arguments]
+            arguments_couled = tag_arguments + view_arguments
+            view_arguments = []
+
+            for argument in arguments_couled:
+                argument = str(argument)
+                # To be able to process slug-like strings (strings with "-"'s and "_"'s)
+                # we enclose those in double quotes.
+                if '-' in argument or '_':
+                    argument = '"%s"' % argument
+                view_arguments.append(argument)
+            
             view_arguments = ' '.join(view_arguments).strip()
             view_path = view_path[0]
             url_pattern = u'%s %s' % (view_path, view_arguments)
