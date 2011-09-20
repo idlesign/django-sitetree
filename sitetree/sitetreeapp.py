@@ -1,6 +1,8 @@
 from collections import defaultdict
 from copy import copy
 
+import re
+
 from django.conf import settings
 from django import template
 from django.core.cache import cache
@@ -13,6 +15,18 @@ from models import Tree, TreeItem
 # Sitetree objects are stored in Django cache for a year (60 * 60 * 24 * 365 = 31536000 sec).
 # Cache is only invalidated on sitetree or sitetree item change.
 CACHE_TIMEOUT = 31536000
+
+SUPPORTED_LOCALES = dict(settings.LANGUAGES)
+LOCALES_RE = '|'.join(SUPPORTED_LOCALES)
+PATH_RE = re.compile(r'^/(?P<locale>%s)(?P<path>.*)$' % LOCALES_RE)
+
+def strip_path(path):
+    check = PATH_RE.match(path)
+    if check:
+        path_info = check.group('path') or '/'
+        if path_info.startswith('/'):
+            return path_info
+    return path
 
 
 class SiteTree(object):
@@ -151,7 +165,7 @@ class SiteTree(object):
             raise SiteTreeError('Sitetree needs "django.core.context_processors.request" to be in TEMPLATE_CONTEXT_PROCESSORS in your settings file. If it is, check that your view pushes request data into the template.')
         else:
             # urlquote is a try to support non-ascii in url.
-            current_url = urlquote(self.global_context['request'].path)
+            current_url = strip_path(urlquote(self.global_context['request'].path))
             urls_cache = self.get_cache_entry('urls', tree_alias)
             if urls_cache:
                 for url_item in urls_cache:
@@ -209,7 +223,7 @@ class SiteTree(object):
                 if '-' in argument or '_':
                     argument = '"%s"' % argument
                 view_arguments.append(argument)
-            
+
             view_arguments = ' '.join(view_arguments).strip()
             view_path = view_path[0]
             url_pattern = u'%s %s' % (view_path, view_arguments)
