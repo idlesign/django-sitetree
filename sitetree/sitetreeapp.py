@@ -130,7 +130,7 @@ class SiteTree(object):
             item.in_current_branch = False
 
         # Get current item for the given sitetree.
-        self.get_tree_current_item(alias)
+        self.get_tree_current_item(alias)[0]
         # Parse titles.
         self.parse_titles(sitetree)
 
@@ -160,6 +160,7 @@ class SiteTree(object):
 
         """
         current_item = None
+        parent_item = None
 
         if 'request' not in self.global_context and self.global_context.current_app != 'admin':
             raise SiteTreeError('Sitetree needs "django.core.context_processors.request" to be in TEMPLATE_CONTEXT_PROCESSORS in your settings file. If it is, check that your view pushes request data into the template.')
@@ -172,11 +173,15 @@ class SiteTree(object):
                     urls_cache[url_item][1].is_current = False
                     if urls_cache[url_item][0] == current_url:
                         current_item = urls_cache[url_item][1]
+                    elif current_url.startswith(urls_cache[url_item][0]):
+                        parent_item = urls_cache[url_item][1]
 
         if current_item is not None:
             current_item.is_current = True
+        if parent_item is not None:
+            parent_item.in_current_branch = True
 
-        return current_item
+        return current_item, parent_item
 
     def url(self, sitetree_item, tag_arguments=[], context=None):
         """Resolves item's URL.
@@ -281,7 +286,7 @@ class SiteTree(object):
     def get_current_page_title(self, tree_alias, context):
         """Returns resolved from sitetree title for current page."""
         tree_alias, sitetree_items = self.init_tree(tree_alias, context)
-        current_item = self.get_tree_current_item(tree_alias)
+        current_item = self.get_tree_current_item(tree_alias)[0]
         # Current item unresolved, fail silently.
         if current_item is None:
             if settings.DEBUG:
@@ -302,7 +307,7 @@ class SiteTree(object):
         parent_ids = []
         parent_aliases = []
 
-        current_item = self.get_tree_current_item(tree_alias)
+        current_item = self.get_tree_current_item(tree_alias)[0]
         self.tree_climber(tree_alias, current_item)
 
         for branch_id in tree_branches.split(','):
@@ -361,6 +366,7 @@ class SiteTree(object):
         if not sitetree_items:
             return ''
         current_item = self.get_tree_current_item(tree_alias)
+        current_item = current_item[0] if current_item[0] is not  None else current_item[1]
 
         self.cache_breadcrumbs = []
         if current_item is not None:
@@ -390,7 +396,7 @@ class SiteTree(object):
         # Get tree.
         self.get_sitetree(tree_alias)
         # Mark path to current item.
-        self.tree_climber(tree_alias, self.get_tree_current_item(tree_alias))
+        self.tree_climber(tree_alias, self.get_tree_current_item(tree_alias)[0])
         tree_items = self.get_children(tree_alias, parent_item)
         tree_items = self.filter_items(tree_items, navigation_type)
         my_template = template.loader.get_template(use_template)
