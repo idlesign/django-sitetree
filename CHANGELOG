@@ -1,0 +1,84 @@
+v0.5.1
+------
++ Added Django 1.4 static files compatibility for Admin contrib.
++ Added support for slug-like IDs as item lookup params (see #24).
+* Added None check in "tree_climber" method (fixes #22).
+* Minor optimizations in tree.html template.
+
+
+v0.5
+----
++ Now sitetree uses native Django cache framework (see #16).
++ Added "in_current_branch" item attribute (see #14, #18), and "current_branch" css class.
+* South migrations are now shipped within application package (see #19).
+* Current menu item now preserves "a" tag, and marked with "current_item" css class.
+* Request object passing forced to "menu" method (fixes #15 ).
+* Fixed "save & continue" wrong redirect on item's add page.
+* Minor fixes.
+
+
+v0.4
+----
++ Added permissions calculation optimization to "get_sitetree" method (see #9).
++ Added item access restriction for authenticated uses only.
++ Added "this-ancestor-children" alias support (see #14).
+* Minor fixes.
+
+
+v0.3.1
+------
+* Invalid return fix in "init_tree" method (fixes #6).
+* Added missing translation files.
+
+
+v0.3
+----
++ New template tag "sitetree_page_title".
++ Added ukranian translation.
++ Added human-friendly debug messages.
++ Added permissions support (see #3).
++ Added South migrations.
++ Added "url_resolved" attribute to items.
++ Added basic unit tests (see # 4).
++ Added .rst documentation (fixed #5).
+* Admin menu links normalized (fixes #2).
+* Fixed variable names clashes in template tags file.
+* Missing "has_children" attribute fix.
+
+
+v0.2.1
+-------
++ Added PyPi compatibility.
+* Modules import fixes.
+* README now in .rst.
+
+
+v0.2
+----
++ Added support for non-ascii in urls.
+
+
+v0.1.4
+-------
+* setup.py fix.
+* Django under 1.2 compatibility fix for #1.
+
+
+v0.1.3
+-------
+* "this-children" and "this-siblings" behavior fix.
+
+
+v0.1.2
+-------
+* Setting items order in admin fix.
+
+
+v0.1.1
+-------
+* Minor fixes.
+
+
+v0.1
+----
++ Basic sitetree functionality.
