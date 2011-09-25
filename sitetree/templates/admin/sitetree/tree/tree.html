@@ -1,12 +1,12 @@
 {% load i18n sitetree %}
 {% for item in sitetree_items %}
 	<tr>
-		<td class="align-center"><img src="{% sitetree_admin_img_url_prefix %}/icon-{{ item.hidden|yesno }}.gif" alt="{{ item.hidden }}" /></td>
-		<td class="align-center"><img src="{% sitetree_admin_img_url_prefix %}/icon-{{ item.inmenu|yesno }}.gif" alt="{{ item.inmenu }}" /></td>
-		<td class="align-center"><img src="{% sitetree_admin_img_url_prefix %}/icon-{{ item.inbreadcrumbs|yesno }}.gif" alt="{{ item.inbreadcrumbs }}" /></td>
-		<td class="align-center"><img src="{% sitetree_admin_img_url_prefix %}/icon-{{ item.insitetree|yesno }}.gif" alt="{{ item.insitetree }}" /></td>
-		<td class="align-center"><img src="{% sitetree_admin_img_url_prefix %}/icon-{{ item.access_restricted|yesno }}.gif" alt="{{ item.access_restricted }}" /></td>
-        <td class="align-center"><img src="{% sitetree_admin_img_url_prefix %}/icon-{{ item.access_loggedin|yesno }}.gif" alt="{{ item.access_loggedin }}" /></td>
+		<td class="align-center"><img src="{% sitetree_admin_img_url_prefix %}/icon-{{ item.hidden|yesno:"yes,no" }}.gif" alt="{{ item.hidden }}" /></td>
+		<td class="align-center"><img src="{% sitetree_admin_img_url_prefix %}/icon-{{ item.inmenu|yesno:"yes,no" }}.gif" alt="{{ item.inmenu }}" /></td>
+		<td class="align-center"><img src="{% sitetree_admin_img_url_prefix %}/icon-{{ item.inbreadcrumbs|yesno:"yes,no" }}.gif" alt="{{ item.inbreadcrumbs }}" /></td>
+		<td class="align-center"><img src="{% sitetree_admin_img_url_prefix %}/icon-{{ item.insitetree|yesno:"yes,no" }}.gif" alt="{{ item.insitetree }}" /></td>
+		<td class="align-center"><img src="{% sitetree_admin_img_url_prefix %}/icon-{{ item.access_restricted|yesno:"yes,no" }}.gif" alt="{{ item.access_restricted }}" /></td>
+        <td class="align-center"><img src="{% sitetree_admin_img_url_prefix %}/icon-{{ item.access_loggedin|yesno:"yes,no" }}.gif" alt="{{ item.access_loggedin }}" /></td>
 		<td>
 		{% for d in item.depth_range %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% endfor %}
 		{% if item.parent %}|&#8212;{% endif %}
