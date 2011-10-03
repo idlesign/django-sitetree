@@ -90,12 +90,14 @@ class SiteTree(object):
                 parents[parent].append(item)
             self.set_cache_entry('parents', alias, parents)
 
-        for item in sitetree:
-
-            if sitetree_needs_caching:
-                # Prepare items by ids cache.
+        # Prepare items by ids cache if needed.
+        if sitetree_needs_caching:
+            # We need this extra pass to avoid future problems on items depth calculation.
+            for item in sitetree:
                 self.update_cache_entry_value('items_by_ids', alias, {item.id: item})
 
+        for item in sitetree:
+            if sitetree_needs_caching:
                 if item in parents:
                     item.has_children = True
                 else:
