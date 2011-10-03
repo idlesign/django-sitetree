@@ -135,7 +135,7 @@ class SiteTree(object):
             if item.parent is not None:
                 depth = self.calculate_item_depth(tree_alias, item.parent.id, depth + 1)
         else:
-            depth = item.depth + 1
+            depth = item.depth + depth
         return depth
 
     def get_item_by_id(self, tree_alias, item_id):
