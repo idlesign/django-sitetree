@@ -1,6 +1,7 @@
 include README
 include AUTHORS
 include LICENSE
+include CHANGELOG
 include docs/Makefile
 recursive-include docs .rst
 recursive-include docs .py
