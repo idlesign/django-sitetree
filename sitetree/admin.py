@@ -1,6 +1,6 @@
 from django import template
 from django.forms import ChoiceField
-from django.conf.urls.defaults import patterns
+from django.conf.urls.defaults import patterns, url
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
 from django.http import HttpResponseRedirect
@@ -51,6 +51,8 @@ class TreeItemAdmin(admin.ModelAdmin):
         response = super(TreeItemAdmin, self).response_change(request, obj)
         if '_addanother' in request.POST:
             return HttpResponseRedirect('../item_add/')
+        elif '_save' in request.POST:
+            return HttpResponseRedirect('../')
         return response
 
     def get_form(self, request, obj=None, **kwargs):
@@ -159,6 +161,25 @@ class TreeItemAdmin(admin.ModelAdmin):
         obj.save()
 
 
+def redirects_handler(*args, **kwargs):
+    """Fixes Admin contrib redirects compatibility problems
+    introduced in Django 1.4 by url handling changes.
+
+    """
+    referer = args[0].META['HTTP_REFERER']
+    shift = '../'
+
+    if 'delete' in referer:
+        # Weird enough 'delete' is not handled by TreeItemAdmin::response_change().
+        shift += '../'
+    elif 'history' in referer:
+        if 'item_id' not in kwargs:
+            # Encountered request from history page to return to tree layout page.
+            shift += '../'
+
+    return HttpResponseRedirect(referer + shift)
+
+
 class TreeAdmin(admin.ModelAdmin):
     list_display = ('alias',)
     search_fields = ['alias']
@@ -170,7 +191,17 @@ class TreeAdmin(admin.ModelAdmin):
     def get_urls(self):
         """Manages not only TreeAdmin URLs but also TreeItemAdmin URLs."""
         urls = super(TreeAdmin, self).get_urls()
+
         sitetree_urls = patterns('',
+            # Django 1.4 Admin contrib new url handling workarounds below.
+            # Sitetree item redirect on 'save' and breadcrumbs fix.
+            url(r'^p_tree/$', redirects_handler, name='sitetree_treeitem_changelist'),
+            # Sitetree item history breadcrumbs fix.
+            url(r'^p_tree/(?P<item_id>\d+)', redirects_handler),
+            # Sitetree item redirect on 'save and add another' fix.
+            # Note that this is a stab, as actual redirect happens in TreeItemAdmin::response_change().
+            url(r'^dummy_another$', lambda x: x, name='sitetree_treeitem_add'),
+
             (r'^(?P<tree_id>\d+)/item_add/$', self.admin_site.admin_view(self.tree_admin.item_add)),
             (r'^(?P<tree_id>\d+)/item_(?P<item_id>\d+)/$', self.admin_site.admin_view(self.tree_admin.item_edit)),
             (r'^(?P<tree_id>\d+)/item_(?P<item_id>\d+)/history/$', self.admin_site.admin_view(self.tree_admin.item_history)),

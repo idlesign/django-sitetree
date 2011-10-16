@@ -1,4 +1,9 @@
 {% load i18n sitetree %}
+<style type="text/css">
+    .ctl { width: 14px; height: 12px; display: inline-block;}
+    .arr_up { background: url('{% sitetree_admin_img_url_prefix %}/sorting-icons.gif') -5px -50px no-repeat; }
+    .arr_dn { background: url('{% sitetree_admin_img_url_prefix %}/sorting-icons.gif') -5px -94px no-repeat; }
+</style>
 {% for item in sitetree_items %}
 	<tr>
 		<td class="align-center"><img src="{% sitetree_admin_img_url_prefix %}/icon-{{ item.hidden|yesno:"yes,no" }}.gif" alt="{{ item.hidden }}" /></td>
@@ -14,9 +19,9 @@
 		<td>{{ item.url }}</td>
 		<td>
 			&nbsp;&nbsp;
-			<a href="item_{{ item.id }}/move_up/"><img src="{% sitetree_admin_img_url_prefix %}/arrow-up.gif" border="0" alt="{% trans "Move up" %}"/></a>
+			<a href="item_{{ item.id }}/move_up/"><img src="{% sitetree_admin_img_url_prefix %}/arrow-up.gif" class="ctl arr_up" border="0" title="{% trans "Move up" %}"/></a>
 			&nbsp;&nbsp;&nbsp;
-			<a href="item_{{ item.id }}/move_down/"><img src="{% sitetree_admin_img_url_prefix %}/arrow-down.gif" border="0" alt="{% trans "Move down" %}"/></a>
+			<a href="item_{{ item.id }}/move_down/"><img src="{% sitetree_admin_img_url_prefix %}/arrow-down.gif" class="ctl arr_dn" border="0" title="{% trans "Move down" %}"/></a>
 		</td>
 	</tr>
 	{% if item.has_children %}
