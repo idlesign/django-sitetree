@@ -1,3 +1,11 @@
+v0.5.2
+------
+* Fix for yes/no icons not shown in tree admin when non-eng LANGUAGE_CODE is used (closes #31).
+* Fixed item's depth calculation (closes #29).
+* Fixed misleading tree rendering bug in admin interface.
+* Improved Django 1.4 compatibility (fixes #33).
+
+
 v0.5.1
 ------
 + Added Django 1.4 static files compatibility for Admin contrib.
