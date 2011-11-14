@@ -90,7 +90,7 @@ class TreeItemModelTest(unittest.TestCase):
 
         cls.t2 = t2
         cls.t2_root1 = t2_root1
-        
+
         cls.t2_root2 = t2_root2
         cls.t2_root3 = t2_root3
 
@@ -193,3 +193,46 @@ class TreeItemModelTest(unittest.TestCase):
         self.assertEqual(st2[1].depth, 0)
         self.assertEqual(st2[0].has_children, False)
         self.assertEqual(st2[1].has_children, False)
+
+
+class ItemChildrenTest(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.sitetree = SiteTree()
+
+        t1 = Tree(alias='tree3')
+        t1.save(force_insert=True)
+
+        t1_root = TreeItem(title='root', tree=t1, url='/')
+        t1_root.save(force_insert=True)
+
+        t1_root_child1 = TreeItem(title='child1', tree=t1, parent=t1_root, url='/0/', inmenu=True, hidden=True)
+        t1_root_child1.save(force_insert=True)
+
+        t1_root_child2 = TreeItem(title='child2', tree=t1, parent=t1_root, url='/1/', inmenu=True, hidden=True)
+        t1_root_child2.save(force_insert=True)
+
+        t1_root_child3 = TreeItem(title='child3', tree=t1, parent=t1_root, url='/2/', inmenu=True, hidden=True)
+        t1_root_child3.save(force_insert=True)
+
+        t1_root_child4 = TreeItem(title='child4', tree=t1, parent=t1_root, url='/3/', inmenu=True, hidden=True)
+        t1_root_child4.save(force_insert=True)
+
+        t1_root_child5 = TreeItem(title='child5', tree=t1, parent=t1_root, url='/4/', inmenu=True, hidden=True)
+        t1_root_child5.save(force_insert=True)
+
+        cls.t1 = t1
+        cls.t1_root = t1_root
+        cls.t1_root_child1 = t1_root_child1
+        cls.t1_root_child2 = t1_root_child2
+        cls.t1_root_child2 = t1_root_child3
+        cls.t1_root_child2 = t1_root_child4
+        cls.t1_root_child2 = t1_root_child5
+
+    def test_filtering(self):
+        self.sitetree.global_context = get_mock_context(path='/')
+        self.sitetree.get_sitetree('tree2')
+        children = self.sitetree.get_children('tree2', self.t1_root)
+        filtered = self.sitetree.filter_items(children, 'menu')
+        self.assertEqual(filtered, [])

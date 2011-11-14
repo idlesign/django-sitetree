@@ -211,7 +211,7 @@ class SiteTree(object):
                 if '-' in argument or '_':
                     argument = '"%s"' % argument
                 view_arguments.append(argument)
-            
+
             view_arguments = ' '.join(view_arguments).strip()
             view_path = view_path[0]
             url_pattern = u'%s %s' % (view_path, view_arguments)
@@ -393,13 +393,14 @@ class SiteTree(object):
         NB: We do not apply any filters to sitetree in admin app.
 
         """
-        items = copy(items)
+        items_out = copy(items)
         if self.global_context.current_app != 'admin':
             for item in items:
-                if item.hidden == True ^ (not self.check_access(item, self.global_context)) ^ (
-                navigation_type is not None and getattr(item, 'in' + navigation_type, False) != True):
-                    items.remove(item)
-        return items
+                if item.hidden == True ^ \
+                        (not self.check_access(item, self.global_context)) ^ \
+                        (navigation_type is not None and getattr(item, 'in' + navigation_type, False) != True):
+                    items_out.remove(item)
+        return items_out
 
     def get_ancestor_item(self, tree_alias, start_from):
         """Climbs up the site tree to resolve root item for chosen one."""
