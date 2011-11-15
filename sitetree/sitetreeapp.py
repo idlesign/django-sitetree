@@ -14,6 +14,47 @@ from models import Tree, TreeItem
 # Cache is only invalidated on sitetree or sitetree item change.
 CACHE_TIMEOUT = 31536000
 
+# Holds tree items processor callable or None.
+_ITEMS_PROCESSOR = None
+
+
+def register_items_hook(callable):
+    """Registers a hook callable to process tree items right before they are passed to templates.
+
+    Callable should be able to:
+
+        a) handle ``tree_items`` and ``tree_sender`` key params.
+            ``tree_items`` will contain a list of extended TreeItem objects ready to pass to template.
+            ``tree_sender`` will contain navigation type identifier
+                (e.g.: `menu`, `sitetree`, `breadcrumbs`, `menu.children`, `sitetree.children`)
+
+        b) return a list of extended TreeItems objects to pass to template.
+
+
+    Example::
+
+        # Put the following code somewhere where it'd be triggered as expected. E.g. in app view.py.
+
+        # First import the register function.
+        from sitetree.sitetreeapp import register_items_hook
+
+        # The following function will be used as items processor.
+        def my_items_processor(tree_items, tree_sender):
+            # Suppose we want to process only menu child items.
+            if tree_sender == 'menu.children':
+                # Lets add 'Hooked: ' to resolved titles of every item.
+                for item in tree_items:
+                    item.title_resolved = 'Hooked: %s' % item.title_resolved
+            # Return items list mutated or not.
+            return tree_items
+
+        # And we register items processor.
+        register_items_hook(my_items_processor)
+
+    """
+    global _ITEMS_PROCESSOR
+    _ITEMS_PROCESSOR = callable
+
 
 class SiteTree(object):
 
@@ -324,7 +365,17 @@ class SiteTree(object):
 
         # Parse titles for variables.
         menu_items = self.parse_titles(menu_items, context)
-        return menu_items
+        return self.apply_hook(menu_items, 'menu')
+
+    def apply_hook(self, items, sender):
+        """Applies item processing hook, registered with ``register_item_hook()``
+        to each item supplied, and returns processed list.
+        Returns initial items list if no hook is registered.
+
+        """
+        if _ITEMS_PROCESSOR is None:
+            return items
+        return _ITEMS_PROCESSOR(tree_items=items, tree_sender=sender)
 
     def check_access(self, item, context):
         """Checks whether user have access to certain item."""
@@ -354,7 +405,7 @@ class SiteTree(object):
         if current_item is not None:
             self.breadcrumbs_climber(tree_alias, current_item)
             self.cache_breadcrumbs.reverse()
-        return self.cache_breadcrumbs
+        return self.apply_hook(self.cache_breadcrumbs, 'breadcrumbs')
 
     def tree(self, tree_alias, context):
         """Builds and returns tree structure for 'sitetree_tree' tag."""
@@ -362,7 +413,8 @@ class SiteTree(object):
         # No items in tree, fail silently.
         if not sitetree_items:
             return ''
-        return self.filter_items(self.get_children(tree_alias, None), 'sitetree')
+        tree_items = self.filter_items(self.get_children(tree_alias, None), 'sitetree')
+        return self.apply_hook(tree_items, 'sitetree')
 
     def children(self, parent_item, navigation_type, use_template, context):
         """Builds and returns site tree item children structure
@@ -380,6 +432,7 @@ class SiteTree(object):
         self.tree_climber(tree_alias, self.get_tree_current_item(tree_alias))
         tree_items = self.get_children(tree_alias, parent_item)
         tree_items = self.filter_items(tree_items, navigation_type)
+        tree_items = self.apply_hook(tree_items, '%s.children' % navigation_type)
         my_template = template.loader.get_template(use_template)
         my_context = template.Context({'sitetree_items': tree_items, 'user': context['user']})
         return my_template.render(my_context)
