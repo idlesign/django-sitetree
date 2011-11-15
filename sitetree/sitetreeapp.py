@@ -362,8 +362,7 @@ class SiteTree(object):
         # No items in tree, fail silently.
         if not sitetree_items:
             return ''
-        tree_items = self.get_children(tree_alias, None)
-        return tree_items
+        return self.filter_items(self.get_children(tree_alias, None), 'sitetree')
 
     def children(self, parent_item, navigation_type, use_template, context):
         """Builds and returns site tree item children structure
@@ -396,9 +395,9 @@ class SiteTree(object):
         items_out = copy(items)
         if self.global_context.current_app != 'admin':
             for item in items:
-                if item.hidden == True ^ \
-                        (not self.check_access(item, self.global_context)) ^ \
-                        (navigation_type is not None and getattr(item, 'in' + navigation_type, False) != True):
+                no_access = not self.check_access(item, self.global_context)
+                hidden_for_nav_type = navigation_type is not None and getattr(item, 'in' + navigation_type, False) != True
+                if item.hidden == True or no_access or hidden_for_nav_type:
                     items_out.remove(item)
         return items_out
 

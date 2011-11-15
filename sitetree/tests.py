@@ -173,7 +173,7 @@ class TreeItemModelTest(unittest.TestCase):
         self.assertEqual(st1[0].has_children, True)
 
         st2 = self.sitetree.tree('tree2', get_mock_context(path='/'))
-        self.assertEqual(len(st2), 3)
+        self.assertEqual(len(st2), 2)  # Only two tree items are visible for non logged in.
         self.assertEqual(st2[0].id, self.t2_root1.id)
         self.assertEqual(st2[1].id, self.t2_root2.id)
 
@@ -195,7 +195,7 @@ class TreeItemModelTest(unittest.TestCase):
         self.assertEqual(st2[1].has_children, False)
 
 
-class ItemChildrenTest(unittest.TestCase):
+class TreeTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -204,19 +204,19 @@ class ItemChildrenTest(unittest.TestCase):
         t1 = Tree(alias='tree3')
         t1.save(force_insert=True)
 
-        t1_root = TreeItem(title='root', tree=t1, url='/')
+        t1_root = TreeItem(title='root', tree=t1, url='/', hidden=True)
         t1_root.save(force_insert=True)
 
-        t1_root_child1 = TreeItem(title='child1', tree=t1, parent=t1_root, url='/0/', inmenu=True, hidden=True)
+        t1_root_child1 = TreeItem(title='child1', tree=t1, parent=t1_root, url='/0/', access_loggedin=True)
         t1_root_child1.save(force_insert=True)
 
         t1_root_child2 = TreeItem(title='child2', tree=t1, parent=t1_root, url='/1/', inmenu=True, hidden=True)
         t1_root_child2.save(force_insert=True)
 
-        t1_root_child3 = TreeItem(title='child3', tree=t1, parent=t1_root, url='/2/', inmenu=True, hidden=True)
+        t1_root_child3 = TreeItem(title='child3', tree=t1, parent=t1_root, url='/2/', inmenu=False)
         t1_root_child3.save(force_insert=True)
 
-        t1_root_child4 = TreeItem(title='child4', tree=t1, parent=t1_root, url='/3/', inmenu=True, hidden=True)
+        t1_root_child4 = TreeItem(title='child4', tree=t1, parent=t1_root, url='/3/', hidden=True)
         t1_root_child4.save(force_insert=True)
 
         t1_root_child5 = TreeItem(title='child5', tree=t1, parent=t1_root, url='/4/', inmenu=True, hidden=True)
@@ -230,9 +230,13 @@ class ItemChildrenTest(unittest.TestCase):
         cls.t1_root_child2 = t1_root_child4
         cls.t1_root_child2 = t1_root_child5
 
-    def test_filtering(self):
+    def test_children_filtering(self):
         self.sitetree.global_context = get_mock_context(path='/')
-        self.sitetree.get_sitetree('tree2')
-        children = self.sitetree.get_children('tree2', self.t1_root)
+        self.sitetree.get_sitetree('tree3')
+        children = self.sitetree.get_children('tree3', self.t1_root)
         filtered = self.sitetree.filter_items(children, 'menu')
         self.assertEqual(filtered, [])
+
+    def test_tree_filtering(self):
+        tree = self.sitetree.tree('tree3', get_mock_context(path='/'))
+        self.assertEqual(len(tree), 0)
