@@ -6,6 +6,7 @@ from django import template
 from django.core.cache import cache
 from django.db.models import signals
 from django.utils.http import urlquote
+from django.utils.translation import get_language
 from django.template.defaulttags import url as url_tag
 
 from models import Tree, TreeItem
@@ -16,6 +17,8 @@ CACHE_TIMEOUT = 31536000
 
 # Holds tree items processor callable or None.
 _ITEMS_PROCESSOR = None
+# Holds aliases of trees that support internationalization.
+_I18N_TREES = []
 
 
 def register_items_hook(callable):
@@ -56,6 +59,34 @@ def register_items_hook(callable):
     _ITEMS_PROCESSOR = callable
 
 
+def register_i18n_trees(aliases):
+    """Registers aliases of internationalized sitetrees.
+    Internationalized sitetrees are those, which are dubbed by other trees having
+    locale identifying suffixes in their aliases.
+
+    Lets suppose ``my_tree`` is the alias of a generic tree. This tree is the one
+    that we call by its alias in templates, and it is the one which is used
+    if no i18n version of that tree is found.
+
+    Given that ``my_tree_en``, ``my_tree_ru`` and other ``my_tree_{locale-id}``-like
+    trees are considered internationalization sitetrees. These are used (if available)
+    in accordance with current locale used by project.
+
+    Example::
+
+        # Put the following code somewhere where it'd be triggered as expected. E.g. in main urls.py.
+
+        # First import the register function.
+        from sitetree.sitetreeapp import register_i18n_trees
+
+        # At last we register i18n trees.
+        register_i18n_trees(['my_tree', 'my_another_tree'])
+
+    """
+    global _I18N_TREES
+    _I18N_TREES = aliases
+
+
 class SiteTree(object):
 
     def __init__(self):
@@ -74,7 +105,7 @@ class SiteTree(object):
         cache_ = cache.get('sitetrees')
         if cache_ is None:
             # Init cache dictionary with predefined enties.
-            cache_ = {'sitetrees': {}, 'urls': {}, 'parents': {}, 'items_by_ids': {}}
+            cache_ = {'sitetrees': {}, 'urls': {}, 'parents': {}, 'items_by_ids': {}, 'tree_aliases': {}}
         self.cache = cache_
 
     def cache_save(self):
@@ -85,6 +116,7 @@ class SiteTree(object):
         """Empties cached sitetree data."""
         self.cache = False
         cache.delete('sitetrees')
+        cache.delete('tree_aliases')
 
     def get_cache_entry(self, entry_name, key):
         """Returns cache entry parameter value by its name."""
@@ -108,6 +140,22 @@ class SiteTree(object):
         if not self.global_context or hash(context) != hash(self.global_context):
             self.global_context = context
 
+    def resolve_tree_i18_alias(self, alias):
+        """Resolves internationalized tree alias.
+        Verifies whether a separate sitetree is available for currently active language.
+        If so, returns i18n alias. If not, returns the initial alias.
+        """
+        if alias in _I18N_TREES:
+            current_language_code = get_language().replace('_', '-').split('-')[0]
+            i18n_tree_alias = '%s_%s' % (alias, current_language_code)
+            trees_count = self.get_cache_entry('tree_aliases', i18n_tree_alias)
+            if trees_count is False:
+                trees_count = Tree.objects.filter(alias=i18n_tree_alias).count()
+                self.set_cache_entry('tree_aliases', i18n_tree_alias, trees_count)
+            if trees_count:
+                alias = i18n_tree_alias
+        return alias
+
     def get_sitetree(self, alias):
         """Gets site tree items from the given site tree.
         Caches result to dictionary.
@@ -116,6 +164,7 @@ class SiteTree(object):
         """
         self.cache_init()
         sitetree_needs_caching = False
+        alias = self.resolve_tree_i18_alias(alias)
         sitetree = self.get_cache_entry('sitetrees', alias)
         if not sitetree:
             sitetree = TreeItem.objects.select_related('parent', 'tree').\
@@ -438,6 +487,7 @@ class SiteTree(object):
         return my_template.render(my_context)
 
     def get_children(self, tree_alias, item):
+        tree_alias = self.resolve_tree_i18_alias(tree_alias)
         return self.get_cache_entry('parents', tree_alias)[item]
 
     def filter_items(self, items, navigation_type=None):
