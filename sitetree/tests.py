@@ -2,7 +2,7 @@ from django.utils import unittest
 from django import template
 
 from models import Tree, TreeItem
-from sitetreeapp import SiteTree, SiteTreeError
+from sitetreeapp import SiteTree, SiteTreeError, register_items_hook
 
 
 class MockRequest(object):
@@ -21,8 +21,8 @@ class MockUser(object):
         return self.authorized
 
 
-def get_mock_context(app=None, path=None, user_authorized=False):
-    return template.Context({'request': MockRequest(path, user_authorized), 't2_root2_title': 'my_real_title', 'art_id': 10}, current_app=app)
+def get_mock_context(app=None, path=None, user_authorized=False, tree_item=None):
+    return template.Context({'request': MockRequest(path, user_authorized), 't2_root2_title': 'my_real_title', 'art_id': 10, 'tree_item': tree_item}, current_app=app)
 
 
 class TreeModelTest(unittest.TestCase):
@@ -193,6 +193,45 @@ class TreeItemModelTest(unittest.TestCase):
         self.assertEqual(st2[1].depth, 0)
         self.assertEqual(st2[0].has_children, False)
         self.assertEqual(st2[1].has_children, False)
+
+    def test_items_hook_tree(self):
+
+        def my_processor(tree_items, tree_sender):
+            for item in tree_items:
+                item.title_resolved = 'FakedTreeItem'
+            return tree_items
+
+        register_items_hook(my_processor)
+        items = self.sitetree.tree('tree1', get_mock_context(path='/'))
+        register_items_hook(None)
+
+        self.assertEqual(items[0].title_resolved, 'FakedTreeItem')
+
+    def test_items_hook_menu(self):
+
+        def my_processor(tree_items, tree_sender):
+            for item in tree_items:
+                item.title_resolved = 'FakedMenuItem'
+            return tree_items
+
+        register_items_hook(my_processor)
+        items = self.sitetree.menu('tree1', 'trunk', get_mock_context(path='/'))
+        register_items_hook(None)
+
+        self.assertEqual(items[0].title_resolved, 'FakedMenuItem')
+
+    def test_items_hook_breadcrumbs(self):
+
+        def my_processor(tree_items, tree_sender):
+            for item in tree_items:
+                item.title_resolved = 'FakedBreadcrumbsItem'
+            return tree_items
+
+        register_items_hook(my_processor)
+        items = self.sitetree.breadcrumbs('tree1', get_mock_context(path='/not_articles/10/'))
+        register_items_hook(None)
+
+        self.assertEqual(items[0].title_resolved, 'FakedBreadcrumbsItem')
 
 
 class TreeTest(unittest.TestCase):
