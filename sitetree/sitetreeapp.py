@@ -369,7 +369,7 @@ class SiteTree(object):
 
     def apply_hook(self, items, sender):
         """Applies item processing hook, registered with ``register_item_hook()``
-        to each item supplied, and returns processed list.
+        to items supplied, and returns processed list.
         Returns initial items list if no hook is registered.
 
         """
