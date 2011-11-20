@@ -41,10 +41,12 @@ Table of Contents
 .. toctree::
     :maxdepth: 2
 
-    quickstart.rst
-    tags.rst
-    templatesmod.rst
-    tagsadv.rst
+    quickstart
+    tags
+    templatesmod
+    tagsadv
+    i18n
+    hooks
 
 
 Get involved into django-sitetree

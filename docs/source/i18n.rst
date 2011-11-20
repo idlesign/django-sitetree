@@ -1,0 +1,35 @@
+Internationalization
+====================
+
+With django-sitetree it is possible to render different trees for different active
+locales still addressing them by the same alias from a template.
+
+``register_i18n_trees(aliases)`` function registers aliases of internationalized sitetrees.
+Internationalized sitetrees are those, which are dubbed by other trees having
+locale identifying suffixes in their aliases.
+
+Lets suppose ``my_tree`` is the alias of a generic tree. This tree is the one
+that we call by its alias in templates, and it is the one which is used
+if no i18n version of that tree is found.
+
+Given that ``my_tree_en``, ``my_tree_ru`` and other ``my_tree_{locale-id}``-like
+trees are considered internationalization sitetrees. These are used (if available)
+in accordance with current locale used in project.
+
+Example::
+
+    # First import the register function.
+    from sitetree.sitetreeapp import register_i18n_trees
+
+    # Now register i18n trees.
+    register_i18n_trees(['my_tree', 'my_another_tree'])
+
+    # After that you need to create trees for languages supported
+    # in your project, e.g.: `my_tree_en`, `my_tree_ru`.
+
+    # Then when we address ``my_tree`` from a template django-sitetree will render
+    # an appropriate tree for locale currently active in your project.
+    # See ``activate`` function from ``django.utils.translation``
+    # and https://docs.djangoproject.com/en/dev/topics/i18n/internationalization
+    # for more information.
+
