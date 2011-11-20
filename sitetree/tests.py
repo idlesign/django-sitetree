@@ -1,8 +1,9 @@
 from django.utils import unittest
+from django.utils.translation import activate
 from django import template
 
 from models import Tree, TreeItem
-from sitetreeapp import SiteTree, SiteTreeError, register_items_hook
+from sitetreeapp import SiteTree, SiteTreeError, register_items_hook, register_i18n_trees
 
 
 class MockRequest(object):
@@ -261,6 +262,18 @@ class TreeTest(unittest.TestCase):
         t1_root_child5 = TreeItem(title='child5', tree=t1, parent=t1_root, url='/4/', inmenu=True, hidden=True)
         t1_root_child5.save(force_insert=True)
 
+        t2 = Tree(alias='tree3_en')
+        t2.save(force_insert=True)
+
+        t2_root = TreeItem(title='root_en', tree=t2, url='/')
+        t2_root.save(force_insert=True)
+
+        t2_root_child1 = TreeItem(title='child1_en', tree=t2, parent=t2_root, url='/0_en/')
+        t2_root_child1.save(force_insert=True)
+
+        t2_root_child2 = TreeItem(title='child2_en', tree=t2, parent=t2_root, url='/1_en/')
+        t2_root_child2.save(force_insert=True)
+
         cls.t1 = t1
         cls.t1_root = t1_root
         cls.t1_root_child1 = t1_root_child1
@@ -268,6 +281,8 @@ class TreeTest(unittest.TestCase):
         cls.t1_root_child2 = t1_root_child3
         cls.t1_root_child2 = t1_root_child4
         cls.t1_root_child2 = t1_root_child5
+
+        cls.t2_root = t2_root
 
     def test_children_filtering(self):
         self.sitetree.global_context = get_mock_context(path='/')
@@ -279,3 +294,18 @@ class TreeTest(unittest.TestCase):
     def test_tree_filtering(self):
         tree = self.sitetree.tree('tree3', get_mock_context(path='/'))
         self.assertEqual(len(tree), 0)
+
+    def test_register_i18n_trees(self):
+
+        register_i18n_trees(['tree3'])
+        self.sitetree.global_context = get_mock_context(path='/')
+
+        activate('en')
+        self.sitetree.get_sitetree('tree3')
+        children = self.sitetree.get_children('tree3', self.t2_root)
+        self.assertEqual(len(children), 2)
+
+        activate('ru')
+        self.sitetree.get_sitetree('tree3')
+        children = self.sitetree.get_children('tree3', self.t1_root)
+        self.assertEqual(len(children), 5)
