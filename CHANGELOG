@@ -1,3 +1,10 @@
+v0.6
+------
+* Added i18n trees support (see #27).
+* Added tree items processing hook support (see #26).
+* Fixed various tree items filtering issues (see #34, #35). 
+
+
 v0.5.2
 ------
 * Fix for yes/no icons not shown in tree admin when non-eng LANGUAGE_CODE is used (closes #31).
