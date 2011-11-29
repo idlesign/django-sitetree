@@ -398,12 +398,14 @@ class SiteTree(object):
                 parent_ids.append(branch_id)
             elif branch_id.isdigit():
                 parent_ids.append(branch_id)
-            elif branch_id.isalnum():
+            else:
                 parent_aliases.append(branch_id)
 
         menu_items = []
         for item in sitetree_items:
             if item.inmenu and item.hidden == False:
+                if item.autohide_branch and item.in_current_branch == False:
+                    continue
                 if self.check_access(item, context):
                     if item.parent is None:
                         if parent_isnull:
@@ -500,7 +502,7 @@ class SiteTree(object):
             for item in items:
                 no_access = not self.check_access(item, self.global_context)
                 hidden_for_nav_type = navigation_type is not None and getattr(item, 'in' + navigation_type, False) != True
-                if item.hidden == True or no_access or hidden_for_nav_type:
+                if item.hidden == True or no_access or hidden_for_nav_type or (item.autohide_branch and item.in_current_branch == False):
                     items_out.remove(item)
         return items_out
 
