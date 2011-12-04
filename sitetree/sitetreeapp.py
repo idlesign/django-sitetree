@@ -416,7 +416,7 @@ class SiteTree(object):
 
         # Parse titles for variables.
         menu_items = self.parse_titles(menu_items, context)
-        menu_items = self.mark_visible_childrens(tree_alias, menu_items, 'menu')
+        menu_items = self.mark_visible_children(tree_alias, menu_items, 'menu')
         return self.apply_hook(menu_items, 'menu')
 
     def apply_hook(self, items, sender):
@@ -484,7 +484,7 @@ class SiteTree(object):
         self.tree_climber(tree_alias, self.get_tree_current_item(tree_alias))
         tree_items = self.get_children(tree_alias, parent_item)
         tree_items = self.filter_items(tree_items, navigation_type)
-        tree_items = self.mark_visible_childrens(tree_alias, tree_items, navigation_type)
+        tree_items = self.mark_visible_children(tree_alias, tree_items, navigation_type)
         tree_items = self.apply_hook(tree_items, '%s.children' % navigation_type)
         my_template = template.loader.get_template(use_template)
         my_context = template.Context({'sitetree_items': tree_items, 'user': context['user']})
@@ -494,7 +494,8 @@ class SiteTree(object):
         tree_alias = self.resolve_tree_i18_alias(tree_alias)
         return self.get_cache_entry('parents', tree_alias)[item]
 
-    def mark_visible_childrens(self, tree_alias, parent_items, navigation_type):
+    def mark_visible_children(self, tree_alias, parent_items, navigation_type):
+        # TODO Needs polishing before next release.
         items = []
         for parent_item in parent_items:
             tree_items = self.get_children(tree_alias, parent_item)
