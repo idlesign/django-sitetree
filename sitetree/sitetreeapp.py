@@ -487,8 +487,8 @@ class SiteTree(object):
         tree_items = self.mark_visible_children(tree_alias, tree_items, navigation_type)
         tree_items = self.apply_hook(tree_items, '%s.children' % navigation_type)
         my_template = template.loader.get_template(use_template)
-        my_context = template.Context({'sitetree_items': tree_items, 'user': context['user']})
-        return my_template.render(my_context)
+        context.update({'sitetree_items': tree_items})
+        return my_template.render(context)
 
     def get_children(self, tree_alias, item):
         tree_alias = self.resolve_tree_i18_alias(tree_alias)

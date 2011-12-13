@@ -175,8 +175,8 @@ class sitetree_treeNode(template.Node):
 
     def render(self, context):
         tree_items = sitetree.tree(self.tree_alias, context)
-        my_context = template.Context({'sitetree_items': tree_items, 'user': context['user']})
-        return self.template.render(my_context)
+        context.update({'sitetree_items': tree_items})
+        return self.template.render(context)
 
 
 class sitetree_childrenNode(template.Node):
@@ -202,8 +202,8 @@ class sitetree_breadcrumbsNode(template.Node):
 
     def render(self, context):
         tree_items = sitetree.breadcrumbs(self.tree_alias, context)
-        my_context = template.Context({'sitetree_items': tree_items, 'user': context['user']})
-        return self.template.render(my_context)
+        context = template.Context({'sitetree_items': tree_items})
+        return self.template.render(context)
 
 
 class sitetree_menuNode(template.Node):
@@ -218,8 +218,8 @@ class sitetree_menuNode(template.Node):
 
     def render(self, context):
         tree_items = sitetree.menu(self.tree_alias, self.tree_branches, context)
-        my_context = template.Context({'sitetree_items': tree_items, 'user': context['user'], 'request': context['request']})
-        return self.template.render(my_context)
+        context.update({'sitetree_items': tree_items})
+        return self.template.render(context)
 
 
 class sitetree_urlNode(template.Node):
