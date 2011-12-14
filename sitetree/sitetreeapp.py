@@ -188,10 +188,7 @@ class SiteTree(object):
 
         for item in sitetree:
             if sitetree_needs_caching:
-                if item in parents:
-                    item.has_children = True
-                else:
-                    item.has_children = False
+                item.has_children = False
 
                 if not hasattr(item, 'depth'):
                     item.depth = self.calculate_item_depth(alias, item.id)
@@ -414,8 +411,9 @@ class SiteTree(object):
 
         # Parse titles for variables.
         menu_items = self.parse_titles(menu_items, context)
-        menu_items = self.mark_visible_children(tree_alias, menu_items, 'menu')
-        return self.apply_hook(menu_items, 'menu')
+        menu_items = self.apply_hook(menu_items, 'menu')
+        menu_items = self.update_has_children(tree_alias, menu_items, 'menu')
+        return menu_items
 
     def apply_hook(self, items, sender):
         """Applies item processing hook, registered with ``register_item_hook()``
@@ -455,7 +453,9 @@ class SiteTree(object):
         if current_item is not None:
             self.breadcrumbs_climber(tree_alias, current_item)
             self.cache_breadcrumbs.reverse()
-        return self.apply_hook(self.cache_breadcrumbs, 'breadcrumbs')
+        items = self.apply_hook(self.cache_breadcrumbs, 'breadcrumbs')
+        items = self.update_has_children(tree_alias, items, 'breadcrumbs')
+        return items
 
     def tree(self, tree_alias, context):
         """Builds and returns tree structure for 'sitetree_tree' tag."""
@@ -464,7 +464,9 @@ class SiteTree(object):
         if not sitetree_items:
             return ''
         tree_items = self.filter_items(self.get_children(tree_alias, None), 'sitetree')
-        return self.apply_hook(tree_items, 'sitetree')
+        tree_items = self.apply_hook(tree_items, 'sitetree')
+        tree_items = self.update_has_children(tree_alias, tree_items, 'sitetree')
+        return tree_items
 
     def children(self, parent_item, navigation_type, use_template, context):
         """Builds and returns site tree item children structure
@@ -480,10 +482,12 @@ class SiteTree(object):
         self.get_sitetree(tree_alias)
         # Mark path to current item.
         self.tree_climber(tree_alias, self.get_tree_current_item(tree_alias))
+
         tree_items = self.get_children(tree_alias, parent_item)
         tree_items = self.filter_items(tree_items, navigation_type)
-        tree_items = self.mark_visible_children(tree_alias, tree_items, navigation_type)
         tree_items = self.apply_hook(tree_items, '%s.children' % navigation_type)
+        tree_items = self.update_has_children(tree_alias, tree_items, navigation_type)
+
         my_template = template.loader.get_template(use_template)
         context.update({'sitetree_items': tree_items})
         return my_template.render(context)
@@ -492,15 +496,15 @@ class SiteTree(object):
         tree_alias = self.resolve_tree_i18_alias(tree_alias)
         return self.get_cache_entry('parents', tree_alias)[item]
 
-    def mark_visible_children(self, tree_alias, parent_items, navigation_type):
-        # TODO Needs polishing before next release.
+    def update_has_children(self, tree_alias, tree_items, navigation_type):
+        """Updates 'has_children' attribute for tree items."""
         items = []
-        for parent_item in parent_items:
-            tree_items = self.get_children(tree_alias, parent_item)
-            tree_items = self.filter_items(tree_items, navigation_type)
-            tree_items = self.apply_hook(tree_items, '%s.children' % navigation_type)
-            parent_item.has_visible_children = len(tree_items)>0
-            items.append(parent_item)
+        for tree_item in tree_items:
+            children = self.get_children(tree_alias, tree_item)
+            children = self.filter_items(children, navigation_type)
+            children = self.apply_hook(children, '%s.has_children' % navigation_type)
+            tree_item.has_children = len(children)>0
+            items.append(tree_item)
         return items
 
     def filter_items(self, items, navigation_type=None):
