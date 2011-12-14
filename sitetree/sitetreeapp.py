@@ -395,7 +395,7 @@ class SiteTree(object):
                 parent_ids.append(branch_id)
             elif branch_id.isdigit():
                 parent_ids.append(branch_id)
-            elif branch_id.isalnum():
+            else:
                 parent_aliases.append(branch_id)
 
         menu_items = []
