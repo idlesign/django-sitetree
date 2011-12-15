@@ -11,12 +11,12 @@
 			text-align: center;
 		}
 	</style>
-	
+
  <p>&nbsp;</p>
   <div class="module aligned">
   	<h2>{% trans "Site Tree Items" %} {{ original.alias }}</h2>
   </div>
-	<p>&nbsp;</p>	
+	<p>&nbsp;</p>
 	{% if has_add_permission %}
 	  <ul class="object-tools nofloat">
 	    <li>
@@ -26,7 +26,7 @@
 	    </li>
 	  </ul>
 	{% endif %}
-		
+
 	<div class="module">
 		<table cellspacing="0" id="result_list" width="100%">
 			<thead>
@@ -43,7 +43,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				{% sitetree_tree from "original.alias" template "admin/sitetree/tree/tree.html" %}
+				{% sitetree_tree from original.alias template "admin/sitetree/tree/tree.html" %}
 			</tbody>
 		</table>
 	</div>

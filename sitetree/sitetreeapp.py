@@ -558,13 +558,16 @@ class SiteTree(object):
         if context is None:
             context = self.global_context
 
-        # Variable names are not empty do not allow commas and spaces.
-        varname = varname.strip()
-        if varname != ''  and varname.find(' ') == -1 and ',' not in varname:
+        if isinstance(varname, template.FilterExpression):
+            varname = varname.resolve(context)
+        else:
+            varname = varname.strip()
+
             try:
                 varname = template.Variable(varname).resolve(context)
             except template.VariableDoesNotExist:
                 varname = varname
+
         return varname
 
     def parse_titles(self, items, context=None):
