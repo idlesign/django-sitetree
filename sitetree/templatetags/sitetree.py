@@ -172,14 +172,18 @@ class sitetree_treeNode(template.Node):
 
     def render(self, context):
         tree_items = sitetree.tree(self.tree_alias, context)
-        context.update({'sitetree_items': tree_items})
+
+        context.push()
+        context['sitetree_items'] = tree_items
 
         if self.template is None:
             template_name = 'sitetree/tree.html'
         else:
             template_name = self.template.resolve(context)
 
-        return template.loader.get_template(template_name).render(context)
+        content = template.loader.get_template(template_name).render(context)
+        context.pop()
+        return content
 
 
 class sitetree_childrenNode(template.Node):
@@ -209,14 +213,18 @@ class sitetree_breadcrumbsNode(template.Node):
 
     def render(self, context):
         tree_items = sitetree.breadcrumbs(self.tree_alias, context)
-        context = template.Context({'sitetree_items': tree_items})
+
+        context.push()
+        context['sitetree_items'] = tree_items
 
         if self.template is None:
             template_name = 'sitetree/breadcrumbs.html'
         else:
             template_name = self.template.resolve(context)
 
-        return template.loader.get_template(template_name).render(context)
+        content = template.loader.get_template(template_name).render(context)
+        context.pop()
+        return content
 
 
 class sitetree_menuNode(template.Node):
@@ -229,15 +237,18 @@ class sitetree_menuNode(template.Node):
 
     def render(self, context):
         tree_items = sitetree.menu(self.tree_alias, self.tree_branches, context)
-        context.update({'sitetree_items': tree_items})
+
+        context.push()
+        context['sitetree_items'] = tree_items
 
         if self.template is None:
             template_name = 'sitetree/menu.html'
         else:
             template_name = self.template.resolve(context)
 
-        return template.loader.get_template(template_name).render(context)
-
+        content = template.loader.get_template(template_name).render(context)
+        context.pop()
+        return content
 
 
 class sitetree_urlNode(template.Node):
