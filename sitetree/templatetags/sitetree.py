@@ -1,4 +1,3 @@
-from django.conf import settings
 from django import template
 from django import VERSION
 from django.templatetags.static import PrefixNode
@@ -29,11 +28,11 @@ def sitetree_tree(parser, token):
 
     """
     tokens = token.split_contents()
-    use_template = detect_clause('template', tokens)
+    use_template = detect_clause(parser, 'template', tokens)
     tokensNum = len(tokens)
 
     if tokensNum in (3, 5):
-        tree_alias = tokens[2][1:-1]
+        tree_alias = parser.compile_filter(tokens[2])
         return sitetree_treeNode(tree_alias, use_template)
     else:
         raise template.TemplateSyntaxError, "%r tag requires two arguments. E.g. {%% sitetree_tree from \"mytree\" %%}." % tokens[0]
@@ -54,7 +53,7 @@ def sitetree_children(parser, token):
 
     """
     tokens = token.split_contents()
-    use_template = detect_clause('template', tokens)
+    use_template = detect_clause(parser, 'template', tokens)
     tokensNum = len(tokens)
 
     if tokensNum == 5 and tokens[1] == 'of' and tokens[3] == 'for' and tokens[4] in ('menu', 'sitetree') and use_template is not None:
@@ -81,11 +80,11 @@ def sitetree_breadcrumbs(parser, token):
 
     """
     tokens = token.split_contents()
-    use_template = detect_clause('template', tokens)
+    use_template = detect_clause(parser, 'template', tokens)
     tokensNum = len(tokens)
 
     if tokensNum == 3:
-        tree_alias = tokens[2][1:-1]
+        tree_alias = parser.compile_filter(tokens[2])
         return sitetree_breadcrumbsNode(tree_alias, use_template)
     else:
         raise template.TemplateSyntaxError, "%r tag requires two arguments. E.g. {%% sitetree_breadcrumbs from \"mytree\" %%}." % tokens[0]
@@ -111,12 +110,12 @@ def sitetree_menu(parser, token):
 
     """
     tokens = token.split_contents()
-    use_template = detect_clause('template', tokens)
+    use_template = detect_clause(parser, 'template', tokens)
     tokensNum = len(tokens)
 
     if tokensNum == 5 and tokens[3] == 'include':
-        tree_alias = tokens[2][1:-1]
-        tree_branches = tokens[4][1:-1]
+        tree_alias = parser.compile_filter(tokens[2])
+        tree_branches = parser.compile_filter(tokens[4])
         return sitetree_menuNode(tree_alias, tree_branches, use_template)
     else:
         raise template.TemplateSyntaxError, "%r tag requires four arguments. E.g. {%% sitetree_menu from \"mytree\" include \"trunk,1,level3\" %%}." % tokens[0]
@@ -133,8 +132,8 @@ def sitetree_url(parser, token):
     tokensNum = len(tokens)
 
     if tokensNum >= 3 and tokens[1] == 'for':
-        sitetree_item = tokens[2]
-        tag_arguments = tokens[3:]
+        sitetree_item = parser.compile_filter(tokens[2])
+        tag_arguments = map(parser.compile_filter, tokens[3:])
         return sitetree_urlNode(sitetree_item, tag_arguments)
     else:
         raise template.TemplateSyntaxError, "%r tag should look like {%% sitetree_url for someitem params %%}." % tokens[0]
@@ -149,7 +148,7 @@ def sitetree_page_title(parser, token):
     tokens = token.split_contents()
 
     if len(tokens) == 3:
-        tree_alias = tokens[2][1:-1]
+        tree_alias = parser.compile_filter(tokens[2])
         return sitetree_page_titleNode(tree_alias)
     else:
         raise template.TemplateSyntaxError, "%r tag requires two arguments. E.g. {%% sitetree_page_title from \"mytree\" %%}." % tokens[0]
@@ -168,15 +167,23 @@ class sitetree_treeNode(template.Node):
     """Renders tree items from specified site tree."""
 
     def __init__(self, tree_alias, use_template):
-        if use_template is None:
-            use_template = 'sitetree/tree.html'
-        self.template = template.loader.get_template(use_template)
+        self.template = use_template
         self.tree_alias = tree_alias
 
     def render(self, context):
         tree_items = sitetree.tree(self.tree_alias, context)
-        context.update({'sitetree_items': tree_items})
-        return self.template.render(context)
+
+        context.push()
+        context['sitetree_items'] = tree_items
+
+        if self.template is None:
+            template_name = 'sitetree/tree.html'
+        else:
+            template_name = self.template.resolve(context)
+
+        content = template.loader.get_template(template_name).render(context)
+        context.pop()
+        return content
 
 
 class sitetree_childrenNode(template.Node):
@@ -188,38 +195,60 @@ class sitetree_childrenNode(template.Node):
         self.navigation_type = navigation_type
 
     def render(self, context):
-        return sitetree.children(self.tree_item, self.navigation_type, self.use_template, context)
+        if self.use_template is not None:
+            template_name = self.use_template.resolve(context)
+        else:
+            template_name = self.use_template
+
+        return sitetree.children(self.tree_item, self.navigation_type,
+                                 template_name, context)
 
 
 class sitetree_breadcrumbsNode(template.Node):
     """Renders breadcrumb trail items from specified site tree."""
 
     def __init__(self, tree_alias, use_template):
-        if use_template is None:
-            use_template = 'sitetree/breadcrumbs.html'
-        self.template = template.loader.get_template(use_template)
+        self.template = use_template
         self.tree_alias = tree_alias
 
     def render(self, context):
         tree_items = sitetree.breadcrumbs(self.tree_alias, context)
-        context = template.Context({'sitetree_items': tree_items})
-        return self.template.render(context)
+
+        context.push()
+        context['sitetree_items'] = tree_items
+
+        if self.template is None:
+            template_name = 'sitetree/breadcrumbs.html'
+        else:
+            template_name = self.template.resolve(context)
+
+        content = template.loader.get_template(template_name).render(context)
+        context.pop()
+        return content
 
 
 class sitetree_menuNode(template.Node):
     """Renders specified site tree menu items."""
 
     def __init__(self, tree_alias, tree_branches, use_template):
-        if use_template is None:
-            use_template = 'sitetree/menu.html'
-        self.template = template.loader.get_template(use_template)
+        self.template = use_template
         self.tree_alias = tree_alias
         self.tree_branches = tree_branches
 
     def render(self, context):
         tree_items = sitetree.menu(self.tree_alias, self.tree_branches, context)
-        context.update({'sitetree_items': tree_items})
-        return self.template.render(context)
+
+        context.push()
+        context['sitetree_items'] = tree_items
+
+        if self.template is None:
+            template_name = 'sitetree/menu.html'
+        else:
+            template_name = self.template.resolve(context)
+
+        content = template.loader.get_template(template_name).render(context)
+        context.pop()
+        return content
 
 
 class sitetree_urlNode(template.Node):
@@ -244,14 +273,14 @@ class sitetree_page_titleNode(template.Node):
         return sitetree.get_current_page_title(self.tree_alias, context)
 
 
-def detect_clause(clause_name, tokens):
+def detect_clause(parser, clause_name, tokens):
     """Helper function detects a certain clause in tag tokens list.
     Returns its value.
 
     """
     if clause_name in tokens:
         tindex = tokens.index(clause_name)
-        clause_value = tokens[tindex + 1][1:-1]
+        clause_value = parser.compile_filter(tokens[tindex + 1])
         del tokens[tindex:tindex + 2]
     else:
         clause_value = None
