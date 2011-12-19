@@ -7,8 +7,7 @@ Tree tag argument (part in double quotes, following '**from**' word) of SiteTree
 
 **Hints:**
 
-  + **NB:** Double quotes shown in tags examples below are nessesary.
-  + Tree tag argument could be a template variable.
+  + Tree tag argument could be a template variable (do not use quotes for those).
   + Optional **template** argument could be supplied to all SitetTree tags except *sitetree_page_title* to render using different templates.
     It should contain path to template file.
 
@@ -31,14 +30,65 @@ Usage example::
 
 This command renders as a menu sitetree items from tree named 'mytree', including items under 'trunk' and 'topmenu' aliased items.
 
-  Aliases are given to items through Django's admin site. Note that there are some reserved aliases.
+  Aliases are given to items through Django's admin site.
+
+  `Note that there are some reserved aliases`. To illustrate how do they work, take a look at the sample tree::
+
+    Users
+      |-- Moderators
+      |-- Ordinary
+
+    Articles
+      |-- About cats
+            |-- Good
+            |-- Bad
+            |-- Ugly
+      |-- About dogs
+      |-- About mice
+
+    Contacts
+      |-- Russia
+            |-- Web
+                  |-- Public
+                  |-- Private
+            |-- Postal
+      |-- Australia
+      |-- China
+
 
   + **trunk** - get items without parents (root items);
+
+    Renders::
+
+      Users
+      Articles
+      Contacts
+
   + **this-children** - get items under item resolved as current for the current page;
+
+    Considering that we are now at `Articles` renders::
+
+      About cats
+      About dogs
+      About mice
+
   + **this-siblings** - get items under parent of item resolved as current for the current page (current item included);
+
+    Considering that we are now at `Bad` renders::
+
+      Good
+      Bad
+      Ugly
+
   + **this-ancestor-children** - items under grandparent item (closest to root) for the item resolved as current for the current page.
 
-  Thus in the example above 'trunk' is reserved alias, and 'topmenu' alias is given to an item through admin site.
+    Considering that we are now at `Public` renders::
+
+      Web
+      Postal
+
+  Thus in the template tag example above 'trunk' is reserved alias, and 'topmenu' alias is given to an item through
+  admin site.
 
 Sitetree items could be addressed not only by aliases but also by IDs::
 
