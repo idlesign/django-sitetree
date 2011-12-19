@@ -1,33 +1,26 @@
 from django.utils import unittest
 from django.utils.translation import activate
 from django import template
-from django.conf.urls import patterns, url
+from django.conf.urls.defaults import patterns, url
 from django.core import urlresolvers
 
 from sitetree.models import Tree, TreeItem
-from sitetree.sitetreeapp import (SiteTree, SiteTreeError, register_items_hook,
-                                  register_i18n_trees)
-
-
-def dummy_view(request):
-    pass
+from sitetree.sitetreeapp import SiteTree, SiteTreeError, register_items_hook, register_i18n_trees
 
 
 urlpatterns = patterns('',
-    url(r'articles/',       dummy_view, name='articles_list'),
-    url(r'articles/(\d+)/', dummy_view, name='articles_detailed'),
+    url(r'articles/', lambda r: None, name='articles_list'),
+    url(r'articles/(\d+)/', lambda r: None, name='articles_detailed'),
 )
 
 
 class MockRequest(object):
-
     def __init__(self, path, user_authorized):
         self.path = path
         self.user = MockUser(user_authorized)
 
 
 class MockUser(object):
-
     def __init__(self, authorized):
         self.authorized = authorized
 
@@ -36,13 +29,11 @@ class MockUser(object):
 
 
 def get_mock_context(app=None, path=None, user_authorized=False, tree_item=None):
-    return template.Context({'request': MockRequest(path, user_authorized),
-                             't2_root2_title': 'my_real_title',
+    return template.Context({'request': MockRequest(path, user_authorized), 't2_root2_title': 'my_real_title',
                              'art_id': 10, 'tree_item': tree_item}, current_app=app)
 
 
 class TreeModelTest(unittest.TestCase):
-
     def test_create_rename_delete(self):
         tree = Tree(alias='mytree')
         tree.save(force_insert=True)
@@ -62,7 +53,6 @@ class TreeModelTest(unittest.TestCase):
 
 
 class TreeItemModelTest(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         cls.sitetree = SiteTree()
@@ -73,20 +63,17 @@ class TreeItemModelTest(unittest.TestCase):
         t1_root = TreeItem(title='root', tree=t1, url='/')
         t1_root.save(force_insert=True)
 
-        t1_root_child1 = TreeItem(title='child1', tree=t1, parent=t1_root,
-                                  url='/about/')
+        t1_root_child1 = TreeItem(title='child1', tree=t1, parent=t1_root, url='/about/')
         t1_root_child1.save(force_insert=True)
 
-        t1_root_child2 = TreeItem(title='child2', tree=t1, parent=t1_root,
-                                  url='articles_list', urlaspattern=True)
+        t1_root_child2 = TreeItem(title='child2', tree=t1, parent=t1_root, url='articles_list', urlaspattern=True)
         t1_root_child2.save(force_insert=True)
 
         t1_root_child2_sub1 = TreeItem(title='subchild1', tree=t1, parent=t1_root_child2,
-                                       url='articles_detailed art_id', urlaspattern=True)
+            url='articles_detailed art_id', urlaspattern=True)
         t1_root_child2_sub1.save(force_insert=True)
 
-        t1_root_child2_sub2 = TreeItem(title='subchild2', tree=t1, parent=t1_root_child2,
-                                       url='/not_articles/10/')
+        t1_root_child2_sub2 = TreeItem(title='subchild2', tree=t1, parent=t1_root_child2, url='/not_articles/10/')
         t1_root_child2_sub2.save(force_insert=True)
 
         t2 = Tree(alias='tree2')
@@ -95,12 +82,10 @@ class TreeItemModelTest(unittest.TestCase):
         t2_root1 = TreeItem(title='{{ t2_root1_title }}', tree=t2, url='/')
         t2_root1.save(force_insert=True)
 
-        t2_root2 = TreeItem(title='put {{ t2_root2_title }} inside', tree=t2,
-                            url='/sub/')
+        t2_root2 = TreeItem(title='put {{ t2_root2_title }} inside', tree=t2, url='/sub/')
         t2_root2.save(force_insert=True)
 
-        t2_root3 = TreeItem(title='for logged in only', tree=t2, url='/some/',
-                            access_loggedin=True)
+        t2_root3 = TreeItem(title='for logged in only', tree=t2, url='/some/', access_loggedin=True)
         t2_root3.save(force_insert=True)
 
         cls.t1 = t1
@@ -188,12 +173,10 @@ class TreeItemModelTest(unittest.TestCase):
         self.assertEqual(bc1[2].depth, 2)
 
     def test_page_title(self):
-        title = self.sitetree.get_current_page_title('tree1',
-                                                     get_mock_context(path='/articles/'))
+        title = self.sitetree.get_current_page_title('tree1', get_mock_context(path='/articles/'))
         self.assertEqual(title, self.t1_root_child2.title)
 
-        title = self.sitetree.get_current_page_title('tree1',
-                                                     get_mock_context(path='/not_articles/'))
+        title = self.sitetree.get_current_page_title('tree1', get_mock_context(path='/not_articles/'))
         self.assertEqual(title, '')
 
     def test_sitetree(self):
@@ -227,7 +210,6 @@ class TreeItemModelTest(unittest.TestCase):
         self.assertEqual(st2[1].has_children, False)
 
     def test_items_hook_tree(self):
-
         def my_processor(tree_items, tree_sender):
             for item in tree_items:
                 item.title_resolved = 'FakedTreeItem'
@@ -240,7 +222,6 @@ class TreeItemModelTest(unittest.TestCase):
         self.assertEqual(items[0].title_resolved, 'FakedTreeItem')
 
     def test_items_hook_menu(self):
-
         def my_processor(tree_items, tree_sender):
             for item in tree_items:
                 item.title_resolved = 'FakedMenuItem'
@@ -253,7 +234,6 @@ class TreeItemModelTest(unittest.TestCase):
         self.assertEqual(items[0].title_resolved, 'FakedMenuItem')
 
     def test_items_hook_breadcrumbs(self):
-
         def my_processor(tree_items, tree_sender):
             for item in tree_items:
                 item.title_resolved = 'FakedBreadcrumbsItem'
@@ -267,7 +247,6 @@ class TreeItemModelTest(unittest.TestCase):
 
 
 class TreeTest(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         cls.sitetree = SiteTree()
@@ -278,24 +257,19 @@ class TreeTest(unittest.TestCase):
         t1_root = TreeItem(title='root', tree=t1, url='/', hidden=True)
         t1_root.save(force_insert=True)
 
-        t1_root_child1 = TreeItem(title='child1', tree=t1, parent=t1_root,
-                                  url='/0/', access_loggedin=True)
+        t1_root_child1 = TreeItem(title='child1', tree=t1, parent=t1_root, url='/0/', access_loggedin=True)
         t1_root_child1.save(force_insert=True)
 
-        t1_root_child2 = TreeItem(title='child2', tree=t1, parent=t1_root,
-                                  url='/1/', inmenu=True, hidden=True)
+        t1_root_child2 = TreeItem(title='child2', tree=t1, parent=t1_root, url='/1/', inmenu=True, hidden=True)
         t1_root_child2.save(force_insert=True)
 
-        t1_root_child3 = TreeItem(title='child3', tree=t1, parent=t1_root,
-                                  url='/2/', inmenu=False)
+        t1_root_child3 = TreeItem(title='child3', tree=t1, parent=t1_root, url='/2/', inmenu=False)
         t1_root_child3.save(force_insert=True)
 
-        t1_root_child4 = TreeItem(title='child4', tree=t1, parent=t1_root,
-                                  url='/3/', hidden=True)
+        t1_root_child4 = TreeItem(title='child4', tree=t1, parent=t1_root, url='/3/', hidden=True)
         t1_root_child4.save(force_insert=True)
 
-        t1_root_child5 = TreeItem(title='child5', tree=t1, parent=t1_root,
-                                  url='/4/', inmenu=True, hidden=True)
+        t1_root_child5 = TreeItem(title='child5', tree=t1, parent=t1_root, url='/4/', inmenu=True, hidden=True)
         t1_root_child5.save(force_insert=True)
 
         t2 = Tree(alias='tree3_en')
@@ -304,12 +278,10 @@ class TreeTest(unittest.TestCase):
         t2_root = TreeItem(title='root_en', tree=t2, url='/')
         t2_root.save(force_insert=True)
 
-        t2_root_child1 = TreeItem(title='child1_en', tree=t2, parent=t2_root,
-                                  url='/0_en/')
+        t2_root_child1 = TreeItem(title='child1_en', tree=t2, parent=t2_root, url='/0_en/')
         t2_root_child1.save(force_insert=True)
 
-        t2_root_child2 = TreeItem(title='child2_en', tree=t2, parent=t2_root,
-                                  url='/1_en/')
+        t2_root_child2 = TreeItem(title='child2_en', tree=t2, parent=t2_root, url='/1_en/')
         t2_root_child2.save(force_insert=True)
 
         cls.t1 = t1
@@ -334,7 +306,6 @@ class TreeTest(unittest.TestCase):
         self.assertEqual(len(tree), 0)
 
     def test_register_i18n_trees(self):
-
         register_i18n_trees(['tree3'])
         self.sitetree.global_context = get_mock_context(path='/')
 
