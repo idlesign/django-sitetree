@@ -43,9 +43,10 @@ Table of Contents
 
     quickstart
     tags
+    i18n
+    management
     templatesmod
     tagsadv
-    i18n
     hooks
 
 
