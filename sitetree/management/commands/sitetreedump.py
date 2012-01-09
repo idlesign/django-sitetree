@@ -38,9 +38,9 @@ class Command(BaseCommand):
             objects.extend(trees)
 
         for tree in trees:
-            objects.extend(TreeItem._default_manager.using(using).filter(tree=tree))
+            objects.extend(TreeItem._default_manager.using(using).filter(tree=tree).order_by('parent'))
 
         try:
             return serializers.serialize('json', objects, indent=indent)
         except Exception, e:
-            raise CommandError("Unable to serialize sitetree(s): %s" % e)
+            raise CommandError('Unable to serialize sitetree(s): %s' % e)
