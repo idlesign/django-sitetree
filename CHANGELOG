@@ -1,7 +1,17 @@
+v0.7
+----
++ Added 'sitetreedump' and 'sitetreeload' management commands (fixes #36).
++ Added tests runner 'runtests.py'. Unit tests are now self-contained (see #42).
++ Now 'sitetree_menu' tag accepts any string as target branch alias. Related to dashed strings (see #38).
++ Now 'has_children' tree item attribute stands for visible children (see #38).
++ Now global template context is passed down all sitetree-related templates (see #39, see #40).
+* Fixed template tags params clashes with context variables (see #42).
+
+
 v0.6
-------
-* Added i18n trees support (see #27).
-* Added tree items processing hook support (see #26).
+----
++ Added i18n trees support (see #27).
++ Added tree items processing hook support (see #26).
 * Fixed various tree items filtering issues (see #34, #35). 
 
 
