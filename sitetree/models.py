@@ -32,6 +32,12 @@ class Tree(models.Model):
 
     def __unicode__(self):
         return u'%s' % self.alias
+    
+    def get_alias(self):
+        if self.title:
+            return u'%s' % self.title
+        else:
+            return u'%s' % self.alias
 
 
 class TreeItem(models.Model):
