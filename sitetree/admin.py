@@ -181,7 +181,7 @@ def redirects_handler(*args, **kwargs):
 
 
 class TreeAdmin(admin.ModelAdmin):
-    list_display = ('alias',)
+    list_display = ('get_alias',)
     search_fields = ['alias']
     ordering = ['alias']
     actions = None
