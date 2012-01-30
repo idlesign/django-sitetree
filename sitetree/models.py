@@ -24,6 +24,7 @@ class CharFieldNullable(models.CharField):
 
 class Tree(models.Model):
     alias = models.CharField(_('Alias'), max_length=80, help_text=_('Short name to address site tree from a template.'), unique=True, db_index=True)
+    title = models.CharField(_('Title'), max_length=80, help_text=_('Short title to alias site tree.'), blank=True)
 
     class Meta:
         verbose_name = _('Site Tree')
@@ -31,6 +32,12 @@ class Tree(models.Model):
 
     def __unicode__(self):
         return u'%s' % self.alias
+    
+    def get_alias(self):
+        if self.title:
+            return u'%s' % self.title
+        else:
+            return u'%s' % self.alias
 
 
 class TreeItem(models.Model):
