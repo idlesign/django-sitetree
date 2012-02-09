@@ -54,6 +54,7 @@ class TreeItem(models.Model):
     inmenu = models.BooleanField(_('Show in menu'), help_text=_('Whether to show this item in a menu.'), db_index=True, default=True)
     inbreadcrumbs = models.BooleanField(_('Show in breadcrumb path'), help_text=_('Whether to show this item in a breadcrumb path.'), db_index=True, default=True)
     insitetree = models.BooleanField(_('Show in site tree'), help_text=_('Whether to show this item in a site tree.'), db_index=True, default=True)
+    autohide_branch = models.BooleanField(_('Hide branch automaticaly'), help_text=_("Whether to show this item and it's childrens only when in current branch"), db_index=True, default=False)
     access_loggedin = models.BooleanField(_('Logged in only'), help_text=_('Check it to grant access to this item to authenticated users only.'), db_index=True, default=False)
     access_restricted = models.BooleanField(_('Restrict access to permissions'), help_text=_('Check it to restrict user access to this item, using Django permissions system.'), db_index=True, default=False)
     access_permissions = models.ManyToManyField(Permission, verbose_name=_('Permissions granting access'), blank=True)
