@@ -23,8 +23,8 @@ class CharFieldNullable(models.CharField):
 
 
 class Tree(models.Model):
-    alias = models.CharField(_('Alias'), max_length=80, help_text=_('Short name to address site tree from a template.'), unique=True, db_index=True)
-    title = models.CharField(_('Title'), max_length=80, help_text=_('Short title to alias site tree.'), blank=True)
+    title = models.CharField(_('Title'), max_length=100, help_text=_('Site tree title for presentational purposes.'), blank=True)
+    alias = models.CharField(_('Alias'), max_length=80, help_text=_('Short name to address site tree from templates.<br /><b>Note:</b> change with care.'), unique=True, db_index=True)
 
     class Meta:
         verbose_name = _('Site Tree')
