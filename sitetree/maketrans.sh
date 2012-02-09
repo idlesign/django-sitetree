@@ -1,2 +1,2 @@
 #!/bin/bash
-/usr/bin/django-admin.py makemessages -l en
+django-admin makemessages -l en
