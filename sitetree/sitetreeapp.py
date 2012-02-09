@@ -489,7 +489,7 @@ class SiteTree(object):
         tree_items = self.update_has_children(tree_alias, tree_items, navigation_type)
 
         my_template = template.loader.get_template(use_template)
-        context.update({'sitetree_items': tree_items})
+        context.update({'sitetree_items': tree_items, 'is_children': True})
         return my_template.render(context)
 
     def get_children(self, tree_alias, item):
