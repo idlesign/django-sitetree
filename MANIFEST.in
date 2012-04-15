@@ -6,6 +6,7 @@ include docs/Makefile
 recursive-include docs .rst
 recursive-include docs .py
 recursive-include sitetree/locale *
-recursive-include sitetree/migrations *
-recursive-include sitetree/templates *
-recursive-include sitetree/templatetags *
+recursive-include sitetree/migrations .py
+recursive-include sitetree/templates .html
+recursive-include sitetree/templatetags .py
+recursive-include sitetree/management .py
