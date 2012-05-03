@@ -394,7 +394,7 @@ class SiteTree(object):
                 branch_id = current_item.parent.id
                 parent_ids.append(branch_id)
             elif branch_id.isdigit():
-                parent_ids.append(branch_id)
+                parent_ids.append(int(branch_id))
             else:
                 parent_aliases.append(branch_id)
 
