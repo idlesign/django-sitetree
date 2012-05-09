@@ -1,0 +1,238 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# 
+# Translators:
+#   <gezuru@gmail.com>, 2012.
+msgid ""
+msgstr ""
+"Project-Id-Version: django-sitetree\n"
+"Report-Msgid-Bugs-To: https://github.com/idlesign/django-sitetree/issues\n"
+"POT-Creation-Date: 2012-02-09 20:11+0700\n"
+"PO-Revision-Date: 2012-05-09 13:48+0000\n"
+"Last-Translator: gwrtheyrn <gezuru@gmail.com>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: de\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+#: admin.py:17
+msgid "Basic settings"
+msgstr "Grundeinstellungen"
+
+#: admin.py:20
+msgid "Access settings"
+msgstr "Berechtigungen"
+
+#: admin.py:24
+msgid "Display settings"
+msgstr "Darstellung"
+
+#: admin.py:28
+msgid "Additional settings"
+msgstr "Erweiterte Einstellungen"
+
+#: admin.py:159
+msgid "Item's parent left unchanged. Item couldn't be parent to itself."
+msgstr "Elternelement wurde nicht verändert. Das Element kann nicht sein eigenes Elternelement sein."
+
+#: models.py:26 models.py:46 templates/admin/sitetree/tree/change_form.html:40
+msgid "Title"
+msgstr "Titel"
+
+#: models.py:26
+msgid "Site tree title for presentational purposes."
+msgstr "Titel des Site Baumes zu Darstellungszwecken."
+
+#: models.py:27 models.py:52
+msgid "Alias"
+msgstr "Alias"
+
+#: models.py:27
+msgid ""
+"Short name to address site tree from templates.<br /><b>Note:</b> change "
+"with care."
+msgstr "Abkürzung um Site Baum vom Template aus zu adressieren.<br /><b>Hinweis:</b> Vorsicht beim Verändern!"
+
+#: models.py:30 models.py:50
+msgid "Site Tree"
+msgstr "Site Baum"
+
+#: models.py:31
+msgid "Site Trees"
+msgstr "Site Bäume"
+
+#: models.py:42
+msgid "Any"
+msgstr "Beliebige"
+
+#: models.py:43
+msgid "All"
+msgstr "Alle"
+
+#: models.py:46
+msgid ""
+"Site tree item title. Can contain template variables E.g.: {{ mytitle }}."
+msgstr "Titel des Site Baum Elements. Kann Template-Variablen enthalten (z.B. {{ mytitle }})."
+
+#: models.py:47
+msgid "Hint"
+msgstr "Mouseover-Text"
+
+#: models.py:47
+msgid "Some additional information about this item that is used as a hint."
+msgstr "Weitere Informationen  zum aktuellen Element, die als Mouseover-Text angezeigt werden."
+
+#: models.py:48 templates/admin/sitetree/tree/change_form.html:41
+msgid "URL"
+msgstr "URL"
+
+#: models.py:48
+msgid "Exact URL or URL pattern (see \"Additional settings\") for this item."
+msgstr "Genanaue URL oder ein URL Pattern (siehe \"Erweiterte Einstellungen\") für das aktuelle Element."
+
+#: models.py:49
+msgid "URL as Pattern"
+msgstr "URL ist ein Pattern"
+
+#: models.py:49
+msgid ""
+"Whether the given URL should be treated as a pattern.<br /><b>Note:</b> "
+"Refer to Django \"URL dispatcher\" documentation (e.g. \"Naming URL "
+"patterns\" part)."
+msgstr "Soll die angegebene URL als URL Pattern behandelt werden?<br /><b>Hinweis:</b> Siehe die Django-Dokumentation zum \"URL Dispatcher\" (z.B. der Abschnitt \"Naming URL patterns\")."
+
+#: models.py:50
+msgid "Site tree this item belongs to."
+msgstr "Zu welchem Site Baum dass dieses Element gehört."
+
+#: models.py:51 templates/admin/sitetree/tree/change_form.html:34
+msgid "Hidden"
+msgstr "Versteckt"
+
+#: models.py:51
+msgid "Whether to show this item in navigation."
+msgstr "Soll dieses Element in der Navigation angezeigt werden?"
+
+#: models.py:52
+msgid ""
+"Short name to address site tree item from a template.<br /><b>Reserved "
+"aliases:</b> \"trunk\", \"this-children\", \"this-siblings\" and \"this-"
+"ancestor-children\"."
+msgstr "Abkürzung um Site Baum vom Template aus zu adressieren.<br /><b>Reservierte Aliasse:</b> \"trunk\", \"this-children\", \"this-siblings\" und \"this-ancestor-children\"."
+
+#: models.py:53
+msgid "Description"
+msgstr "Beschreibung"
+
+#: models.py:53
+msgid "Additional comments on this item."
+msgstr "Weitere Bemerkungen zu diesem Element."
+
+#: models.py:54
+msgid "Show in menu"
+msgstr "In Menu anzeigen"
+
+#: models.py:54
+msgid "Whether to show this item in a menu."
+msgstr "Soll dieses Element in einem Menu angezeigt werden?"
+
+#: models.py:55
+msgid "Show in breadcrumb path"
+msgstr "In Breadcrumb-Pfad anzeigen"
+
+#: models.py:55
+msgid "Whether to show this item in a breadcrumb path."
+msgstr "Soll dieses Element in einem Breadcrumb-Pfad angezeigt werden?"
+
+#: models.py:56
+msgid "Show in site tree"
+msgstr "In Site Baum anzeigen"
+
+#: models.py:56
+msgid "Whether to show this item in a site tree."
+msgstr "Soll dieses Element in einem Site Baum angezeigt werden?"
+
+#: models.py:57
+msgid "Logged in only"
+msgstr "Nur für angemeldete Benutzer"
+
+#: models.py:57
+msgid "Check it to grant access to this item to authenticated users only."
+msgstr "Soll dieses Element nur angemeldeten Benutzern angezeigt werden?"
+
+#: models.py:58
+msgid "Restrict access to permissions"
+msgstr "Zugang für bestimmte Berechtigungen einschränken"
+
+#: models.py:58
+msgid ""
+"Check it to restrict user access to this item, using Django permissions "
+"system."
+msgstr "Soll der Zugang zu diesem Element auf Benutzer mit den unten definierten Berechtigungen eingeschränkt werden?"
+
+#: models.py:59
+msgid "Permissions granting access"
+msgstr "Berechtigung(en) für Zugangskontrolle"
+
+#: models.py:60
+msgid "Permissions interpretation"
+msgstr "Anwendung der Berechtigungen"
+
+#: models.py:63
+msgid "Parent"
+msgstr "Elternelement"
+
+#: models.py:63
+msgid "Parent site tree item."
+msgstr "Elternelement im Site Baum"
+
+#: models.py:64 templates/admin/sitetree/tree/change_form.html:42
+msgid "Sort order"
+msgstr "Sortierreihenfolge"
+
+#: models.py:64
+msgid "Item position among other site tree items under the same parent."
+msgstr "Position des Elements im Vergleich zu anderen Elementen mit dem selben Elternelement."
+
+#: models.py:77
+msgid "Site Tree Item"
+msgstr "Site Baum Element"
+
+#: models.py:78 templates/admin/sitetree/tree/change_form.html:17
+msgid "Site Tree Items"
+msgstr "Site Baum Elemente"
+
+#: templates/admin/sitetree/tree/change_form.html:24
+msgid "Add Site Tree item"
+msgstr "Site Baum Element hinzufügen"
+
+#: templates/admin/sitetree/tree/change_form.html:35
+msgid "Menu"
+msgstr "Menü"
+
+#: templates/admin/sitetree/tree/change_form.html:36
+msgid "Breadcrumbs"
+msgstr "Breadcrumbs"
+
+#: templates/admin/sitetree/tree/change_form.html:37
+msgid "Tree"
+msgstr "Baum"
+
+#: templates/admin/sitetree/tree/change_form.html:38
+msgid "Rights Restriction"
+msgstr "Zugangskontrolle"
+
+#: templates/admin/sitetree/tree/change_form.html:39
+msgid "For logged in"
+msgstr "Nur für eingeloggte"
+
+#: templates/admin/sitetree/tree/tree.html:22
+msgid "Move up"
+msgstr "Hoch"
+
+#: templates/admin/sitetree/tree/tree.html:24
+msgid "Move down"
+msgstr "Runter"
