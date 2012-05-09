@@ -1,4 +1,4 @@
-Notes on build-in templates
+Notes on built-in templates
 ===========================
 
 Default templates shipped with SiteTree created to have as little markup as possible in a try to fit most common website need.
