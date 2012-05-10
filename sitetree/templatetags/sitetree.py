@@ -1,6 +1,7 @@
 from django import template
 from django import VERSION
 from django.templatetags.static import PrefixNode
+from itertools import izip
 
 from ..sitetreeapp import SiteTree
 
@@ -106,19 +107,37 @@ def sitetree_menu(parser, token):
             * 'this-ancestor-children' - items under grandparent item (closest to root)
               for the item resolved as current for the current page
 
+        You can also render a custom template:
+
         {% sitetree_menu from "mytree" include "trunk,1,level3" template "sitetree/mymenu.html" %}
+
+        And/or set the max depth level:
+
+        {% sitetree_menu from "mytree" include "trunk" max_depth 1 %}
 
     """
     tokens = token.split_contents()
-    use_template = detect_clause(parser, 'template', tokens)
-    tokens_num = len(tokens)
 
-    if tokens_num == 5 and tokens[3] == 'include':
-        tree_alias = parser.compile_filter(tokens[2])
-        tree_branches = parser.compile_filter(tokens[4])
-        return sitetree_menuNode(tree_alias, tree_branches, use_template)
-    else:
-        raise template.TemplateSyntaxError, "%r tag requires four arguments. E.g. {%% sitetree_menu from \"mytree\" include \"trunk,1,level3\" %%}." % tokens[0]
+    if not len(tokens) % 2:
+        raise template.TemplateSyntaxError, '%r tag requires an even number of arguments.' % tokens[0]
+
+    token_dict = dict(izip(tokens[1::2], tokens[2::2]))
+
+    if not 'from' in token_dict.keys():
+        raise template.TemplateSyntaxError, '%r tag requires the "from" argument.' % tokens[0]
+    if not 'include' in token_dict.keys():
+        raise template.TemplateSyntaxError, '%r tag requires the "include" argument.' % tokens[0]
+
+    tree_alias = parser.compile_filter(token_dict.get('from'))
+    tree_branches = parser.compile_filter(token_dict.get('include'))
+
+    use_template = max_depth = None
+    if 'template' in token_dict.keys():
+        use_template = parser.compile_filter(token_dict.get('template'))
+    if 'max_depth' in token_dict.keys():
+        max_depth = int(token_dict.get('max_depth'))
+
+    return sitetree_menuNode(tree_alias, tree_branches, use_template, max_depth=max_depth)
 
 
 @register.tag
@@ -202,13 +221,15 @@ class sitetree_breadcrumbsNode(template.Node):
 class sitetree_menuNode(template.Node):
     """Renders specified site tree menu items."""
 
-    def __init__(self, tree_alias, tree_branches, use_template):
+    def __init__(self, tree_alias, tree_branches, use_template, max_depth=None):
         self.use_template = use_template
         self.tree_alias = tree_alias
         self.tree_branches = tree_branches
+        self.max_depth = max_depth
 
     def render(self, context):
-        tree_items = sitetree.menu(self.tree_alias, self.tree_branches, context)
+        tree_items = sitetree.menu(self.tree_alias, self.tree_branches,
+            context, max_depth=self.max_depth)
         return render(context, tree_items, self.use_template or 'sitetree/menu.html')
 
 
