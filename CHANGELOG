@@ -1,3 +1,10 @@
+v0.8
+----
++ Added 'title' field for Tree models.
++ Added German translation.
+* Fixed management directory missing from dist (closes #50).
+
+
 v0.7
 ----
 + Added 'sitetreedump' and 'sitetreeload' management commands (fixes #36).
