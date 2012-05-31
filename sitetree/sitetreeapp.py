@@ -364,7 +364,7 @@ class SiteTree(object):
             return ''
         return current_item.title_resolved
 
-    def menu(self, tree_alias, tree_branches, context):
+    def menu(self, tree_alias, tree_branches, context, max_depth=None):
         """Builds and returns menu structure for 'sitetree_menu' tag."""
         tree_alias, sitetree_items = self.init_tree(tree_alias, context)
         # No items in tree, fail silently.
@@ -400,7 +400,7 @@ class SiteTree(object):
 
         menu_items = []
         for item in sitetree_items:
-            if item.inmenu and item.hidden == False:
+            if item.inmenu and not item.hidden:
                 if self.check_access(item, context):
                     if item.parent is None:
                         if parent_isnull:
@@ -412,7 +412,7 @@ class SiteTree(object):
         # Parse titles for variables.
         menu_items = self.parse_titles(menu_items, context)
         menu_items = self.apply_hook(menu_items, 'menu')
-        menu_items = self.update_has_children(tree_alias, menu_items, 'menu')
+        menu_items = self.update_has_children(tree_alias, menu_items, 'menu', max_depth=max_depth)
         return menu_items
 
     def apply_hook(self, items, sender):
@@ -496,19 +496,23 @@ class SiteTree(object):
         tree_alias = self.resolve_tree_i18_alias(tree_alias)
         return self.get_cache_entry('parents', tree_alias)[item]
 
-    def update_has_children(self, tree_alias, tree_items, navigation_type):
+    def update_has_children(self, tree_alias, tree_items, navigation_type, max_depth=None):
         """Updates 'has_children' attribute for tree items."""
         items = []
         for tree_item in tree_items:
             children = self.get_children(tree_alias, tree_item)
-            children = self.filter_items(children, navigation_type)
+            max_absolute_depth = None
+            if max_depth:
+                max_absolute_depth = (tree_item.depth + max_depth) - 1
+            children = self.filter_items(children, navigation_type, max_absolute_depth)
             children = self.apply_hook(children, '%s.has_children' % navigation_type)
             tree_item.has_children = len(children)>0
             items.append(tree_item)
         return items
 
-    def filter_items(self, items, navigation_type=None):
-        """Filters site tree item's children if hidden and by navigation type.
+    def filter_items(self, items, navigation_type=None, max_absolute_depth=None):
+        """Filters site tree item's children if hidden and by navigation
+        type and max depth.
         NB: We do not apply any filters to sitetree in admin app.
         """
         items_out = copy(items)
@@ -516,7 +520,8 @@ class SiteTree(object):
             for item in items:
                 no_access = not self.check_access(item, self.global_context)
                 hidden_for_nav_type = navigation_type is not None and getattr(item, 'in' + navigation_type, False) != True
-                if item.hidden == True or no_access or hidden_for_nav_type:
+                too_deep = max_absolute_depth is not None and item.depth > max_absolute_depth
+                if item.hidden or no_access or hidden_for_nav_type or too_deep:
                     items_out.remove(item)
         return items_out
 
