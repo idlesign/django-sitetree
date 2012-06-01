@@ -168,7 +168,7 @@ class SiteTree(object):
         sitetree = self.get_cache_entry('sitetrees', alias)
         if not sitetree:
             sitetree = TreeItem.objects.select_related('parent', 'tree').\
-                   filter(tree__alias__exact=alias).order_by('parent', 'sort_order')
+                   filter(tree__alias__exact=alias).order_by('parent__sort_order', 'sort_order')
             self.set_cache_entry('sitetrees', alias, sitetree)
             sitetree_needs_caching = True
 
