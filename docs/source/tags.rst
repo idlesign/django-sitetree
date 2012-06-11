@@ -28,7 +28,9 @@ Usage example::
 
 {% sitetree_menu from "mytree" include "trunk,topmenu" %}
 
-This command renders as a menu sitetree items from tree named 'mytree', including items under 'trunk' and 'topmenu' aliased items.
+This command renders as a menu sitetree items from tree named 'mytree', including items **under** 'trunk' and 'topmenu' aliased items.
+That means that 'trunk' and 'topmenu' themselves won't appear in a menu, but rather their ancestors. If you need item filtering behaviour
+please use :ref:`tree hooks <tree-hooks>`.
 
   Aliases are given to items through Django's admin site.
 

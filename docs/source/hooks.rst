@@ -4,6 +4,8 @@ Tree hooks
 What to do if a time comes and you need some fancy stuff done to tree items that
 django-sitetree does not support?
 
+.. _tree-hooks:
+
 It might be that you need some special tree items ordering in a menu, or you want to render
 in a huge site tree with all articles titles that are described by one tree item in Django admin,
 or god knowns what else.
