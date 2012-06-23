@@ -4,6 +4,7 @@ from collections import defaultdict
 
 from django.core import serializers
 from django.core.management.base import BaseCommand, CommandError
+from django.core.management.color import no_style
 from django.db import connections, router, transaction, DEFAULT_DB_ALIAS
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -152,7 +153,7 @@ class Command(BaseCommand):
 
         # Reset DB sequences, for DBMS with sequences support.
         if loaded_object_count > 0:
-            sequence_sql = connection.ops.sequence_reset_sql(self.style, [Tree, TreeItem])
+            sequence_sql = connection.ops.sequence_reset_sql(no_style(), [Tree, TreeItem])
             if sequence_sql:
                 self.stdout.write('Resetting DB sequences ...\n')
                 for line in sequence_sql:
