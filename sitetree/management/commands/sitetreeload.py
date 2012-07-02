@@ -44,6 +44,8 @@ class Command(BaseCommand):
         connection = connections[using]
         cursor = connection.cursor()
 
+        self.style = no_style()
+
         transaction.commit_unless_managed(using=using)
         transaction.enter_transaction_management(using=using)
         transaction.managed(True, using=using)
@@ -153,7 +155,7 @@ class Command(BaseCommand):
 
         # Reset DB sequences, for DBMS with sequences support.
         if loaded_object_count > 0:
-            sequence_sql = connection.ops.sequence_reset_sql(no_style(), [Tree, TreeItem])
+            sequence_sql = connection.ops.sequence_reset_sql(self.style, [Tree, TreeItem])
             if sequence_sql:
                 self.stdout.write('Resetting DB sequences ...\n')
                 for line in sequence_sql:
