@@ -30,3 +30,31 @@ To customize visual representation of navigation elements you should override th
 
   4. Copy whichever of them you need into your project templates directory and feel free to customize it.
   5. See :ref:`Advanced SiteTree tags section <tags-advanced>` for clarification on two advanced SiteTree template tags.
+
+
+Built-in templates for Foundation CSS Framework
+-----------------------------------------------
+
+*Information about Foundation CSS Framework is available at* http://foundation.zurb.com
+
+The following templates are bundled with SiteTree:
+
+ * `sitetree/menu_foundation.html`
+
+   This template can be used to construct Foundation Nav Bar (classic horizontal top menu) from a sitetree.
+
+   **Note:** the template renders no more than two levels of a tree with hover dropdowns for root items having children.
+
+ * `sitetree/menu_foundation-vertical.html`
+
+   This template can be used to construct a vertical version of Foundation Nav Bar, suitable for sidebar navigation.
+
+   **Note:** the template renders no more than two levels of a tree with hover dropdowns for root items having children.
+
+ * `sitetree/sitetree/menu_foundation_sidenav.html`
+
+   This template can be used to construct a Foundation Side Nav.
+
+   **Note:** the template renders only one tree level.
+
+You can take a look at Foundation navigation elements examples at http://foundation.zurb.com/docs/navigation.php
