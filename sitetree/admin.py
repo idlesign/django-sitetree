@@ -5,10 +5,46 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
 from django.http import HttpResponseRedirect
 from django.contrib import admin
+from django.contrib.admin.sites import NotRegistered
 from django.contrib import messages
 
 from models import Tree, TreeItem
 from templatetags.sitetree import sitetree_tree
+
+
+_TREE_ADMIN = lambda: TreeAdmin
+_ITEM_ADMIN = lambda: TreeItemAdmin
+
+
+def _reregister_tree_admin():
+    """Forces unregistration of tree admin class with following re-registration."""
+    try:
+        admin.site.unregister(Tree)
+    except NotRegistered:
+        pass
+    admin.site.register(Tree, _TREE_ADMIN())
+
+
+def override_tree_admin(admin_class):
+    """Sets a class that should be used instead of TreeAdmin
+    to represent trees in the Admin interface.
+    Note that the class must inherit from TreeAdmin.
+
+    """
+    global _TREE_ADMIN
+    _TREE_ADMIN = lambda: admin_class
+    _reregister_tree_admin()
+
+
+def override_item_admin(admin_class):
+    """Sets a class that should be used instead of TreeItemAdmin
+    to represent tree items in the Admin interface.
+    Note that the class must inherit from TreeItemAdmin.
+
+    """
+    global _ITEM_ADMIN
+    _ITEM_ADMIN = lambda: admin_class
+    _reregister_tree_admin()
 
 
 class TreeItemAdmin(admin.ModelAdmin):
@@ -187,7 +223,9 @@ class TreeAdmin(admin.ModelAdmin):
     ordering = ['title', 'alias']
     actions = None
 
-    tree_admin = TreeItemAdmin(TreeItem, admin.site)
+    def __init__(self, *args, **kwargs):
+        super(TreeAdmin, self).__init__(*args, **kwargs)
+        self.tree_admin = _ITEM_ADMIN()(TreeItem, admin.site)
 
     def get_urls(self):
         """Manages not only TreeAdmin URLs but also TreeItemAdmin URLs."""
@@ -212,4 +250,4 @@ class TreeAdmin(admin.ModelAdmin):
         return sitetree_urls + urls
 
 
-admin.site.register(Tree, TreeAdmin)
+_reregister_tree_admin()
