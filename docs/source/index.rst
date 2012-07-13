@@ -48,6 +48,7 @@ Table of Contents
     templatesmod
     tagsadv
     hooks
+    admin
 
 
 Get involved into django-sitetree

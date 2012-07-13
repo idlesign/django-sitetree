@@ -42,3 +42,8 @@ Example::
     # And we register items processor.
     register_items_hook(my_items_processor)
     
+
+.. note::
+
+    You might also be interested in the notes on :ref:`Overriding SiteTree Admin representation <admin-ext>`.
+
