@@ -1,3 +1,12 @@
+v0.9
+----
++ Added support for tree and tree item admin models overriding (see #43).
++ Added Foundation CSS Framework menu basic templates (see #41).
++ Added Bootstrap CSS Framework menu and breadcrumbs basic templates (see #41).
+* Fixed sorting tree items by parent ID instead of parent sort order (see #55).
+* Fixed crashes when using sitetreeload command with colored terminal (fixes #61).
+
+
 v0.8
 ----
 + Added 'title' field for Tree models.
