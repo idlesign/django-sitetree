@@ -79,7 +79,7 @@ The following templates are bundled with SiteTree:
 
  * `sitetree/menu_bootstrap.html`
 
-   This template can be used to construct *menu contents* for Boostrap Navbar.
+   This template can be used to construct *menu contents* for Bootstrap Navbar.
 
    .. warning::
 
@@ -89,7 +89,7 @@ The following templates are bundled with SiteTree:
         This means that one should wrap `sitetree_menu` call into the appropriately styled divs
         (i.e. having classes `navbar`, `navbar-inner`, etc.).
 
-        Please see Boostrap Navbar documentation for more information on subject.
+        Please see Bootstrap Navbar documentation for more information on subject.
 
    .. note::
 
@@ -98,7 +98,7 @@ The following templates are bundled with SiteTree:
 
  * `sitetree/menu_bootstrap_navlist.html`
 
-   This template can be used to construct a Boostrap Nav list.
+   This template can be used to construct a Bootstrap Nav list.
 
    .. note::
 
