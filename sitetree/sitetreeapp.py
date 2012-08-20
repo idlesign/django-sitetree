@@ -114,7 +114,7 @@ class SiteTree(object):
 
     def cache_empty(self, **kwargs):
         """Empties cached sitetree data."""
-        self.cache = False
+        self.cache = None
         cache.delete('sitetrees')
         cache.delete('tree_aliases')
 
@@ -159,7 +159,7 @@ class SiteTree(object):
     def get_sitetree(self, alias):
         """Gets site tree items from the given site tree.
         Caches result to dictionary.
-        Returns items.
+        Returns (tree alias, tree items) tuple.
 
         """
         self.cache_init()
@@ -213,7 +213,7 @@ class SiteTree(object):
         if sitetree_needs_caching:
             self.cache_save()
 
-        return sitetree
+        return alias, sitetree
 
     def calculate_item_depth(self, tree_alias, item_id, depth=0):
         """Calculates depth of the item in the tree."""
@@ -347,7 +347,7 @@ class SiteTree(object):
         # Resolve tree_alias from the context.
         tree_alias = self.resolve_var(tree_alias)
         # Get tree.
-        sitetree_items = self.get_sitetree(tree_alias)
+        tree_alias, sitetree_items = self.get_sitetree(tree_alias)
         # No items in tree, fail silently.
         if not sitetree_items:
             return False, False
@@ -479,7 +479,7 @@ class SiteTree(object):
         # Resolve tree_alias from the context.
         tree_alias = self.resolve_var(tree_alias)
         # Get tree.
-        self.get_sitetree(tree_alias)
+        tree_alias, tree_items = self.get_sitetree(tree_alias)
         # Mark path to current item.
         self.tree_climber(tree_alias, self.get_tree_current_item(tree_alias))
 

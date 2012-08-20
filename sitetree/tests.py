@@ -263,7 +263,7 @@ class TreeTest(unittest.TestCase):
         t1_root_child2 = TreeItem(title='child2', tree=t1, parent=t1_root, url='/1/', inmenu=True, hidden=True)
         t1_root_child2.save(force_insert=True)
 
-        t1_root_child3 = TreeItem(title='child3', tree=t1, parent=t1_root, url='/2/', inmenu=False)
+        t1_root_child3 = TreeItem(title='child3', tree=t1, parent=t1_root, url='/the_same_url/', inmenu=False)
         t1_root_child3.save(force_insert=True)
 
         t1_root_child4 = TreeItem(title='child4', tree=t1, parent=t1_root, url='/3/', hidden=True)
@@ -281,7 +281,7 @@ class TreeTest(unittest.TestCase):
         t2_root_child1 = TreeItem(title='child1_en', tree=t2, parent=t2_root, url='/0_en/')
         t2_root_child1.save(force_insert=True)
 
-        t2_root_child2 = TreeItem(title='child2_en', tree=t2, parent=t2_root, url='/1_en/')
+        t2_root_child2 = TreeItem(title='child2_en', tree=t2, parent=t2_root, url='/the_same_url/')
         t2_root_child2.save(force_insert=True)
 
         cls.t1 = t1
@@ -307,14 +307,19 @@ class TreeTest(unittest.TestCase):
 
     def test_register_i18n_trees(self):
         register_i18n_trees(['tree3'])
-        self.sitetree.global_context = get_mock_context(path='/')
+        self.sitetree.global_context = get_mock_context(path='/the_same_url/')
 
         activate('en')
         self.sitetree.get_sitetree('tree3')
         children = self.sitetree.get_children('tree3', self.t2_root)
         self.assertEqual(len(children), 2)
+        self.assertFalse(children[0].is_current)
+        self.assertTrue(children[1].is_current)
 
         activate('ru')
         self.sitetree.get_sitetree('tree3')
         children = self.sitetree.get_children('tree3', self.t1_root)
         self.assertEqual(len(children), 5)
+        self.assertFalse(children[1].is_current)
+        self.assertTrue(children[2].is_current)
+        self.assertFalse(children[3].is_current)
