@@ -1,6 +1,7 @@
 from django import template
 from django.forms import ChoiceField
 from django.conf.urls.defaults import patterns, url
+from django.core.urlresolvers import get_urlconf, get_resolver
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
 from django.http import HttpResponseRedirect
@@ -132,6 +133,12 @@ class TreeItemAdmin(admin.ModelAdmin):
         my_choice_field.help_text = form.base_fields['parent'].help_text
         # Replace 'parent' TreeItem field with new appropriate one
         form.base_fields['parent'] = my_choice_field
+
+        # Try to resolve all currently registered url names.
+        if not getattr(self, 'known_url_names', False):
+            self.known_url_names = sorted([url_name for url_name in get_resolver(get_urlconf()).reverse_dict if isinstance(url_name, basestring)])
+        form.known_url_names_hint = _('This URL pattern seems to be invalid (see "URL as Pattern" option).<br />URL names currently registered: ')
+        form.known_url_names = self.known_url_names
         return form
 
     def get_tree(self, tree_id):

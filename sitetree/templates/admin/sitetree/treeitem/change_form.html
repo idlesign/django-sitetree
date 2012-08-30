@@ -1,3 +1,37 @@
 {% extends "admin/change_form.html" %}
-{% load i18n admin_modify adminmedia %}
+{% load i18n admin_modify adminmedia sitetree %}
 {% block content_title %}<h1>{{ title }} {% if not add %}"{{ original.title }}"{% endif %}</h1>{% endblock %}
+{% block extrahead %}{{ block.super }}
+    <style type="text/css">
+        #sitetree-urlnames {
+            display: inline-block;
+            padding-top: 4px;
+            padding-bottom: 4px;
+            line-height: 20px;
+            border: 2px dashed #CC3434;
+            max-width: 600px;
+            color: #444;
+        }
+    </style>
+    <script type="text/javascript">
+        (function($) {
+            var known_url_names = ["{{ adminform.form.known_url_names|join:'", "'|safe }}"];
+            var known_url_names_hint = ['{{ adminform.form.known_url_names_hint|safe }}'];
+            function check_url_pattern() {
+                $('#sitetree-urlnames').hide();
+                if ($('#id_urlaspattern').is(':checked')) {
+                    var val = $('#id_url').val().split(' ', 1);
+                    if ($.inArray(val[0], known_url_names) == -1) {
+                        $('#sitetree-urlnames').show();
+                    }
+                }
+            }
+            $(function() {
+                $('.field-url').append('<p class="help" id="sitetree-urlnames"><img src="{% sitetree_admin_img_url_prefix %}/icon-no.gif" /> ' + known_url_names_hint + known_url_names.join(', ') + '.</p>');
+                $('#id_url').bind({'keyup': function(){check_url_pattern()}});
+                $('#id_urlaspattern').bind({'click': function(){check_url_pattern()}});
+                check_url_pattern();
+            });
+        })(django.jQuery);
+    </script>
+{% endblock %}
