@@ -164,7 +164,9 @@ class SiteTree(object):
         """
         self.cache_init()
         sitetree_needs_caching = False
-        alias = self.resolve_tree_i18_alias(alias)
+        if self.global_context.current_app != 'admin':
+            # We do not need i18n for a tree rendered in Admin dropdown.
+            alias = self.resolve_tree_i18_alias(alias)
         sitetree = self.get_cache_entry('sitetrees', alias)
         if not sitetree:
             sitetree = TreeItem.objects.select_related('parent', 'tree').\
@@ -493,7 +495,9 @@ class SiteTree(object):
         return my_template.render(context)
 
     def get_children(self, tree_alias, item):
-        tree_alias = self.resolve_tree_i18_alias(tree_alias)
+        if self.global_context.current_app != 'admin':
+            # We do not need i18n for a tree rendered in Admin dropdown.
+            tree_alias = self.resolve_tree_i18_alias(tree_alias)
         return self.get_cache_entry('parents', tree_alias)[item]
 
     def update_has_children(self, tree_alias, tree_items, navigation_type):
