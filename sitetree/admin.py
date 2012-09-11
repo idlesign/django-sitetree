@@ -136,9 +136,18 @@ class TreeItemAdmin(admin.ModelAdmin):
 
         # Try to resolve all currently registered url names.
         if not getattr(self, 'known_url_names', False):
-            self.known_url_names = sorted([url_name for url_name in get_resolver(get_urlconf()).reverse_dict if isinstance(url_name, basestring)])
-        form.known_url_names_hint = _('This URL pattern seems to be invalid (see "URL as Pattern" option).<br />URL names currently registered: ')
+            self.known_url_names = []
+            self.known_url_rules = []
+            reverse_dict = get_resolver(get_urlconf()).reverse_dict
+            for url_name, url_rules in reverse_dict.items():
+                if isinstance(url_name, basestring):
+                    self.known_url_names.append(url_name)
+                    self.known_url_rules.append('<b>%s</b> %s' % (url_name, ' '.join(url_rules[0][0][1])))
+            self.known_url_rules = sorted(self.known_url_rules)
+
+        form.known_url_names_hint = _('You are seeing this warning because "URL as Pattern" option is active and pattern entered above seems to be invalid. Currently registered URL pattern names and parameters: ')
         form.known_url_names = self.known_url_names
+        form.known_url_rules = self.known_url_rules
         return form
 
     def get_tree(self, tree_id):

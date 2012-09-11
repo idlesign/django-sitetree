@@ -1,22 +1,26 @@
 {% extends "admin/change_form.html" %}
-{% load i18n admin_modify adminmedia sitetree %}
+{% load i18n admin_modify adminmedia %}
 {% block content_title %}<h1>{{ title }} {% if not add %}"{{ original.title }}"{% endif %}</h1>{% endblock %}
 {% block extrahead %}{{ block.super }}
     <style type="text/css">
         #sitetree-urlnames {
-            display: inline-block;
-            padding-top: 4px;
-            padding-bottom: 4px;
+            margin-top: 1em;
+            padding: 1em;
             line-height: 20px;
-            border: 2px dashed #CC3434;
             max-width: 600px;
             color: #444;
+            border: 2px dashed #CC3434;
+        }
+        #sitetree-urlnames ul {
+            margin-left: 1em;
+        }
+        #sitetree-urlnames p {
+            margin-left: 0;
         }
     </style>
     <script type="text/javascript">
         (function($) {
-            var known_url_names = ["{{ adminform.form.known_url_names|join:'", "'|safe }}"];
-            var known_url_names_hint = ['{{ adminform.form.known_url_names_hint|safe }}'];
+            var known_url_names = ["{{ adminform.form.known_url_names|join:'", "' }}"];
             function check_url_pattern() {
                 $('#sitetree-urlnames').hide();
                 if ($('#id_urlaspattern').is(':checked')) {
@@ -27,11 +31,21 @@
                 }
             }
             $(function() {
-                $('.field-url').append('<p class="help" id="sitetree-urlnames"><img src="{% sitetree_admin_img_url_prefix %}/icon-no.gif" /> ' + known_url_names_hint + known_url_names.join(', ') + '.</p>');
+                $('.field-url div').append($('#sitetree-urlnames'));
                 $('#id_url').bind({'keyup': function(){check_url_pattern()}});
                 $('#id_urlaspattern').bind({'click': function(){check_url_pattern()}});
                 check_url_pattern();
             });
         })(django.jQuery);
     </script>
+{% endblock %}
+{% block content %}{{ block.super }}
+<div id="sitetree-urlnames" class="help" style="display:none;">
+    <p>{{ adminform.form.known_url_names_hint|safe }}</p>
+    <ul>
+        {% for url_rule in adminform.form.known_url_rules %}
+            <li>{{ url_rule|safe }}</li>
+        {% endfor %}
+    </ul>
+</div>
 {% endblock %}
