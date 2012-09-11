@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-02-09 20:11+0700\n"
+"POT-Creation-Date: 2012-09-11 22:07+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,23 +17,30 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: admin.py:17
+#: admin.py:54
 msgid "Basic settings"
 msgstr ""
 
-#: admin.py:20
+#: admin.py:57
 msgid "Access settings"
 msgstr ""
 
-#: admin.py:24
+#: admin.py:61
 msgid "Display settings"
 msgstr ""
 
-#: admin.py:28
+#: admin.py:65
 msgid "Additional settings"
 msgstr ""
 
-#: admin.py:159
+#: admin.py:148
+msgid ""
+"You are seeing this warning because \"URL as Pattern\" option is active and "
+"pattern entered above seems to be invalid. Currently registered URL pattern "
+"names and parameters: "
+msgstr ""
+
+#: admin.py:211
 msgid "Item's parent left unchanged. Item couldn't be parent to itself."
 msgstr ""
 
