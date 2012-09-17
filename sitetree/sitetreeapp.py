@@ -369,6 +369,7 @@ class SiteTree(object):
     def menu(self, tree_alias, tree_branches, context):
         """Builds and returns menu structure for 'sitetree_menu' tag."""
         tree_alias, sitetree_items = self.init_tree(tree_alias, context)
+        tree_alias = self.resolve_tree_i18_alias(tree_alias)
         # No items in tree, fail silently.
         if not sitetree_items:
             return ''
@@ -446,6 +447,7 @@ class SiteTree(object):
     def breadcrumbs(self, tree_alias, context):
         """Builds and returns breadcrumb trail structure for 'sitetree_breadcrumbs' tag."""
         tree_alias, sitetree_items = self.init_tree(tree_alias, context)
+        tree_alias = self.resolve_tree_i18_alias(tree_alias)
         # No items in tree, fail silently.
         if not sitetree_items:
             return ''
@@ -462,6 +464,7 @@ class SiteTree(object):
     def tree(self, tree_alias, context):
         """Builds and returns tree structure for 'sitetree_tree' tag."""
         tree_alias, sitetree_items = self.init_tree(tree_alias, context)
+        tree_alias = self.resolve_tree_i18_alias(tree_alias)
         # No items in tree, fail silently.
         if not sitetree_items:
             return ''
