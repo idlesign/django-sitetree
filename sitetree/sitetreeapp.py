@@ -140,7 +140,7 @@ class SiteTree(object):
         if not self.global_context or hash(context) != hash(self.global_context):
             self.global_context = context
 
-    def resolve_tree_i18_alias(self, alias):
+    def resolve_tree_i18n_alias(self, alias):
         """Resolves internationalized tree alias.
         Verifies whether a separate sitetree is available for currently active language.
         If so, returns i18n alias. If not, returns the initial alias.
@@ -166,7 +166,7 @@ class SiteTree(object):
         sitetree_needs_caching = False
         if self.global_context.current_app != 'admin':
             # We do not need i18n for a tree rendered in Admin dropdown.
-            alias = self.resolve_tree_i18_alias(alias)
+            alias = self.resolve_tree_i18n_alias(alias)
         sitetree = self.get_cache_entry('sitetrees', alias)
         if not sitetree:
             sitetree = TreeItem.objects.select_related('parent', 'tree').\
@@ -497,7 +497,7 @@ class SiteTree(object):
     def get_children(self, tree_alias, item):
         if self.global_context.current_app != 'admin':
             # We do not need i18n for a tree rendered in Admin dropdown.
-            tree_alias = self.resolve_tree_i18_alias(tree_alias)
+            tree_alias = self.resolve_tree_i18n_alias(tree_alias)
         return self.get_cache_entry('parents', tree_alias)[item]
 
     def update_has_children(self, tree_alias, tree_items, navigation_type):
