@@ -1,3 +1,9 @@
+v0.9.1
+------
++ Added experimental URL pattern name hinting at tree item create/edit page (see #67).
+* Fixed tree current item detection failures with i18n trees (see #66).
+
+
 v0.9
 ----
 + Added support for tree and tree item admin models overriding (see #43).
