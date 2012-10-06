@@ -274,8 +274,14 @@ class SiteTree(object):
         # Resolve only if item's URL is marked as pattern.
         if sitetree_item.urlaspattern:
             resolved_var = self.resolve_var(sitetree_item.url, context)
-            if isinstance(resolved_var, list):
-                raise SiteTreeError('Named URL for "%s" sitetree item clashes with template variable name. Please change either name.' % sitetree_item.title)
+
+            # Check whether a template variable is used instead of a URL pattern.
+            if resolved_var != sitetree_item.url:
+                if not isinstance(resolved_var, basestring):  # Variable contains what we're not expecting, revert to original URL.
+                    resolved_var = sitetree_item.url
+                import warnings
+                warnings.warn('Use of a template variable in URL field is deprecated. Support of that feature will be completely removed in 1.0.', DeprecationWarning)
+
             view_path = resolved_var.split(' ')
             # We should try to resolve URL parameters from site tree item.
             view_arguments = []

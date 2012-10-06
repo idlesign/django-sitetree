@@ -29,8 +29,9 @@ class MockUser(object):
 
 
 def get_mock_context(app=None, path=None, user_authorized=False, tree_item=None):
-    return template.Context({'request': MockRequest(path, user_authorized), 't2_root2_title': 'my_real_title',
-                             'art_id': 10, 'tree_item': tree_item}, current_app=app)
+    return template.Context({'request': MockRequest(path, user_authorized),
+                             't2_root2_title': 'my_real_title', 'art_id': 10, 'tree_item': tree_item,
+                             'somevar_str': 'articles_list', 'somevar_list': ['a', 'b']}, current_app=app)
 
 
 class TreeModelTest(unittest.TestCase):
@@ -76,6 +77,12 @@ class TreeItemModelTest(unittest.TestCase):
         t1_root_child2_sub2 = TreeItem(title='subchild2', tree=t1, parent=t1_root_child2, url='/not_articles/10/')
         t1_root_child2_sub2.save(force_insert=True)
 
+        t1_root_child3 = TreeItem(title='child_with_var_str', tree=t1, parent=t1_root, url='somevar_str', urlaspattern=True)
+        t1_root_child3.save(force_insert=True)
+
+        t1_root_child4 = TreeItem(title='child_with_var_list', tree=t1, parent=t1_root, url='somevar_list', urlaspattern=True)
+        t1_root_child4.save(force_insert=True)
+
         t2 = Tree(alias='tree2')
         t2.save(force_insert=True)
 
@@ -92,6 +99,7 @@ class TreeItemModelTest(unittest.TestCase):
         cls.t1_root = t1_root
         cls.t1_root_child1 = t1_root_child1
         cls.t1_root_child2 = t1_root_child2
+        cls.t1_root_child3 = t1_root_child3
         cls.t1_root_child2_sub1 = t1_root_child2_sub1
         cls.t1_root_child2_sub2 = t1_root_child2_sub2
 
@@ -108,6 +116,12 @@ class TreeItemModelTest(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         urlresolvers.set_urlconf(cls.old_urlconf)
+
+    def test_url_with_vars(self):
+        menu = self.sitetree.menu('tree1', 'trunk', get_mock_context(path='/articles/'))
+        children = self.sitetree.get_children('tree1', menu[0])
+        self.assertEqual(children[2].url_resolved, '/articles/')
+        self.assertEqual(children[3].url_resolved, '#unresolved')
 
     def test_no_tree(self):
         ti = TreeItem(title='notree_item')
