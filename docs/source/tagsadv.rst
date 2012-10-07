@@ -34,5 +34,3 @@ Usage example::
 {% sitetree_url for someitem params %}
 
 This tag is much the same as Django built-in 'url' tag. The difference is that after 'for' it should get site tree item object.
-
-And, yes, you can pass some params after that object.

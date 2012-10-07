@@ -1,3 +1,5 @@
+import warnings
+
 from collections import defaultdict
 from copy import copy
 
@@ -255,7 +257,7 @@ class SiteTree(object):
 
         return current_item
 
-    def url(self, sitetree_item, tag_arguments=[], context=None):
+    def url(self, sitetree_item, tag_arguments=None, context=None):
         """Resolves item's URL.
 
         'sitetree_item' points to TreeItem object, 'url' property of which
@@ -265,6 +267,12 @@ class SiteTree(object):
             'sitetree_url' in template.
 
         """
+        if tag_arguments is None:
+            tag_arguments = []
+        else:
+            # TODO Remove tag_arguments in 1.0.
+            warnings.warn('Use of sitetree_url tag additional arguments is deprecated. Feature support will be completely removed in 1.0.', DeprecationWarning)
+
         if context is None:
             context = self.global_context
 
@@ -279,47 +287,42 @@ class SiteTree(object):
             if resolved_var != sitetree_item.url:
                 if not isinstance(resolved_var, basestring):  # Variable contains what we're not expecting, revert to original URL.
                     resolved_var = sitetree_item.url
-                import warnings
-                warnings.warn('Use of a template variable in URL field is deprecated. Support of that feature will be completely removed in 1.0.', DeprecationWarning)
+                # TODO Remove template var resolution in 1.0.
+                warnings.warn('Use of a template variable in URL field is deprecated. Feature support will be completely removed in 1.0.', DeprecationWarning)
 
-            view_path = resolved_var.split(' ')
-            # We should try to resolve URL parameters from site tree item.
+            view_path = resolved_var
+            all_arguments = tag_arguments
+
+            if ' ' in resolved_var:
+                view_path = resolved_var.split(' ')
+                # We should try to resolve URL parameters from site tree item.
+                for view_argument in view_path[1:]:
+                    resolved = self.resolve_var(view_argument)
+                    # In case of non-ascii data we leave variable unresolved.
+                    if isinstance(resolved, unicode):
+                        if resolved.encode('ascii', 'ignore').decode('ascii') != resolved:
+                            resolved = view_argument
+                        # URL parameters from site tree item should be concatenated with those from template.
+                    all_arguments.append(resolved)
+                view_path = view_path[0]
+
             view_arguments = []
-            for view_argument in view_path[1:]:
-                resolved = self.resolve_var(view_argument)
-                # In case of non-ascii data we leave variable unresolved.
-                if isinstance(resolved, unicode):
-                    if resolved.encode('ascii', 'ignore').decode('ascii') != resolved:
-                        resolved = view_argument
-
-                view_arguments.append(resolved)
-
-            # URL parameters from site tree item should be concatenated with
-            # those from template.
-            arguments_couled = tag_arguments + view_arguments
-            view_arguments = []
-
-            for argument in arguments_couled:
+            for argument in all_arguments:
                 argument = str(argument)
-                # To be able to process slug-like strings (strings with "-"'s and "_"'s)
-                # we enclose those in double quotes.
+                # To be able to process slug-like strings (strings with "-"'s and "_"'s) we enclose those in double quotes.
                 if '-' in argument or '_':
                     argument = '"%s"' % argument
                 view_arguments.append(argument)
 
-            view_arguments = ' '.join(view_arguments).strip()
-            view_path = view_path[0]
-            url_pattern = u'%s %s' % (view_path, view_arguments)
+            url_pattern = u'%s %s' % (view_path, ' '.join(view_arguments))
         else:
-            url_pattern = u'%s' % sitetree_item.url
+            url_pattern = unicode(sitetree_item.url)
 
-        url_pattern = url_pattern.strip()
-
-        # Create 'cache_urls' for this tree.
         tree_alias = sitetree_item.tree.alias
 
         entry_from_cache = self.get_cache_entry('urls', tree_alias)
         if not entry_from_cache:
+            # Create 'cache_urls' for this tree.
             entry_from_cache = {}
             self.set_cache_entry('urls', tree_alias, {})
 
@@ -329,8 +332,7 @@ class SiteTree(object):
             if sitetree_item.urlaspattern:
                 # Form token to pass to Django 'url' tag.
                 url_token = u'url %s as item.url_resolved' % url_pattern
-                url_tag(template.Parser(None),
-                        template.Token(token_type=template.TOKEN_BLOCK, contents=url_token)).render(context)
+                url_tag(template.Parser(None), template.Token(token_type=template.TOKEN_BLOCK, contents=url_token)).render(context)
 
                 # We make an anchor link from an unresolved URL as a reminder.
                 if context['item.url_resolved'] == '':

@@ -125,13 +125,13 @@ def sitetree_menu(parser, token):
 def sitetree_url(parser, token):
     """This tag is much the same as Django built-in 'url' tag.
     The difference is that after 'for' it should get TreeItem object.
-    And, yes, you can pass some arguments after that TreeItem object.
 
     """
     tokens = token.contents.split()
     tokens_num = len(tokens)
 
     if tokens_num >= 3 and tokens[1] == 'for':
+        # TODO Remove additional tag arguments in 1.0.
         sitetree_item = parser.compile_filter(tokens[2])
         tag_arguments = map(parser.compile_filter, tokens[3:])
         return sitetree_urlNode(sitetree_item, tag_arguments)
