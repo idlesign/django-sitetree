@@ -89,6 +89,30 @@ def register_i18n_trees(aliases):
     _I18N_TREES = aliases
 
 
+class LazyTitle(object):
+    """Lazily resolves any variable found in a title of an item.
+    Produces resolved title as unicode representation."""
+
+    def __init__(self, title, context):
+        self.title = title
+        self.context = context
+
+    def __unicode__(self):
+        my_lexer = template.Lexer(self.title, template.UNKNOWN_SOURCE)
+        my_tokens = my_lexer.tokenize()
+
+        # Deliberately strip down template tokens that are not text or variable.
+        for my_token in my_tokens:
+            if my_token.token_type not in (template.TOKEN_TEXT, template.TOKEN_VAR):
+                my_tokens.remove(my_token)
+
+        my_parser = template.Parser(my_tokens)
+        return my_parser.parse().render(self.context)
+
+    def __eq__(self, other):
+        return self.__unicode__() == other
+
+
 class SiteTree(object):
 
     def __init__(self):
@@ -204,14 +228,15 @@ class SiteTree(object):
                                                item.access_permissions.select_related()])
             # Contextual properties.
             item.url_resolved = self.url(item)
-            item.title_resolved = item.title
+            if template.VARIABLE_TAG_START in item.title:
+                item.title_resolved = LazyTitle(item.title, self.global_context)
+            else:
+                item.title_resolved = item.title
             item.is_current = False
             item.in_current_branch = False
 
         # Get current item for the given sitetree.
         self.get_tree_current_item(alias)
-        # Parse titles.
-        self.parse_titles(sitetree)
 
         # Save sitetree data into cache if needed.
         if sitetree_needs_caching:
@@ -420,7 +445,6 @@ class SiteTree(object):
                             menu_items.append(item)
 
         # Parse titles for variables.
-        menu_items = self.parse_titles(menu_items, context)
         menu_items = self.apply_hook(menu_items, 'menu')
         menu_items = self.update_has_children(tree_alias, menu_items, 'menu')
         return menu_items
@@ -579,34 +603,6 @@ class SiteTree(object):
                 varname = varname
 
         return varname
-
-    def parse_titles(self, items, context=None):
-        """Walks through the list of items, and resolves any variable found
-        in a title of an item.
-
-        We deliberately strip down template tokens that are not text or variable.
-        There is definitely no need nor purpose in blocks or comments in a title.
-        Why to think otherwise, if only you're a villain. Joke here.
-
-        Returns the list with resolved titles.
-
-        """
-        if context is None:
-            context = self.global_context
-
-        for item in items:
-            if item.title.find(template.VARIABLE_TAG_START) != -1:
-                my_lexer = template.Lexer(item.title, template.UNKNOWN_SOURCE)
-                my_tokens = my_lexer.tokenize()
-
-                for my_token in my_tokens:
-                    if my_token.token_type not in (template.TOKEN_TEXT, template.TOKEN_VAR):
-                        my_tokens.remove(my_token)
-
-                my_parser = template.Parser(my_tokens)
-                item.title_resolved = my_parser.parse().render(context)
-
-        return items
 
 
 class SiteTreeError(Exception):
