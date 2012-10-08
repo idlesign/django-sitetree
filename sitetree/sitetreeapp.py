@@ -316,7 +316,7 @@ class SiteTree(object):
                 warnings.warn('Use of a template variable in URL field is deprecated. Feature support will be completely removed in 1.0.', DeprecationWarning)
 
             view_path = resolved_var
-            all_arguments = tag_arguments
+            all_arguments = copy(tag_arguments)
 
             if ' ' in resolved_var:
                 view_path = resolved_var.split(' ')
