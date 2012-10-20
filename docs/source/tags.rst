@@ -69,7 +69,7 @@ please use :ref:`tree hooks <tree-hooks>`.
         the limited number of levels, you ought to :ref:`override the built-in templates <overriding-built-in-templates>`.
         For brevity rendering examples below will show only top level rendered for each alias.
 
-  + **trunk** - get hierarchy under root item(s) (whose items whithout parents) :
+  + **trunk** - get hierarchy under trunk, i.e. root item(s) - items without parents:
 
     Renders::
 
