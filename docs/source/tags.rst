@@ -51,24 +51,30 @@ please use :ref:`tree hooks <tree-hooks>`.
       |   |-- About mice
       |
       |-- Contacts
-          |-- Russia
-          |     |-- Web
-          |     |     |-- Public
-          |     |     |-- Private
-          |     |
-          |     |-- Postal
-          |
-          |-- Australia
-          |-- China
+      |   |-- Russia
+      |   |     |-- Web
+      |   |     |     |-- Public
+      |   |     |     |-- Private
+      |   |     |
+      |   |     |-- Postal
+      |   |
+      |   |-- Australia
+      |   |-- China
+      Exit
 
 
-  + **trunk** - get hierarchy under root item (excluding the the root item itself):
+   .. note::
+
+        As it mentioned above, basic built-in templates won't limit the depth of rendered tree, if you need to render
+        the limited number of levels, you ought to :ref:`override the built-in templates <overriding-built-in-templates>`.
+        For brevity rendering examples below will show only top level rendered for each alias.
+
+  + **trunk** - get hierarchy under root item(s) (whose items whithout parents) :
 
     Renders::
 
-      Users
-      Articles
-      Contacts
+      Home
+      Exit
 
   + **this-children** - get items under item resolved as current for the current page;
 
@@ -95,11 +101,6 @@ please use :ref:`tree hooks <tree-hooks>`.
 
   Thus in the template tag example above `trunk` is reserved alias, and `topmenu` alias is given to an item through
   admin site.
-
-   .. note::
-
-        As it mentioned above, basic built-in templates won't limit the depth of rendered tree, if you need to render
-        the limited number of levels, you ought to :ref:`override the built-in templates <overriding-built-in-templates>`.
 
 Sitetree items could be addressed not only by aliases but also by IDs::
 
