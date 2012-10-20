@@ -63,7 +63,7 @@ please use :ref:`tree hooks <tree-hooks>`.
       Exit
 
 
-   .. note::
+  .. note::
 
         As it mentioned above, basic built-in templates won't limit the depth of rendered tree, if you need to render
         the limited number of levels, you ought to :ref:`override the built-in templates <overriding-built-in-templates>`.
