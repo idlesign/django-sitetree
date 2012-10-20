@@ -309,7 +309,7 @@ class TreeTest(unittest.TestCase):
         cls.t2_root = t2_root
 
     def test_children_filtering(self):
-        self.sitetree.global_context = get_mock_context(path='/')
+        self.sitetree._global_context = get_mock_context(path='/')
         self.sitetree.get_sitetree('tree3')
         children = self.sitetree.get_children('tree3', self.t1_root)
         filtered = self.sitetree.filter_items(children, 'menu')
@@ -321,7 +321,7 @@ class TreeTest(unittest.TestCase):
 
     def test_register_i18n_trees(self):
         register_i18n_trees(['tree3'])
-        self.sitetree.global_context = get_mock_context(path='/the_same_url/')
+        self.sitetree._global_context = get_mock_context(path='/the_same_url/')
 
         activate('en')
         self.sitetree.get_sitetree('tree3')
