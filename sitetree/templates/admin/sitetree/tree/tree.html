@@ -19,9 +19,9 @@
 		<td>{{ item.url }}</td>
 		<td>
 			&nbsp;&nbsp;
-			<a href="item_{{ item.id }}/move_up/"><img src="{% sitetree_admin_img_url_prefix %}/arrow-up.gif" class="ctl arr_up" border="0" title="{% trans "Move up" %}"/></a>
+			<a href="item_{{ item.id }}/move_up/" title="{% trans "Move up" %}" class="ctl arr_up"></a>
 			&nbsp;&nbsp;&nbsp;
-			<a href="item_{{ item.id }}/move_down/"><img src="{% sitetree_admin_img_url_prefix %}/arrow-down.gif" class="ctl arr_dn" border="0" title="{% trans "Move down" %}"/></a>
+			<a href="item_{{ item.id }}/move_down/" title="{% trans "Move down" %}" class="ctl arr_down"></a>
 		</td>
 	</tr>
 	{% if item.has_children %}
