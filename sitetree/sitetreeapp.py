@@ -235,7 +235,7 @@ class SiteTree(object):
             # Contextual properties.
             item.url_resolved = self.url(item)
             if template.VARIABLE_TAG_START in item.title:
-                item.title_resolved = LazyTitle(item.title)
+                item.title_resolved = unicode(LazyTitle(item.title))
             else:
                 item.title_resolved = item.title
             item.is_current = False
