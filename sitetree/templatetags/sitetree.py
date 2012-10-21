@@ -129,12 +129,16 @@ def sitetree_url(parser, token):
     """
     tokens = token.contents.split()
     tokens_num = len(tokens)
+    asvar = None
 
     if tokens_num >= 3 and tokens[1] == 'for':
         # TODO Remove additional tag arguments in 1.0.
+        if tokens[-2] == 'as':
+            asvar = tokens[-1]
+            tokens = tokens[:-2]
         sitetree_item = parser.compile_filter(tokens[2])
         tag_arguments = map(parser.compile_filter, tokens[3:])
-        return sitetree_urlNode(sitetree_item, tag_arguments)
+        return sitetree_urlNode(sitetree_item, asvar, tag_arguments)
     else:
         raise template.TemplateSyntaxError, "%r tag should look like {%% sitetree_url for someitem params %%}." % tokens[0]
 
@@ -215,12 +219,16 @@ class sitetree_menuNode(template.Node):
 class sitetree_urlNode(template.Node):
     """Resolves and renders specified url."""
 
-    def __init__(self, sitetree_item, tag_arguments):
+    def __init__(self, sitetree_item, asvar, tag_arguments):
         self.sitetree_item = sitetree_item
         self.tag_arguments = tag_arguments
+        self.asvar = asvar
 
     def render(self, context):
         resolved_url = sitetree.url(self.sitetree_item, self.tag_arguments, context)
+        if self.asvar:
+            context[self.asvar] = resolved_url
+            return ''
         return resolved_url
 
 
