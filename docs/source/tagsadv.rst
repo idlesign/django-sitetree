@@ -34,3 +34,5 @@ Usage example::
 {% sitetree_url for someitem params %}
 
 This tag is much the same as Django built-in 'url' tag. The difference is that after 'for' it should get site tree item object.
+
+It can cast the resolved URL into a context variable when using `as` clause just like `url` tag.
