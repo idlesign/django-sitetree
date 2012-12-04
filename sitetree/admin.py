@@ -135,21 +135,29 @@ class TreeItemAdmin(admin.ModelAdmin):
         # Replace 'parent' TreeItem field with new appropriate one
         form.base_fields['parent'] = my_choice_field
 
-        # Try to resolve all currently registered url names.
+        # Try to resolve all currently registered url names including those in namespaces.
         if not getattr(self, 'known_url_names', False):
             self.known_url_names = []
             self.known_url_rules = []
-            reverse_dict = get_resolver(get_urlconf()).reverse_dict
-            for url_name, url_rules in reverse_dict.items():
-                if isinstance(url_name, basestring):
-                    self.known_url_names.append(url_name)
-                    self.known_url_rules.append('<b>%s</b> %s' % (url_name, ' '.join(url_rules[0][0][1])))
+            resolver = get_resolver(get_urlconf())
+            for ns, (url_prefix, ns_resolver) in resolver.namespace_dict.items():
+                if ns!='admin':
+                    self._stack_known_urls(ns_resolver.reverse_dict, ns)
+            self._stack_known_urls(resolver.reverse_dict)
             self.known_url_rules = sorted(self.known_url_rules)
 
         form.known_url_names_hint = _('You are seeing this warning because "URL as Pattern" option is active and pattern entered above seems to be invalid. Currently registered URL pattern names and parameters: ')
         form.known_url_names = self.known_url_names
         form.known_url_rules = self.known_url_rules
         return form
+
+    def _stack_known_urls(self, reverse_dict, ns=None):
+        for url_name, url_rules in reverse_dict.items():
+            if isinstance(url_name, basestring):
+                if ns is not None:
+                    url_name = '%s:%s' % (ns, url_name)
+                self.known_url_names.append(url_name)
+                self.known_url_rules.append('<b>%s</b> %s' % (url_name, ' '.join(url_rules[0][0][1])))
 
     def get_tree(self, request, tree_id, item_id=None):
         """Fetches Tree for current or given TreeItem."""
