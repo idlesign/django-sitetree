@@ -13,6 +13,7 @@ from django.template.defaulttags import url as url_tag
 from django.template import Context
 
 from models import Tree, TreeItem
+from utils import DJANGO_VERSION_INT
 
 # Sitetree objects are stored in Django cache for a year (60 * 60 * 24 * 365 = 31536000 sec).
 # Cache is only invalidated on sitetree or sitetree item change.
@@ -344,6 +345,9 @@ class SiteTree(object):
                 if '-' in argument or '_':
                     argument = '"%s"' % argument
                 view_arguments.append(argument)
+
+            if DJANGO_VERSION_INT >= 150:  # "new-style" url tag - consider sitetree named urls literals.
+                view_path = "'%s'" % view_path
 
             url_pattern = u'%s %s' % (view_path, ' '.join(view_arguments))
         else:

@@ -1,5 +1,5 @@
 {% extends "admin/change_form.html" %}
-{% load i18n admin_modify adminmedia %}
+{% load i18n admin_modify %}
 {% block content_title %}<h1>{{ title }} {% if not add %}"{{ original.title }}"{% endif %}</h1>{% endblock %}
 {% block extrahead %}{{ block.super }}
     <style type="text/css">
@@ -22,11 +22,12 @@
         (function($) {
             var known_url_names = ["{{ adminform.form.known_url_names|join:'", "' }}"];
             function check_url_pattern() {
-                $('#sitetree-urlnames').hide();
+                var urlnames = $('#sitetree-urlnames');
+                urlnames.hide();
                 if ($('#id_urlaspattern').is(':checked')) {
                     var val = $('#id_url').val().split(' ', 1);
                     if ($.inArray(val[0], known_url_names) == -1) {
-                        $('#sitetree-urlnames').show();
+                        urlnames.show();
                     }
                 }
             }
@@ -49,3 +50,4 @@
     </ul>
 </div>
 {% endblock %}
+{% block breadcrumbs %}{% include "admin/sitetree/treeitem/breadcrumbs.html" %}{% endblock %}

@@ -69,7 +69,7 @@ class TreeItemAdmin(admin.ModelAdmin):
     )
     filter_horizontal = ('access_permissions',)
 
-    def response_add(self, request, obj, post_url_continue='../item_%s/'):
+    def response_add(self, request, obj, post_url_continue='../item_%s/', **kwargs):
         """Redirects to the appropriate items' 'continue' page on item add.
 
         As we administer tree items within tree itself, we
@@ -78,7 +78,7 @@ class TreeItemAdmin(admin.ModelAdmin):
         """
         return super(TreeItemAdmin, self).response_add(request, obj, post_url_continue)
 
-    def response_change(self, request, obj):
+    def response_change(self, request, obj, **kwargs):
         """Redirects to the appropriate items' 'add' page on item change.
 
         As we administer tree items within tree itself, we
@@ -90,7 +90,8 @@ class TreeItemAdmin(admin.ModelAdmin):
             return HttpResponseRedirect('../item_add/')
         elif '_save' in request.POST:
             return HttpResponseRedirect('../')
-        return response
+        else:
+            return HttpResponseRedirect('')
 
     def get_form(self, request, obj=None, **kwargs):
         """Returns modified form for TreeItem model.
@@ -150,26 +151,29 @@ class TreeItemAdmin(admin.ModelAdmin):
         form.known_url_rules = self.known_url_rules
         return form
 
-    def get_tree(self, tree_id):
-        """Fetches Tree for current TreeItem."""
+    def get_tree(self, request, tree_id, item_id=None):
+        """Fetches Tree for current or given TreeItem."""
+        if tree_id is None:
+            tree_id = self.get_object(request, item_id).tree_id
         self.tree = Tree._default_manager.get(pk=tree_id)
+        self.tree.verbose_name_plural = self.tree._meta.verbose_name_plural
         return self.tree
 
     def item_add(self, request, tree_id):
-        tree = self.get_tree(tree_id)
-        return self.add_view(request)
+        tree = self.get_tree(request, tree_id)
+        return self.add_view(request, extra_context={'tree': tree})
 
-    def item_edit(self, request, tree_id, item_id):
-        tree = self.get_tree(tree_id)
+    def item_edit(self, request, item_id, tree_id=None):
+        tree = self.get_tree(request, tree_id, item_id)
         return self.change_view(request, item_id, extra_context={'tree': tree})
 
-    def item_delete(self, request, tree_id, item_id):
-        tree = self.get_tree(tree_id)
-        return self.delete_view(request, item_id)
+    def item_delete(self, request, item_id, tree_id=None):
+        tree = self.get_tree(request, tree_id, item_id)
+        return self.delete_view(request, item_id, extra_context={'tree': tree})
 
-    def item_history(self, request, tree_id, item_id):
-        tree = self.get_tree(tree_id)
-        return self.history_view(request, item_id)
+    def item_history(self, request, item_id, tree_id=None):
+        tree = self.get_tree(request, tree_id, item_id)
+        return self.history_view(request, item_id, extra_context={'tree': tree})
 
     def item_move(self, request, tree_id, item_id, direction):
         """Moves item up or down by swapping 'sort_order' field values of neighboring items."""
@@ -246,22 +250,15 @@ class TreeAdmin(admin.ModelAdmin):
     def get_urls(self):
         """Manages not only TreeAdmin URLs but also TreeItemAdmin URLs."""
         urls = super(TreeAdmin, self).get_urls()
-
         sitetree_urls = patterns('',
-            # Django 1.4 Admin contrib new url handling workarounds below.
-            # Sitetree item redirect on 'save' and breadcrumbs fix.
-            url(r'^p_tree/$', redirects_handler, name='sitetree_treeitem_changelist'),
-            # Sitetree item history breadcrumbs fix.
-            url(r'^p_tree/(?P<item_id>\d+)', redirects_handler),
-            # Sitetree item redirect on 'save and add another' fix.
-            # Note that this is a stab, as actual redirect happens in TreeItemAdmin::response_change().
-            url(r'^dummy_another$', lambda x: x, name='sitetree_treeitem_add'),
-
-            (r'^(?P<tree_id>\d+)/item_add/$', self.admin_site.admin_view(self.tree_admin.item_add)),
-            (r'^(?P<tree_id>\d+)/item_(?P<item_id>\d+)/$', self.admin_site.admin_view(self.tree_admin.item_edit)),
-            (r'^(?P<tree_id>\d+)/item_(?P<item_id>\d+)/history/$', self.admin_site.admin_view(self.tree_admin.item_history)),
-            (r'^(?P<tree_id>\d+)/item_(?P<item_id>\d+)/delete/$', self.admin_site.admin_view(self.tree_admin.item_delete)),
-            (r'^(?P<tree_id>\d+)/item_(?P<item_id>\d+)/move_(?P<direction>(up|down))/$', self.admin_site.admin_view(self.tree_admin.item_move)),
+            # Trying to be nice and adopt url handling changes in Django 1.4, 1.5 Admin contrib.
+            url(r'^/$', redirects_handler, name='sitetree_treeitem_changelist'),
+            url(r'^((?P<tree_id>\d+)/)?item_add/$', self.admin_site.admin_view(self.tree_admin.item_add), name='sitetree_treeitem_add'),
+            url(r'^(?P<tree_id>\d+)/item_(?P<item_id>\d+)/$', self.admin_site.admin_view(self.tree_admin.item_edit), name='sitetree_treeitem_change'),
+            url(r'^item_(?P<item_id>\d+)/$', self.admin_site.admin_view(self.tree_admin.item_edit), name='sitetree_treeitem_change'),
+            url(r'^((?P<tree_id>\d+)/)?item_(?P<item_id>\d+)/delete/$', self.admin_site.admin_view(self.tree_admin.item_delete), name='sitetree_treeitem_delete'),
+            url(r'^((?P<tree_id>\d+)/)?item_(?P<item_id>\d+)/history/$', self.admin_site.admin_view(self.tree_admin.item_history), name='sitetree_treeitem_history'),
+            url(r'^(?P<tree_id>\d+)/item_(?P<item_id>\d+)/move_(?P<direction>(up|down))/$', self.admin_site.admin_view(self.tree_admin.item_move), name='sitetree_treeitem_move'),
         )
         return sitetree_urls + urls
 
