@@ -30,6 +30,9 @@ class Tree(models.Model):
         verbose_name = _('Site Tree')
         verbose_name_plural = _('Site Trees')
 
+    def get_title(self):
+        return self.title or self.alias
+
     def __unicode__(self):
         return u'%s' % self.alias
 
