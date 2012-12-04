@@ -1,15 +1,14 @@
 from django import template
-from django import VERSION
 from django.templatetags.static import PrefixNode
 
 from ..sitetreeapp import SiteTree
+from ..utils import DJANGO_VERSION_INT
 
 register = template.Library()
 
 # All utility methods are implemented in SiteTree class
 sitetree = SiteTree()
 
-DJANGO_VERSION_INT = int('%s%s%s' % VERSION[:3])
 
 
 @register.tag
