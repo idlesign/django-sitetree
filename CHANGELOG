@@ -1,3 +1,14 @@
+v0.9.2
+------
++ Django 1.3+ set as required minimum.
++ Added Django 1.5 support (see #87).
++ Added namespaces support for known urls hint (closes #83).
++ Added 'as' clause for sitetree_url tag (see #81).
++ Introduced Tree.get_title().
+* Humble performance improvements for large trees (see #49).
+* Template variables in URL feature marked deprecated (fixes #74).
+
+
 v0.9.1
 ------
 + Added experimental URL pattern name hinting at tree item create/edit page (see #67).
