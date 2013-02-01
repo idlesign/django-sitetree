@@ -1,6 +1,5 @@
 from django import template
 from django.forms import ChoiceField
-from django.conf.urls.defaults import patterns, url
 from django.core.urlresolvers import get_urlconf, get_resolver
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
@@ -11,6 +10,12 @@ from django.contrib import messages
 
 from models import Tree, TreeItem
 from templatetags.sitetree import sitetree_tree
+from utils import DJANGO_VERSION_INT
+
+if DJANGO_VERSION_INT < 140:
+    from django.conf.urls.defaults import patterns, url
+else:
+    from django.conf.urls import patterns, url
 
 
 _TREE_ADMIN = lambda: TreeAdmin

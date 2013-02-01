@@ -137,6 +137,8 @@ def sitetree_url(parser, token):
             tokens = tokens[:-2]
         sitetree_item = parser.compile_filter(tokens[2])
         tag_arguments = map(parser.compile_filter, tokens[3:])
+        if not tag_arguments:
+            tag_arguments = None
         return sitetree_urlNode(sitetree_item, as_var, tag_arguments)
     else:
         raise template.TemplateSyntaxError, "%r tag should look like {%% sitetree_url for someitem params %%}." % tokens[0]
