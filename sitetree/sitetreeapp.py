@@ -342,7 +342,7 @@ class SiteTree(object):
             for argument in all_arguments:
                 argument = str(argument)
                 # To be able to process slug-like strings (strings with "-"'s and "_"'s) we enclose those in double quotes.
-                if '-' in argument or '_':
+                if '-' in argument or '_' in argument:
                     argument = '"%s"' % argument
                 view_arguments.append(argument)
 
