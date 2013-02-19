@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import warnings
 
 from collections import defaultdict
@@ -7,13 +9,15 @@ from django.conf import settings
 from django import template
 from django.core.cache import cache
 from django.db.models import signals
+from django.utils import six
 from django.utils.http import urlquote
 from django.utils.translation import get_language
+
 from django.template.defaulttags import url as url_tag
 from django.template import Context
 
-from models import Tree, TreeItem
-from utils import DJANGO_VERSION_INT
+from .models import Tree, TreeItem
+from .utils import DJANGO_VERSION_INT
 
 # Sitetree objects are stored in Django cache for a year (60 * 60 * 24 * 365 = 31536000 sec).
 # Cache is only invalidated on sitetree or sitetree item change.
@@ -331,7 +335,7 @@ class SiteTree(object):
                 for view_argument in view_path[1:]:
                     resolved = self.resolve_var(view_argument)
                     # In case of non-ascii data we leave variable unresolved.
-                    if isinstance(resolved, unicode):
+                    if isinstance(resolved, six.text_type):
                         if resolved.encode('ascii', 'ignore').decode('ascii') != resolved:
                             resolved = view_argument
                         # URL parameters from site tree item should be concatenated with those from template.
@@ -351,7 +355,7 @@ class SiteTree(object):
 
             url_pattern = u'%s %s' % (view_path, ' '.join(view_arguments))
         else:
-            url_pattern = unicode(sitetree_item.url)
+            url_pattern = str(sitetree_item.url)
 
         tree_alias = sitetree_item.tree.alias
 
@@ -436,8 +440,11 @@ class SiteTree(object):
                 branch_id = self.get_ancestor_item(tree_alias, current_item).id
                 parent_ids.append(branch_id)
             elif branch_id == 'this-siblings' and current_item is not None:
-                branch_id = current_item.parent.id
-                parent_ids.append(branch_id)
+                print(dir(current_item))
+                print(current_item.parent)
+                if current_item.parent is not None:
+                    branch_id = current_item.parent.id
+                    parent_ids.append(branch_id)
             elif branch_id.isdigit():
                 parent_ids.append(int(branch_id))
             else:
