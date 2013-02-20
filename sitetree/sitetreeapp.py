@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import warnings
 
 from collections import defaultdict
@@ -7,13 +9,15 @@ from django.conf import settings
 from django import template
 from django.core.cache import cache
 from django.db.models import signals
+from django.utils import six
 from django.utils.http import urlquote
 from django.utils.translation import get_language
+
 from django.template.defaulttags import url as url_tag
 from django.template import Context
 
-from models import Tree, TreeItem
-from utils import DJANGO_VERSION_INT
+from .models import Tree, TreeItem
+from .utils import DJANGO_VERSION_INT
 
 # Sitetree objects are stored in Django cache for a year (60 * 60 * 24 * 365 = 31536000 sec).
 # Cache is only invalidated on sitetree or sitetree item change.
@@ -317,7 +321,7 @@ class SiteTree(object):
 
             # Check whether a template variable is used instead of a URL pattern.
             if resolved_var != sitetree_item.url:
-                if not isinstance(resolved_var, basestring):  # Variable contains what we're not expecting, revert to original URL.
+                if not isinstance(resolved_var, six.string_types):  # Variable contains what we're not expecting, revert to original URL.
                     resolved_var = sitetree_item.url
                 # TODO Remove template var resolution in 1.0.
                 warnings.warn('Use of a template variable in URL field is deprecated. Feature support will be completely removed in 1.0.', DeprecationWarning)
@@ -331,7 +335,7 @@ class SiteTree(object):
                 for view_argument in view_path[1:]:
                     resolved = self.resolve_var(view_argument)
                     # In case of non-ascii data we leave variable unresolved.
-                    if isinstance(resolved, unicode):
+                    if isinstance(resolved, six.text_type):
                         if resolved.encode('ascii', 'ignore').decode('ascii') != resolved:
                             resolved = view_argument
                         # URL parameters from site tree item should be concatenated with those from template.
@@ -351,7 +355,7 @@ class SiteTree(object):
 
             url_pattern = u'%s %s' % (view_path, ' '.join(view_arguments))
         else:
-            url_pattern = unicode(sitetree_item.url)
+            url_pattern = str(sitetree_item.url)
 
         tree_alias = sitetree_item.tree.alias
 
