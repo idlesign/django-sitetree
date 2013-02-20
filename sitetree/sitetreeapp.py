@@ -321,7 +321,7 @@ class SiteTree(object):
 
             # Check whether a template variable is used instead of a URL pattern.
             if resolved_var != sitetree_item.url:
-                if not isinstance(resolved_var, basestring):  # Variable contains what we're not expecting, revert to original URL.
+                if not isinstance(resolved_var, six.string_types):  # Variable contains what we're not expecting, revert to original URL.
                     resolved_var = sitetree_item.url
                 # TODO Remove template var resolution in 1.0.
                 warnings.warn('Use of a template variable in URL field is deprecated. Feature support will be completely removed in 1.0.', DeprecationWarning)
