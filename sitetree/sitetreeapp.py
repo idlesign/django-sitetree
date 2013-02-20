@@ -440,11 +440,8 @@ class SiteTree(object):
                 branch_id = self.get_ancestor_item(tree_alias, current_item).id
                 parent_ids.append(branch_id)
             elif branch_id == 'this-siblings' and current_item is not None:
-                print(dir(current_item))
-                print(current_item.parent)
-                if current_item.parent is not None:
-                    branch_id = current_item.parent.id
-                    parent_ids.append(branch_id)
+                branch_id = current_item.parent.id
+                parent_ids.append(branch_id)
             elif branch_id.isdigit():
                 parent_ids.append(int(branch_id))
             else:
