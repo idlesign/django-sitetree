@@ -3,14 +3,15 @@ from django.forms import ChoiceField
 from django.core.urlresolvers import get_urlconf, get_resolver
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
+from django.utils import six
 from django.http import HttpResponseRedirect
 from django.contrib import admin
 from django.contrib.admin.sites import NotRegistered
 from django.contrib import messages
 
-from models import Tree, TreeItem
-from templatetags.sitetree import sitetree_tree
-from utils import DJANGO_VERSION_INT
+from .models import Tree, TreeItem
+from .templatetags.sitetree import sitetree_tree
+from .utils import DJANGO_VERSION_INT
 
 if DJANGO_VERSION_INT < 140:
     from django.conf.urls.defaults import patterns, url
@@ -158,7 +159,7 @@ class TreeItemAdmin(admin.ModelAdmin):
 
     def _stack_known_urls(self, reverse_dict, ns=None):
         for url_name, url_rules in reverse_dict.items():
-            if isinstance(url_name, basestring):
+            if isinstance(url_name, six.string_types):
                 if ns is not None:
                     url_name = '%s:%s' % (ns, url_name)
                 self.known_url_names.append(url_name)

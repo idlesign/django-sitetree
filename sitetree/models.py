@@ -2,6 +2,8 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from django.contrib.auth.models import Permission
+from django.utils.encoding import python_2_unicode_compatible
+
 
 # This allows South to handle our custom 'CharFieldNullable' field.
 if 'south' in settings.INSTALLED_APPS:
@@ -22,6 +24,7 @@ class CharFieldNullable(models.CharField):
         return self.to_python(value)
 
 
+@python_2_unicode_compatible
 class Tree(models.Model):
     title = models.CharField(_('Title'), max_length=100, help_text=_('Site tree title for presentational purposes.'), blank=True)
     alias = models.CharField(_('Alias'), max_length=80, help_text=_('Short name to address site tree from templates.<br /><b>Note:</b> change with care.'), unique=True, db_index=True)
@@ -33,10 +36,11 @@ class Tree(models.Model):
     def get_title(self):
         return self.title or self.alias
 
-    def __unicode__(self):
-        return u'%s' % self.alias
+    def __str__(self):
+        return self.alias
 
 
+@python_2_unicode_compatible
 class TreeItem(models.Model):
     PERM_TYPE_ANY = 1
     PERM_TYPE_ALL = 2
@@ -81,5 +85,5 @@ class TreeItem(models.Model):
         verbose_name_plural = _('Site Tree Items')
         unique_together = ('tree', 'alias')
 
-    def __unicode__(self):
-        return u'%s' % self.title
+    def __str__(self):
+        return self.title
