@@ -29,7 +29,7 @@ User access to certain sitetree items can be restricted to authenticated users o
 Requirements
 ------------
 
-1. Django 1.3+
+1. Django 1.4+
 2. Admin site Django contrib package
 3. Auth Django contrib package
 4. South 0.7.1+ for Django (required for version upgrades)

@@ -11,12 +11,8 @@ from django.contrib import messages
 
 from .models import Tree, TreeItem
 from .templatetags.sitetree import sitetree_tree
-from .utils import DJANGO_VERSION_INT
 
-if DJANGO_VERSION_INT < 140:
-    from django.conf.urls.defaults import patterns, url
-else:
-    from django.conf.urls import patterns, url
+from django.conf.urls import patterns, url
 
 
 _TREE_ADMIN = lambda: TreeAdmin

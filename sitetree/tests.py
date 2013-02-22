@@ -5,12 +5,8 @@ from django.core import urlresolvers
 
 from sitetree.models import Tree, TreeItem
 from sitetree.sitetreeapp import SiteTree, SiteTreeError, register_items_hook, register_i18n_trees
-from sitetree.utils import DJANGO_VERSION_INT
 
-if DJANGO_VERSION_INT < 140:
-    from django.conf.urls.defaults import patterns, url
-else:
-    from django.conf.urls import patterns, url
+from django.conf.urls import patterns, url
 
 
 urlpatterns = patterns('',
