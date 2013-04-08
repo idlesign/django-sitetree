@@ -340,7 +340,7 @@ class SiteTree(object):
                             resolved = view_argument
                         # URL parameters from site tree item should be concatenated with those from template.
                     all_arguments.append('"%s"' % str(resolved))  # We enclose arg in double quotes as already resolved.
-                view_path = view_path[0]
+                view_path = view_path[0].strip('"\' ')
 
             if DJANGO_VERSION_INT >= 150:  # "new-style" url tag - consider sitetree named urls literals.
                 view_path = "'%s'" % view_path

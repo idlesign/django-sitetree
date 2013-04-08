@@ -26,7 +26,8 @@
                 urlnames.hide();
                 if ($('#id_urlaspattern').is(':checked')) {
                     var val = $('#id_url').val().split(' ', 1);
-                    if ($.inArray(val[0], known_url_names) == -1) {
+                    val = val[0].replace(/'/g, '').replace(/"/g, '');
+                    if ($.inArray(val, known_url_names) == -1) {
                         urlnames.show();
                     }
                 }

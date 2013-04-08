@@ -30,10 +30,11 @@ class MockUser(object):
         return self.authorized
 
 
-def get_mock_context(app=None, path=None, user_authorized=False, tree_item=None):
-    return template.Context({'request': MockRequest(path, user_authorized),
-                             't2_root2_title': 'my_real_title', 'art_id': 10, 'tree_item': tree_item,
-                             'somevar_str': 'articles_list', 'somevar_list': ['a', 'b']}, current_app=app)
+def get_mock_context(app=None, path=None, user_authorized=False, tree_item=None, put_var=None):
+    ctx = template.Context({'request': MockRequest(path, user_authorized),
+                            't2_root2_title': 'my_real_title', 'art_id': 10, 'tree_item': tree_item,
+                            'somevar_str': 'articles_list', 'somevar_list': ['a', 'b'], 'put_var': put_var}, current_app=app)
+    return ctx
 
 
 class TreeModelTest(unittest.TestCase):
@@ -97,8 +98,14 @@ class TreeItemModelTest(unittest.TestCase):
         t2_root3 = TreeItem(title='for logged in only', tree=t2, url='/some/', access_loggedin=True)
         t2_root3.save(force_insert=True)
 
-        t2_root4 = TreeItem(title='url quoting', tree=t2, url='url 2 slugvar', urlaspattern=True)
+        t2_root4 = TreeItem(title='url quoting', tree=t2, url='url 2 put_var', urlaspattern=True)
         t2_root4.save(force_insert=True)
+
+        t2_root5 = TreeItem(title='url quoting 1.5 style', tree=t2, url="'url' 2 put_var", urlaspattern=True)
+        t2_root5.save(force_insert=True)
+
+        t2_root6 = TreeItem(title='url quoting 1.5 style', tree=t2, url='"url" 2 put_var', urlaspattern=True)
+        t2_root6.save(force_insert=True)
 
         cls.t1 = t1
         cls.t1_root = t1_root
@@ -114,6 +121,8 @@ class TreeItemModelTest(unittest.TestCase):
         cls.t2_root2 = t2_root2
         cls.t2_root3 = t2_root3
         cls.t2_root4 = t2_root4
+        cls.t2_root5 = t2_root5
+        cls.t2_root6 = t2_root6
 
         # set urlconf to test's one
         cls.old_urlconf = urlresolvers.get_urlconf()
@@ -130,11 +139,22 @@ class TreeItemModelTest(unittest.TestCase):
         self.assertEqual(children[3].url_resolved, '#unresolved')
 
     def test_url_resolve(self):
-        self.sitetree.menu('tree1', 'trunk', get_mock_context(path='/'))
+        self.sitetree.menu('tree1', 'trunk', get_mock_context(path='/', put_var='abrakadabra'))
+
         url = self.sitetree.url(self.t2_root4, None, get_mock_context(path='/articles/2_slugged/'))
-        self.assertNotEqual(url, '#unresolved')
+        self.assertTrue(url.find('abrakadabra') > -1)
+
+        self.sitetree.menu('tree1', 'trunk', get_mock_context(path='/', put_var='booo'))
         url = self.sitetree.url(self.t2_root4, None, get_mock_context(path='/articles/2_slugged-mugged/'))
-        self.assertNotEqual(url, '#unresolved')
+        self.assertTrue(url.find('booo') > -1)
+
+        self.sitetree.menu('tree1', 'trunk', get_mock_context(path='/', put_var='rolling'))
+        url = self.sitetree.url(self.t2_root5, None, get_mock_context(path='/articles/2_quoted/'))
+        self.assertTrue(url.find('rolling') > -1)
+
+        self.sitetree.menu('tree1', 'trunk', get_mock_context(path='/', put_var='spoon'))
+        url = self.sitetree.url(self.t2_root6, None, get_mock_context(path='/articles/2_quoted/'))
+        self.assertTrue(url.find('spoon') > -1)
 
     def test_no_tree(self):
         ti = TreeItem(title='notree_item')
@@ -165,7 +185,7 @@ class TreeItemModelTest(unittest.TestCase):
         self.assertEqual(menu[0].in_current_branch, True)
 
         menu = self.sitetree.menu('tree2', 'trunk', get_mock_context(path='/sub/'))
-        self.assertEqual(len(menu), 3)
+        self.assertEqual(len(menu), 5)
         self.assertEqual(menu[0].id, self.t2_root1.id)
         self.assertEqual(menu[1].id, self.t2_root2.id)
         self.assertEqual(menu[0].is_current, False)
@@ -215,7 +235,7 @@ class TreeItemModelTest(unittest.TestCase):
         self.assertEqual(st1[0].has_children, True)
 
         st2 = self.sitetree.tree('tree2', get_mock_context(path='/'))
-        self.assertEqual(len(st2), 3)  # Only two tree items are visible for non logged in.
+        self.assertEqual(len(st2), 5)  # Not every item is visible for non logged in.
         self.assertEqual(st2[0].id, self.t2_root1.id)
         self.assertEqual(st2[1].id, self.t2_root2.id)
 
