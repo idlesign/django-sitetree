@@ -12,6 +12,7 @@ from django.conf.urls import patterns, url
 urlpatterns = patterns('',
     url(r'articles/', lambda r: None, name='articles_list'),
     url(r'articles/(\d+)/', lambda r: None, name='articles_detailed'),
+    url(r'articles/(?P<id>\d+)_(?P<slug>[\w-]+)/', lambda r: None, name='url'),
 )
 
 
@@ -96,6 +97,9 @@ class TreeItemModelTest(unittest.TestCase):
         t2_root3 = TreeItem(title='for logged in only', tree=t2, url='/some/', access_loggedin=True)
         t2_root3.save(force_insert=True)
 
+        t2_root4 = TreeItem(title='url quoting', tree=t2, url='url 2 slugvar', urlaspattern=True)
+        t2_root4.save(force_insert=True)
+
         cls.t1 = t1
         cls.t1_root = t1_root
         cls.t1_root_child1 = t1_root_child1
@@ -109,6 +113,7 @@ class TreeItemModelTest(unittest.TestCase):
 
         cls.t2_root2 = t2_root2
         cls.t2_root3 = t2_root3
+        cls.t2_root4 = t2_root4
 
         # set urlconf to test's one
         cls.old_urlconf = urlresolvers.get_urlconf()
@@ -123,6 +128,13 @@ class TreeItemModelTest(unittest.TestCase):
         children = self.sitetree.get_children('tree1', menu[0])
         self.assertEqual(children[2].url_resolved, '/articles/')
         self.assertEqual(children[3].url_resolved, '#unresolved')
+
+    def test_url_resolve(self):
+        self.sitetree.menu('tree1', 'trunk', get_mock_context(path='/'))
+        url = self.sitetree.url(self.t2_root4, None, get_mock_context(path='/articles/2_slugged/'))
+        self.assertNotEqual(url, '#unresolved')
+        url = self.sitetree.url(self.t2_root4, None, get_mock_context(path='/articles/2_slugged-mugged/'))
+        self.assertNotEqual(url, '#unresolved')
 
     def test_no_tree(self):
         ti = TreeItem(title='notree_item')
@@ -153,7 +165,7 @@ class TreeItemModelTest(unittest.TestCase):
         self.assertEqual(menu[0].in_current_branch, True)
 
         menu = self.sitetree.menu('tree2', 'trunk', get_mock_context(path='/sub/'))
-        self.assertEqual(len(menu), 2)
+        self.assertEqual(len(menu), 3)
         self.assertEqual(menu[0].id, self.t2_root1.id)
         self.assertEqual(menu[1].id, self.t2_root2.id)
         self.assertEqual(menu[0].is_current, False)
@@ -203,7 +215,7 @@ class TreeItemModelTest(unittest.TestCase):
         self.assertEqual(st1[0].has_children, True)
 
         st2 = self.sitetree.tree('tree2', get_mock_context(path='/'))
-        self.assertEqual(len(st2), 2)  # Only two tree items are visible for non logged in.
+        self.assertEqual(len(st2), 3)  # Only two tree items are visible for non logged in.
         self.assertEqual(st2[0].id, self.t2_root1.id)
         self.assertEqual(st2[1].id, self.t2_root2.id)
 

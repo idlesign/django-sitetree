@@ -339,21 +339,13 @@ class SiteTree(object):
                         if resolved.encode('ascii', 'ignore').decode('ascii') != resolved:
                             resolved = view_argument
                         # URL parameters from site tree item should be concatenated with those from template.
-                    all_arguments.append(resolved)
+                    all_arguments.append('"%s"' % str(resolved))  # We enclose arg in double quotes as already resolved.
                 view_path = view_path[0]
-
-            view_arguments = []
-            for argument in all_arguments:
-                argument = str(argument)
-                # To be able to process slug-like strings (strings with "-"'s and "_"'s) we enclose those in double quotes.
-                if '-' in argument or '_' in argument:
-                    argument = '"%s"' % argument
-                view_arguments.append(argument)
 
             if DJANGO_VERSION_INT >= 150:  # "new-style" url tag - consider sitetree named urls literals.
                 view_path = "'%s'" % view_path
 
-            url_pattern = u'%s %s' % (view_path, ' '.join(view_arguments))
+            url_pattern = u'%s %s' % (view_path, ' '.join(all_arguments))
         else:
             url_pattern = str(sitetree_item.url)
 
