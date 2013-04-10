@@ -1,3 +1,9 @@
+v0.9.4
+------
++ Added Django 1.5 url tag syntax support for URL field.
+* Fixed args quoting in url tag call causing #unresolved links (closes #95).
+
+
 v0.9.3
 ------
 + Added Python 3 support (see #93).
