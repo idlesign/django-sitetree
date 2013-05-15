@@ -396,14 +396,18 @@ class SiteTree(object):
 
     def get_current_page_title(self, tree_alias, context):
         """Returns resolved from sitetree title for current page."""
+        return self.get_current_page_attr('title_resolved', tree_alias, context)
+
+    def get_current_page_attr(self, attr_name, tree_alias, context):
+        """Returns an arbitrary attribute of a sitetree item resolved as current for current page."""
         tree_alias, sitetree_items = self.init_tree(tree_alias, context)
         current_item = self.get_tree_current_item(tree_alias)
-        # Current item unresolved, fail silently.
+        # Current item is unresolved, fail silently.
         if current_item is None:
             if settings.DEBUG:
-                raise SiteTreeError('Unable to resolve title for current page using sitetree_page_title tag. Check whether there is an appropriate sitetree item defined for current URL.')
+                raise SiteTreeError('Unable to resolve current sitetree item to get a `%s` for current page. Check whether there is an appropriate sitetree item defined for current URL.' % attr_name)
             return ''
-        return current_item.title_resolved
+        return getattr(current_item, attr_name, '')
 
     def menu(self, tree_alias, tree_branches, context):
         """Builds and returns menu structure for 'sitetree_menu' tag."""

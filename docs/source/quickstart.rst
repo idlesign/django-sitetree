@@ -13,6 +13,7 @@ Now you can use the following template tags:
   + :ref:`sitetree_breadcrumbs <tag-breadcrumbs>` - to render breadcrumbs path based on sitetree;
   + :ref:`sitetree_tree <tag-tree>` - to render site tree;
   + :ref:`sitetree_page_title <tag-page-title>` - to render current page title resolved against definite sitetree.
+  + :ref:`sitetree_page_description <tag-page-description>` - to render current page description resolved against definite sitetree.
 
 
 Upgrade hint

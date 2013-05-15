@@ -17,6 +17,7 @@ Tree tag argument (part in double quotes, following '**from**' word) of SiteTree
     {% sitetree_breadcrumbs from "mytree" template "mytrees/mybreadcrumbs.html" %}
 
 
+
 .. _tag-menu:
 
 sitetree_menu
@@ -107,6 +108,7 @@ Sitetree items could be addressed not only by aliases but also by IDs::
 {% sitetree_menu from "mytree" include "10" %}
 
 
+
 .. _tag-breadcrumbs:
 
 sitetree_breadcrumbs
@@ -119,6 +121,7 @@ Usage example::
 {% sitetree_breadcrumbs from "mytree" %}
 
 This command renders breadcrumbs from tree named 'mytree'.
+
 
 
 .. _tag-tree:
@@ -135,12 +138,13 @@ Usage example::
 This command renders sitetree from tree named 'mytree'.
 
 
+
 .. _tag-page-title:
 
 sitetree_page_title
 -------------------
 
-This tag renders current page title resolved against definite sitetree. Title is taken from sitetree item title resolved for current page.
+This tag renders current page title resolved against definite sitetree. Title is taken from a sitetree item title resolved as current for the current page.
 
 Usage example::
 
@@ -148,3 +152,19 @@ Usage example::
 
 This command renders current page title from tree named 'mytree'.
 
+
+
+.. _tag-page-description:
+
+sitetree_page_description
+-------------------------
+
+This tag renders current page description resolved against definite sitetree. Description is taken from a sitetree item description resolved as current for the current page.
+
+That can be useful for meta description for an HTML page.
+
+Usage example::
+
+{% sitetree_page_description from "mytree" %}
+
+This command renders current page description from tree named 'mytree'.

@@ -70,7 +70,7 @@ class TreeItemModelTest(unittest.TestCase):
         t1_root_child1 = TreeItem(title='child1', tree=t1, parent=t1_root, url='/about/')
         t1_root_child1.save(force_insert=True)
 
-        t1_root_child2 = TreeItem(title='child2', tree=t1, parent=t1_root, url='articles_list', urlaspattern=True)
+        t1_root_child2 = TreeItem(title='child2', tree=t1, parent=t1_root, url='articles_list', urlaspattern=True, description='items_descr')
         t1_root_child2.save(force_insert=True)
 
         t1_root_child2_sub1 = TreeItem(title='subchild1', tree=t1, parent=t1_root_child2,
@@ -225,6 +225,13 @@ class TreeItemModelTest(unittest.TestCase):
 
         title = self.sitetree.get_current_page_title('tree1', get_mock_context(path='/not_articles/'))
         self.assertEqual(title, '')
+
+    def test_page_attr(self):
+        attr = self.sitetree.get_current_page_attr('description', 'tree1', get_mock_context(path='/articles/'))
+        self.assertEqual(attr, self.t1_root_child2.description)
+
+        attr = self.sitetree.get_current_page_attr('description', 'tree1', get_mock_context(path='/not_articles/'))
+        self.assertEqual(attr, '')
 
     def test_sitetree(self):
         st1 = self.sitetree.tree('tree1', get_mock_context(path='/articles/'))
