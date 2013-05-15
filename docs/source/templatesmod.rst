@@ -15,6 +15,8 @@ Nevertheless pay attention that menu template also uses two CSS classes marking 
   * **current_branch** — marks all ancestors of current item, and current item itself.
 
 
+.. _overriding-built-in-templates:
+
 Overriding built-in templates
 -----------------------------
 
