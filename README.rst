@@ -29,4 +29,7 @@ After setting up site structure as a sitetree you should be able to use convenie
 User access to certain sitetree items can be restricted to authenticated users or more accurately with the help of Django permissions system (Auth contrib package).
 
 
-**Documentation**: http://readthedocs.org/docs/django-sitetree/en/latest/
+Documentation
+-------------
+
+http://django-sitetree.readthedocs.org/
