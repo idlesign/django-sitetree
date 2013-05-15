@@ -135,7 +135,7 @@ class SiteTree(object):
         """Initializes local cache from Django cache."""
         cache_ = cache.get('sitetrees')
         if cache_ is None:
-            # Init cache dictionary with predefined enties.
+            # Init cache dictionary with predefined entries.
             cache_ = {'sitetrees': {}, 'urls': {}, 'parents': {}, 'items_by_ids': {}, 'tree_aliases': {}}
         self.cache = cache_
 
@@ -366,7 +366,7 @@ class SiteTree(object):
                 url_tag(template.Parser(None), template.Token(token_type=template.TOKEN_BLOCK, contents=url_token)).render(context)
 
                 # We make an anchor link from an unresolved URL as a reminder.
-                if context['item.url_resolved'] == '':
+                if not context['item.url_resolved']:
                     resolved_url = u'#unresolved'
                 else:
                     resolved_url = context['item.url_resolved']
@@ -445,7 +445,7 @@ class SiteTree(object):
 
         menu_items = []
         for item in sitetree_items:
-            if item.hidden == False and item.inmenu and self.check_access(item, context):
+            if not item.hidden and item.inmenu and self.check_access(item, context):
                 if item.parent is None:
                     if parent_isnull:
                         menu_items.append(item)
@@ -480,7 +480,7 @@ class SiteTree(object):
                 if len(item.perms) != len(item.perms.intersection(user_perms)):
                     return False
             else:
-                if len(item.perms.intersection(user_perms)) == 0:
+                if not len(item.perms.intersection(user_perms)):
                     return False
         return True
 
@@ -548,7 +548,7 @@ class SiteTree(object):
             children = self.get_children(tree_alias, tree_item)
             children = self.filter_items(children, navigation_type)
             children = self.apply_hook(children, '%s.has_children' % navigation_type)
-            tree_item.has_children = len(children)>0
+            tree_item.has_children = len(children) > 0
             items.append(tree_item)
         return items
 
@@ -560,8 +560,8 @@ class SiteTree(object):
         if self._global_context.current_app != 'admin':
             for item in items:
                 no_access = not self.check_access(item, self._global_context)
-                hidden_for_nav_type = navigation_type is not None and getattr(item, 'in' + navigation_type, False) != True
-                if item.hidden == True or no_access or hidden_for_nav_type:
+                hidden_for_nav_type = navigation_type is not None and not getattr(item, 'in' + navigation_type, False)
+                if item.hidden or no_access or hidden_for_nav_type:
                     items_out.remove(item)
         return items_out
 
