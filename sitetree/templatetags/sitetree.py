@@ -133,7 +133,7 @@ def sitetree_url(parser, token):
             as_var = tokens[-1]
             tokens = tokens[:-2]
         sitetree_item = parser.compile_filter(tokens[2])
-        tag_arguments = map(parser.compile_filter, tokens[3:])
+        tag_arguments = list(map(parser.compile_filter, tokens[3:]))
         if not tag_arguments:
             tag_arguments = None
         return sitetree_urlNode(sitetree_item, as_var, tag_arguments)
