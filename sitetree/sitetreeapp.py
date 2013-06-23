@@ -409,6 +409,16 @@ class SiteTree(object):
             return ''
         return current_item.title_resolved
 
+    def get_ancestor_level(self, current_item, deep=1):
+        """Returns ancestor of level `deep` recursively"""
+        if current_item.parent is not None:
+            if deep <= 1:
+                return current_item.parent
+            else:
+                return self.get_ancestor_level(current_item.parent, deep=deep-1)
+        else:
+            return current_item
+
     def menu(self, tree_alias, tree_branches, context):
         """Builds and returns menu structure for 'sitetree_menu' tag."""
         tree_alias, sitetree_items = self.init_tree(tree_alias, context)
@@ -437,6 +447,15 @@ class SiteTree(object):
                 parent_ids.append(branch_id)
             elif branch_id == 'this-siblings' and current_item is not None:
                 branch_id = current_item.parent.id
+                parent_ids.append(branch_id)
+            elif branch_id == 'this-parent-siblings' and current_item is not None:
+                branch_id = self.get_ancestor_level(current_item, deep=2).id
+                parent_ids.append(branch_id)
+            elif branch_id.startswith('this-parent-level-') and \
+                 branch_id.replace('this-parent-level-', '').isdigit() and \
+                 current_item is not None:
+                level = int(branch_id.replace('this-parent-level-', ''))
+                branch_id = self.get_ancestor_level(current_item, deep=level).id
                 parent_ids.append(branch_id)
             elif branch_id.isdigit():
                 parent_ids.append(int(branch_id))
