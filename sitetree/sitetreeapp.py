@@ -454,12 +454,6 @@ class SiteTree(object):
             elif branch_id == 'this-parent-siblings' and current_item is not None:
                 branch_id = self.get_ancestor_level(current_item, deep=2).id
                 parent_ids.append(branch_id)
-            elif branch_id.startswith('this-parent-level-') and \
-                 branch_id.replace('this-parent-level-', '').isdigit() and \
-                 current_item is not None:
-                level = int(branch_id.replace('this-parent-level-', ''))
-                branch_id = self.get_ancestor_level(current_item, deep=level).id
-                parent_ids.append(branch_id)
             elif branch_id.isdigit():
                 parent_ids.append(int(branch_id))
             else:
