@@ -1,8 +1,5 @@
-from django import template
-from django.forms import ChoiceField
 from django.core.urlresolvers import get_urlconf, get_resolver
 from django.utils.translation import ugettext_lazy as _
-from django.utils.safestring import mark_safe
 from django.utils import six
 from django.http import HttpResponseRedirect
 from django.contrib import admin
@@ -10,7 +7,7 @@ from django.contrib.admin.sites import NotRegistered
 from django.contrib import messages
 
 from .models import Tree, TreeItem
-from .templatetags.sitetree import sitetree_tree
+from .fields import TreeItemChoiceField
 
 from django.conf.urls import patterns, url
 
@@ -100,37 +97,13 @@ class TreeItemAdmin(admin.ModelAdmin):
         'Parent' field choices are built by sitetree itself.
 
         """
-
-        class TreeItemChoiceField(ChoiceField):
-            """We use custom ChoiceField as to have a chance to
-            resolve TreeItem by ID from dropdown.
-
-            """
-            def clean(self, value):
-                if value == '':
-                    return None
-
-                return TreeItem.objects.get(pk=value)
-
-        # We build choices dropdown using 'sitetree_tree' tag
-        tree_token = u'sitetree_tree from "%s" template "admin/sitetree/tree/tree_combo.html"' % self.tree.alias
-        my_context = template.RequestContext(request, current_app='admin')
-        choices_str = sitetree_tree(template.Parser(None),
-                                    template.Token(token_type=template.TOKEN_BLOCK, contents=tree_token)).render(my_context)
-
-        tree_choices = [('', '---------')]
-        for line in choices_str.splitlines():
-            if line.strip() != '':
-                splitted = line.split(':::')
-                tree_choices.append((splitted[0], mark_safe(splitted[1])))
-
         if obj is not None and obj.parent is not None:
             self.previous_parent = obj.parent
             previous_parent_id = self.previous_parent.id
         else:
             previous_parent_id = None
 
-        my_choice_field = TreeItemChoiceField(choices=tree_choices, initial=previous_parent_id)
+        my_choice_field = TreeItemChoiceField(self.tree, initial=previous_parent_id)
         form = super(TreeItemAdmin, self).get_form(request, obj, **kwargs)
         my_choice_field.label = form.base_fields['parent'].label
         my_choice_field.help_text = form.base_fields['parent'].help_text
@@ -143,7 +116,7 @@ class TreeItemAdmin(admin.ModelAdmin):
             self.known_url_rules = []
             resolver = get_resolver(get_urlconf())
             for ns, (url_prefix, ns_resolver) in resolver.namespace_dict.items():
-                if ns!='admin':
+                if ns != 'admin':
                     self._stack_known_urls(ns_resolver.reverse_dict, ns)
             self._stack_known_urls(resolver.reverse_dict)
             self.known_url_rules = sorted(self.known_url_rules)

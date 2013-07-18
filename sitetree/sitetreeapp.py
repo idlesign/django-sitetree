@@ -274,12 +274,15 @@ class SiteTree(object):
         request path against URL of given tree item.
 
         """
+        if self._global_context.current_app == 'admin':
+            return None
+
         current_item = None
 
-        if 'request' not in self._global_context and self._global_context.current_app != 'admin':
+        if 'request' not in self._global_context:
             raise SiteTreeError('Sitetree needs "django.core.context_processors.request" to be in TEMPLATE_CONTEXT_PROCESSORS in your settings file. If it is, check that your view pushes request data into the template.')
         else:
-            # urlquote is a try to support non-ascii in url.
+            # urlquote is an attempt to support non-ascii in url.
             current_url = urlquote(self._global_context['request'].path)
             urls_cache = self.get_cache_entry('urls', tree_alias)
             if urls_cache:

@@ -49,6 +49,7 @@ Table of Contents
     tagsadv
     hooks
     admin
+    forms
 
 
 Get involved into django-sitetree
