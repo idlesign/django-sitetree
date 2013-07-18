@@ -35,6 +35,15 @@ sitetreeload
 
 This command loads sitetrees from a fixture in JSON format into database.
 
+.. warning::
+
+    `sitetreeload` won't even try to restore permissions for sitetree items, as those should probably
+    be tuned in production rather than exported from dev.
+
+    If required you can use Django's `loaddata` management command with `sitetreedump` created dump,
+    or the `dumpscript` from `django-extensions` to restore the permissions.
+
+
 Command makes use of ``--mode`` command switch to control import strategy.
 
     a) `append` (default) mode should be used when you need to extend sitetree data
