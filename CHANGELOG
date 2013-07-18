@@ -1,3 +1,12 @@
+v0.9.5
+------
++ Added `sitetree_page_description` template tag.
++ Tree item dropdown experimentally exposed (see #84).
++ Added `this-ancestor-siblings` alias support (see #99).
+* Fixed 'map' object has no attribute 'append' on Py3 (see #94).
+* Fixed sort order changing for top level tree items (see #98).
+
+
 v0.9.4
 ------
 + Added Django 1.5 url tag syntax support for URL field.
@@ -30,8 +39,8 @@ v0.9.1
 * Fixed tree current item detection failures with i18n trees (see #66).
 
 
-v0.9
-----
+v0.9.0
+------
 + Added support for tree and tree item admin models overriding (see #43).
 + Added Foundation CSS Framework menu basic templates (see #41).
 + Added Bootstrap CSS Framework menu and breadcrumbs basic templates (see #41).
@@ -39,15 +48,15 @@ v0.9
 * Fixed crashes when using sitetreeload command with colored terminal (fixes #61).
 
 
-v0.8
-----
+v0.8.0
+------
 + Added 'title' field for Tree models.
 + Added German translation.
 * Fixed management directory missing from dist (closes #50).
 
 
-v0.7
-----
+v0.7.0
+------
 + Added 'sitetreedump' and 'sitetreeload' management commands (fixes #36).
 + Added tests runner 'runtests.py'. Unit tests are now self-contained (see #42).
 + Now 'sitetree_menu' tag accepts any string as target branch alias. Related to dashed strings (see #38).
@@ -56,8 +65,8 @@ v0.7
 * Fixed template tags params clashes with context variables (see #42).
 
 
-v0.6
-----
+v0.6.0
+------
 + Added i18n trees support (see #27).
 + Added tree items processing hook support (see #26).
 * Fixed various tree items filtering issues (see #34, #35). 
@@ -79,8 +88,8 @@ v0.5.1
 * Minor optimizations in tree.html template.
 
 
-v0.5
-----
+v0.5.0
+------
 + Now sitetree uses native Django cache framework (see #16).
 + Added "in_current_branch" item attribute (see #14, #18), and "current_branch" css class.
 * South migrations are now shipped within application package (see #19).
@@ -90,8 +99,8 @@ v0.5
 * Minor fixes.
 
 
-v0.4
-----
+v0.4.0
+------
 + Added permissions calculation optimization to "get_sitetree" method (see #9).
 + Added item access restriction for authenticated uses only.
 + Added "this-ancestor-children" alias support (see #14).
@@ -104,8 +113,8 @@ v0.3.1
 * Added missing translation files.
 
 
-v0.3
-----
+v0.3.0
+------
 + New template tag "sitetree_page_title".
 + Added ukranian translation.
 + Added human-friendly debug messages.
@@ -126,8 +135,8 @@ v0.2.1
 * README now in .rst.
 
 
-v0.2
-----
+v0.2.0
+------
 + Added support for non-ascii in urls.
 
 
@@ -152,6 +161,6 @@ v0.1.1
 * Minor fixes.
 
 
-v0.1
-----
+v0.1.0
+------
 + Basic sitetree functionality.
