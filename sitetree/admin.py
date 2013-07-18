@@ -165,7 +165,9 @@ class TreeItemAdmin(admin.ModelAdmin):
             sort_order = 'sort_order'
         else:
             sort_order = '-sort_order'
-        siblings = TreeItem._default_manager.filter(parent=current_item.parent).order_by(sort_order)
+        siblings = TreeItem._default_manager.filter(
+            parent=current_item.parent,
+            tree=current_item.tree).order_by(sort_order)
 
         previous_item = None
         for item in siblings:
