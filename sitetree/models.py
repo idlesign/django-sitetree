@@ -66,6 +66,7 @@ class TreeItem(models.Model):
     access_permissions = models.ManyToManyField(Permission, verbose_name=_('Permissions granting access'), blank=True)
     access_perm_type = models.IntegerField(_('Permissions interpretation'), help_text='<b>Any</b> &mdash; user should have any of chosen permissions. <b>All</b> &mdash; user should have all chosen permissions.', choices=PERM_TYPE_CHOICES, default=PERM_TYPE_ANY)
     extra_classes = models.CharField(_('Extra CSS classes'), help_text=_('Extra CSS classes to be added to this item'), blank=True, max_length=255, default='')
+    link_target = models.CharField(_('Link target'), help_text=_('Target argument for link tag. One of _blank, _self, _parent, _top.'), blank=True, max_length=100, default='')
     # These two are for 'adjacency list' model.
     # This is the current approach of tree representation for sitetree.
     parent = models.ForeignKey('self', verbose_name=_('Parent'), help_text=_('Parent site tree item.'), db_index=True, null=True, blank=True)
