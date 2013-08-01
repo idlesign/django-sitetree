@@ -63,7 +63,7 @@ class TreeItemAdmin(admin.ModelAdmin):
         }),
         (_('Additional settings'), {
             'classes': ('collapse',),
-            'fields': ('hint', 'description', 'alias', 'urlaspattern')
+            'fields': ('hint', 'description', 'alias', 'extra_classes', 'urlaspattern')
         }),
     )
     filter_horizontal = ('access_permissions',)
