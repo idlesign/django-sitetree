@@ -91,6 +91,15 @@ The following templates are bundled with SiteTree:
         This means that one should wrap `sitetree_menu` call into the appropriately styled divs
         (i.e. having classes `navbar`, `navbar-inner`, etc.).
 
+        Example::
+
+            <div class="navbar">
+                <a class="brand" href="/">My Site</a>
+                <div class="navbar-inner">
+                    {% sitetree_menu from "main" include "topmenu" template "sitetree/menu_bootstrap.html" %}
+                 </div>
+            </div>
+
         Please see Bootstrap Navbar documentation for more information on subject.
 
    .. note::
