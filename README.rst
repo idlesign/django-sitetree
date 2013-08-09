@@ -2,6 +2,9 @@ django-sitetree
 ===============
 http://github.com/idlesign/django-sitetree
 
+.. image:: https://pypip.in/d/django-sitetree/badge.png
+        :target: https://crate.io/packages/django-sitetree
+
 
 What's that
 -----------
