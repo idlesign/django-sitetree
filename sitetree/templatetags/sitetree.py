@@ -211,6 +211,7 @@ class sitetree_menuNode(template.Node):
 
     def render(self, context):
         tree_items = sitetree.menu(self.tree_alias, self.tree_branches, context)
+        context['current_item'] = sitetree.get_tree_current_item(self.tree_alias)
         return render(context, tree_items, self.use_template or 'sitetree/menu.html')
 
 
