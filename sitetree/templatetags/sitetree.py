@@ -165,6 +165,18 @@ def sitetree_page_description(parser, token):
         raise template.TemplateSyntaxError("%r tag requires two arguments. E.g. {%% sitetree_page_description from \"mytree\" %%}." % tokens[0])
 
 
+@register.tag
+def sitetree_page_hint(parser, token):
+    """Renders a hint for the current page, resolved against sitetree item representing current URL."""
+    tokens = token.split_contents()
+
+    if len(tokens) == 3:
+        tree_alias = parser.compile_filter(tokens[2])
+        return sitetree_page_hintNode(tree_alias)
+    else:
+        raise template.TemplateSyntaxError("%r tag requires two arguments. E.g. {%% sitetree_page_hint from \"mytree\" %%}." % tokens[0])
+
+
 class sitetree_treeNode(template.Node):
     """Renders tree items from specified site tree."""
 
@@ -249,6 +261,16 @@ class sitetree_page_descriptionNode(template.Node):
     def render(self, context):
         return sitetree.get_current_page_attr('description', self.tree_alias, context)
 
+
+class sitetree_page_hintNode(template.Node):
+    """Renders a page hint from the specified site tree."""
+
+    def __init__(self, tree_alias):
+        self.tree_alias = tree_alias
+
+    def render(self, context):
+        return sitetree.get_current_page_attr('hint', self.tree_alias, context)
+    
 
 def detect_clause(parser, clause_name, tokens):
     """Helper function detects a certain clause in tag tokens list.
