@@ -4,7 +4,11 @@ from django.core import serializers
 from django.core.management.base import BaseCommand, CommandError
 from django.db import DEFAULT_DB_ALIAS
 
-from sitetree.models import Tree, TreeItem
+from sitetree.utils import get_tree_model, get_tree_item_model
+
+
+MODEL_TREE_CLASS = get_tree_model()
+MODEL_TREE_ITEM_CLASS = get_tree_item_model()
 
 
 class Command(BaseCommand):
@@ -30,15 +34,15 @@ class Command(BaseCommand):
         objects = []
 
         if aliases:
-            trees = Tree._default_manager.using(using).filter(alias__in=aliases)
+            trees = MODEL_TREE_CLASS._default_manager.using(using).filter(alias__in=aliases)
         else:
-            trees = Tree._default_manager.using(using).all()
+            trees = MODEL_TREE_CLASS._default_manager.using(using).all()
 
         if not items_only:
             objects.extend(trees)
 
         for tree in trees:
-            objects.extend(TreeItem._default_manager.using(using).filter(tree=tree).order_by('parent'))
+            objects.extend(MODEL_TREE_ITEM_CLASS._default_manager.using(using).filter(tree=tree).order_by('parent'))
 
         try:
             return serializers.serialize('json', objects, indent=indent)

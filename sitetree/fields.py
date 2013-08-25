@@ -3,7 +3,11 @@ from django.forms import ChoiceField
 from django.utils.safestring import mark_safe
 
 from .templatetags.sitetree import sitetree_tree
-from .models import Tree, TreeItem
+from .utils import get_tree_model, get_tree_item_model
+
+
+MODEL_TREE_CLASS = get_tree_model()
+MODEL_TREE_ITEM_CLASS = get_tree_item_model()
 
 
 class TreeItemChoiceField(ChoiceField):
@@ -21,7 +25,7 @@ class TreeItemChoiceField(ChoiceField):
     def __init__(self, tree, required=True, widget=None, label=None, initial=None, help_text=None, *args, **kwargs):
         super(TreeItemChoiceField, self).__init__(required=required, widget=widget, label=label, initial=initial,
                                                   help_text=help_text, *args, **kwargs)
-        if isinstance(tree, Tree):
+        if isinstance(tree, MODEL_TREE_CLASS):
             tree = tree.alias
         self.tree = tree
         self.choices = self._build_choices()
@@ -42,4 +46,4 @@ class TreeItemChoiceField(ChoiceField):
     def clean(self, value):
         if not value:
             return None
-        return TreeItem.objects.get(pk=value)
+        return MODEL_TREE_ITEM_CLASS.objects.get(pk=value)

@@ -8,7 +8,11 @@ from django.core.management.color import no_style
 from django.db import connections, router, transaction, DEFAULT_DB_ALIAS
 from django.core.exceptions import ObjectDoesNotExist
 
-from sitetree.models import Tree, TreeItem
+from sitetree.utils import get_tree_model, get_tree_item_model
+
+
+MODEL_TREE_CLASS = get_tree_model()
+MODEL_TREE_ITEM_CLASS = get_tree_item_model()
 
 
 class Command(BaseCommand):
@@ -34,7 +38,7 @@ class Command(BaseCommand):
 
         if items_into_tree is not None:
             try:
-                items_into_tree = Tree.objects.get(alias=items_into_tree)
+                items_into_tree = MODEL_TREE_CLASS.objects.get(alias=items_into_tree)
             except ObjectDoesNotExist:
                 raise CommandError('Target tree alised by `%s` does not exist. Please create it before import.' %
                                    items_into_tree)
@@ -54,8 +58,8 @@ class Command(BaseCommand):
 
         if mode == 'replace':
             try:
-                Tree.objects.all().delete()
-                TreeItem.objects.all().delete()
+                MODEL_TREE_CLASS.objects.all().delete()
+                MODEL_TREE_ITEM_CLASS.objects.all().delete()
             except ObjectDoesNotExist:
                 pass
 
@@ -77,8 +81,8 @@ class Command(BaseCommand):
 
             for obj in objects:
                 if router.allow_syncdb(using, obj.object.__class__):
-                    if isinstance(obj.object, (Tree, TreeItem)):
-                        if isinstance(obj.object, Tree):
+                    if isinstance(obj.object, (MODEL_TREE_CLASS, MODEL_TREE_ITEM_CLASS)):
+                        if isinstance(obj.object, MODEL_TREE_CLASS):
                             trees.append(obj.object)
                         else:
                             if items_into_tree is not None:
@@ -155,7 +159,7 @@ class Command(BaseCommand):
 
         # Reset DB sequences, for DBMS with sequences support.
         if loaded_object_count > 0:
-            sequence_sql = connection.ops.sequence_reset_sql(self.style, [Tree, TreeItem])
+            sequence_sql = connection.ops.sequence_reset_sql(self.style, [MODEL_TREE_CLASS, MODEL_TREE_ITEM_CLASS])
             if sequence_sql:
                 self.stdout.write('Resetting DB sequences ...\n')
                 for line in sequence_sql:

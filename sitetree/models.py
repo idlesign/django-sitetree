@@ -1,14 +1,16 @@
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from django.contrib.auth.models import Permission
+from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import python_2_unicode_compatible
+
+from .settings import MODEL_TREE
 
 
 # This allows South to handle our custom 'CharFieldNullable' field.
 if 'south' in settings.INSTALLED_APPS:
     from south.modelsinspector import add_introspection_rules
-    add_introspection_rules([], ["^sitetree\.models\.CharFieldNullable"])
+    add_introspection_rules([], ['^sitetree\.models\.CharFieldNullable'])
 
 
 class CharFieldNullable(models.CharField):
@@ -25,11 +27,12 @@ class CharFieldNullable(models.CharField):
 
 
 @python_2_unicode_compatible
-class Tree(models.Model):
+class TreeBase(models.Model):
     title = models.CharField(_('Title'), max_length=100, help_text=_('Site tree title for presentational purposes.'), blank=True)
     alias = models.CharField(_('Alias'), max_length=80, help_text=_('Short name to address site tree from templates.<br /><b>Note:</b> change with care.'), unique=True, db_index=True)
 
     class Meta:
+        abstract = True
         verbose_name = _('Site Tree')
         verbose_name_plural = _('Site Trees')
 
@@ -41,7 +44,7 @@ class Tree(models.Model):
 
 
 @python_2_unicode_compatible
-class TreeItem(models.Model):
+class TreeItemBase(models.Model):
     PERM_TYPE_ANY = 1
     PERM_TYPE_ALL = 2
 
@@ -54,7 +57,7 @@ class TreeItem(models.Model):
     hint = models.CharField(_('Hint'), max_length=200, help_text=_('Some additional information about this item that is used as a hint.'), blank=True, default='')
     url = models.CharField(_('URL'), max_length=200, help_text=_('Exact URL or URL pattern (see "Additional settings") for this item.'), db_index=True)
     urlaspattern = models.BooleanField(_('URL as Pattern'), help_text=_('Whether the given URL should be treated as a pattern.<br /><b>Note:</b> Refer to Django "URL dispatcher" documentation (e.g. "Naming URL patterns" part).'), db_index=True, default=False)
-    tree = models.ForeignKey(Tree, verbose_name=_('Site Tree'), help_text=_('Site tree this item belongs to.'), db_index=True)
+    tree = models.ForeignKey(MODEL_TREE, related_name='%(class)s_tree', verbose_name=_('Site Tree'), help_text=_('Site tree this item belongs to.'), db_index=True)
     hidden = models.BooleanField(_('Hidden'), help_text=_('Whether to show this item in navigation.'), db_index=True, default=False)
     alias = CharFieldNullable(_('Alias'), max_length=80, help_text=_('Short name to address site tree item from a template.<br /><b>Reserved aliases:</b> "trunk", "this-children", "this-siblings" and "this-ancestor-children".'), db_index=True, blank=True, null=True)
     description = models.TextField(_('Description'), help_text=_('Additional comments on this item.'), blank=True, default='')
@@ -67,7 +70,7 @@ class TreeItem(models.Model):
     access_perm_type = models.IntegerField(_('Permissions interpretation'), help_text='<b>Any</b> &mdash; user should have any of chosen permissions. <b>All</b> &mdash; user should have all chosen permissions.', choices=PERM_TYPE_CHOICES, default=PERM_TYPE_ANY)
     # These two are for 'adjacency list' model.
     # This is the current approach of tree representation for sitetree.
-    parent = models.ForeignKey('self', verbose_name=_('Parent'), help_text=_('Parent site tree item.'), db_index=True, null=True, blank=True)
+    parent = models.ForeignKey('self', related_name='%(class)s_parent', verbose_name=_('Parent'), help_text=_('Parent site tree item.'), db_index=True, null=True, blank=True)
     sort_order = models.IntegerField(_('Sort order'), help_text=_('Item position among other site tree items under the same parent.'), db_index=True, default=0)
 
     def save(self, force_insert=False, force_update=False, **kwargs):
@@ -75,15 +78,24 @@ class TreeItem(models.Model):
         key value.
 
         """
-        super(TreeItem, self).save(force_insert, force_update, **kwargs)
+        super(TreeItemBase, self).save(force_insert, force_update, **kwargs)
         if self.sort_order == 0:
             self.sort_order = self.id
             self.save()
 
     class Meta:
+        abstract = True
         verbose_name = _('Site Tree Item')
         verbose_name_plural = _('Site Tree Items')
         unique_together = ('tree', 'alias')
 
     def __str__(self):
         return self.title
+
+
+class Tree(TreeBase):
+    """Built-in tree class. Default functionality."""
+
+
+class TreeItem(TreeItemBase):
+    """Built-in tree item class. Default functionality."""

@@ -12,12 +12,15 @@ from django.db.models import signals
 from django.utils import six
 from django.utils.http import urlquote
 from django.utils.translation import get_language
-
-from django.template.defaulttags import url as url_tag
 from django.template import Context
+from django.template.defaulttags import url as url_tag
 
-from .models import Tree, TreeItem
-from .utils import DJANGO_VERSION_INT
+from .utils import DJANGO_VERSION_INT, get_tree_model, get_tree_item_model
+
+
+MODEL_TREE_CLASS = get_tree_model()
+MODEL_TREE_ITEM_CLASS = get_tree_item_model()
+
 
 # Sitetree objects are stored in Django cache for a year (60 * 60 * 24 * 365 = 31536000 sec).
 # Cache is only invalidated on sitetree or sitetree item change.
@@ -125,11 +128,11 @@ class SiteTree(object):
     def __init__(self):
         self.cache = None
         # Listen for signals from the models.
-        signals.post_save.connect(self.cache_empty, sender=Tree)
-        signals.post_save.connect(self.cache_empty, sender=TreeItem)
-        signals.post_delete.connect(self.cache_empty, sender=TreeItem)
+        signals.post_save.connect(self.cache_empty, sender=MODEL_TREE_CLASS)
+        signals.post_save.connect(self.cache_empty, sender=MODEL_TREE_ITEM_CLASS)
+        signals.post_delete.connect(self.cache_empty, sender=MODEL_TREE_ITEM_CLASS)
         # Listen to the changes in item permissions table.
-        signals.m2m_changed.connect(self.cache_empty, sender=TreeItem.access_permissions)
+        signals.m2m_changed.connect(self.cache_empty, sender=MODEL_TREE_ITEM_CLASS.access_permissions)
 
     def cache_init(self):
         """Initializes local cache from Django cache."""
@@ -187,7 +190,7 @@ class SiteTree(object):
             i18n_tree_alias = '%s_%s' % (alias, current_language_code)
             trees_count = self.get_cache_entry('tree_aliases', i18n_tree_alias)
             if trees_count is False:
-                trees_count = Tree.objects.filter(alias=i18n_tree_alias).count()
+                trees_count = MODEL_TREE_CLASS.objects.filter(alias=i18n_tree_alias).count()
                 self.set_cache_entry('tree_aliases', i18n_tree_alias, trees_count)
             if trees_count:
                 alias = i18n_tree_alias
@@ -206,7 +209,7 @@ class SiteTree(object):
             alias = self.resolve_tree_i18n_alias(alias)
         sitetree = self.get_cache_entry('sitetrees', alias)
         if not sitetree:
-            sitetree = TreeItem.objects.select_related('parent', 'tree').\
+            sitetree = MODEL_TREE_ITEM_CLASS.objects.select_related('parent', 'tree').\
                    filter(tree__alias__exact=alias).order_by('parent__sort_order', 'sort_order')
             self.set_cache_entry('sitetrees', alias, sitetree)
             sitetree_needs_caching = True
@@ -315,7 +318,7 @@ class SiteTree(object):
         if context is None:
             context = self._global_context
 
-        if not isinstance(sitetree_item, TreeItem):
+        if not isinstance(sitetree_item, MODEL_TREE_ITEM_CLASS):
             sitetree_item = self.resolve_var(sitetree_item, context)
 
         # Resolve only if item's URL is marked as pattern.
@@ -492,7 +495,7 @@ class SiteTree(object):
 
         if item.access_restricted:
             user_perms = set(context['user'].get_all_permissions())
-            if item.access_perm_type == TreeItem.PERM_TYPE_ALL:
+            if item.access_perm_type == MODEL_TREE_ITEM_CLASS.PERM_TYPE_ALL:
                 if len(item.perms) != len(item.perms.intersection(user_perms)):
                     return False
             else:

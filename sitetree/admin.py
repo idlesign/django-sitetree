@@ -5,24 +5,52 @@ from django.http import HttpResponseRedirect
 from django.contrib import admin
 from django.contrib.admin.sites import NotRegistered
 from django.contrib import messages
-
-from .models import Tree, TreeItem
-from .fields import TreeItemChoiceField
-
 from django.conf.urls import patterns, url
 
+from .fields import TreeItemChoiceField
+from .utils import get_tree_model, get_tree_item_model, get_app_n_model
+
+
+MODEL_TREE_CLASS = get_tree_model()
+MODEL_TREE_ITEM_CLASS = get_tree_item_model()
 
 _TREE_ADMIN = lambda: TreeAdmin
 _ITEM_ADMIN = lambda: TreeItemAdmin
 
 
+def get_model_url_name(model_nfo, page, with_namespace=False):
+    """Returns a URL for a given Tree admin page type."""
+    prefix = ''
+    if with_namespace:
+        prefix = 'admin:'
+    return ('%s%s_%s' % (prefix, '%s_%s' % model_nfo, page)).lower()
+
+
+def get_tree_url_name(page, with_namespace=False):
+    """Returns a URL for a given Tree admin page type."""
+    return get_model_url_name(get_app_n_model('MODEL_TREE'), page, with_namespace)
+
+
+def get_tree_item_url_name(page, with_namespace=False):
+    """Returns a URL for a given Tree Item admin page type."""
+    return get_model_url_name(get_app_n_model('MODEL_TREE_ITEM'), page, with_namespace)
+
+
+_TREE_URLS = {
+    'app': get_app_n_model('MODEL_TREE')[0],
+    'change': get_tree_url_name('change', 'admin:'),
+    'changelist': get_tree_url_name('changelist', 'admin:'),
+    'treeitem_change': get_tree_item_url_name('change', 'admin:')
+}
+
+
 def _reregister_tree_admin():
     """Forces unregistration of tree admin class with following re-registration."""
     try:
-        admin.site.unregister(Tree)
+        admin.site.unregister(MODEL_TREE_CLASS)
     except NotRegistered:
         pass
-    admin.site.register(Tree, _TREE_ADMIN())
+    admin.site.register(MODEL_TREE_CLASS, _TREE_ADMIN())
 
 
 def override_tree_admin(admin_class):
@@ -67,6 +95,7 @@ class TreeItemAdmin(admin.ModelAdmin):
         }),
     )
     filter_horizontal = ('access_permissions',)
+    change_form_template = 'admin/sitetree/treeitem/change_form.html'
 
     def response_add(self, request, obj, post_url_continue='../item_%s/', **kwargs):
         """Redirects to the appropriate items' 'continue' page on item add.
@@ -138,8 +167,9 @@ class TreeItemAdmin(admin.ModelAdmin):
         """Fetches Tree for current or given TreeItem."""
         if tree_id is None:
             tree_id = self.get_object(request, item_id).tree_id
-        self.tree = Tree._default_manager.get(pk=tree_id)
+        self.tree = MODEL_TREE_CLASS._default_manager.get(pk=tree_id)
         self.tree.verbose_name_plural = self.tree._meta.verbose_name_plural
+        self.tree.urls = _TREE_URLS
         return self.tree
 
     def item_add(self, request, tree_id):
@@ -160,12 +190,12 @@ class TreeItemAdmin(admin.ModelAdmin):
 
     def item_move(self, request, tree_id, item_id, direction):
         """Moves item up or down by swapping 'sort_order' field values of neighboring items."""
-        current_item = TreeItem._default_manager.get(pk=item_id)
+        current_item = MODEL_TREE_ITEM_CLASS._default_manager.get(pk=item_id)
         if direction == 'up':
             sort_order = 'sort_order'
         else:
             sort_order = '-sort_order'
-        siblings = TreeItem._default_manager.filter(
+        siblings = MODEL_TREE_ITEM_CLASS._default_manager.filter(
             parent=current_item.parent,
             tree=current_item.tree).order_by(sort_order)
 
@@ -227,23 +257,30 @@ class TreeAdmin(admin.ModelAdmin):
     search_fields = ['title', 'alias']
     ordering = ['title', 'alias']
     actions = None
+    change_form_template = 'admin/sitetree/tree/change_form.html'
 
     def __init__(self, *args, **kwargs):
         super(TreeAdmin, self).__init__(*args, **kwargs)
-        self.tree_admin = _ITEM_ADMIN()(TreeItem, admin.site)
+        self.tree_admin = _ITEM_ADMIN()(MODEL_TREE_ITEM_CLASS, admin.site)
 
     def get_urls(self):
         """Manages not only TreeAdmin URLs but also TreeItemAdmin URLs."""
         urls = super(TreeAdmin, self).get_urls()
         sitetree_urls = patterns('',
             # Trying to be nice and adopt url handling changes in Django 1.4, 1.5 Admin contrib.
-            url(r'^/$', redirects_handler, name='sitetree_treeitem_changelist'),
-            url(r'^((?P<tree_id>\d+)/)?item_add/$', self.admin_site.admin_view(self.tree_admin.item_add), name='sitetree_treeitem_add'),
-            url(r'^(?P<tree_id>\d+)/item_(?P<item_id>\d+)/$', self.admin_site.admin_view(self.tree_admin.item_edit), name='sitetree_treeitem_change'),
-            url(r'^item_(?P<item_id>\d+)/$', self.admin_site.admin_view(self.tree_admin.item_edit), name='sitetree_treeitem_change'),
-            url(r'^((?P<tree_id>\d+)/)?item_(?P<item_id>\d+)/delete/$', self.admin_site.admin_view(self.tree_admin.item_delete), name='sitetree_treeitem_delete'),
-            url(r'^((?P<tree_id>\d+)/)?item_(?P<item_id>\d+)/history/$', self.admin_site.admin_view(self.tree_admin.item_history), name='sitetree_treeitem_history'),
-            url(r'^(?P<tree_id>\d+)/item_(?P<item_id>\d+)/move_(?P<direction>(up|down))/$', self.admin_site.admin_view(self.tree_admin.item_move), name='sitetree_treeitem_move'),
+            url(r'^/$', redirects_handler, name=get_tree_item_url_name('changelist')),
+            url(r'^((?P<tree_id>\d+)/)?item_add/$',
+                self.admin_site.admin_view(self.tree_admin.item_add), name=get_tree_item_url_name('add')),
+            url(r'^(?P<tree_id>\d+)/item_(?P<item_id>\d+)/$',
+                self.admin_site.admin_view(self.tree_admin.item_edit), name=get_tree_item_url_name('change')),
+            url(r'^item_(?P<item_id>\d+)/$',
+                self.admin_site.admin_view(self.tree_admin.item_edit), name=get_tree_item_url_name('change')),
+            url(r'^((?P<tree_id>\d+)/)?item_(?P<item_id>\d+)/delete/$',
+                self.admin_site.admin_view(self.tree_admin.item_delete), name=get_tree_item_url_name('delete')),
+            url(r'^((?P<tree_id>\d+)/)?item_(?P<item_id>\d+)/history/$',
+                self.admin_site.admin_view(self.tree_admin.item_history), name=get_tree_item_url_name('history')),
+            url(r'^(?P<tree_id>\d+)/item_(?P<item_id>\d+)/move_(?P<direction>(up|down))/$',
+                self.admin_site.admin_view(self.tree_admin.item_move), name=get_tree_item_url_name('move')),
         )
         return sitetree_urls + urls
 
