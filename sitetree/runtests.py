@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#! /usr/bin/env python
 from django.conf import settings
 from django.core.management import call_command
 
@@ -9,5 +9,5 @@ if not settings.configured:
         DATABASES={'default': {'ENGINE': 'django.db.backends.sqlite3'}},
     )
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     call_command('test', 'sitetree')
