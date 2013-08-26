@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-09-11 22:07+0700\n"
+"POT-Creation-Date: 2013-08-26 14:08+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,197 +17,203 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: admin.py:54
+#: admin.py:81
 msgid "Basic settings"
 msgstr ""
 
-#: admin.py:57
+#: admin.py:84
 msgid "Access settings"
 msgstr ""
 
-#: admin.py:61
+#: admin.py:88
 msgid "Display settings"
 msgstr ""
 
-#: admin.py:65
+#: admin.py:92
 msgid "Additional settings"
 msgstr ""
 
-#: admin.py:148
+#: admin.py:153
 msgid ""
 "You are seeing this warning because \"URL as Pattern\" option is active and "
 "pattern entered above seems to be invalid. Currently registered URL pattern "
 "names and parameters: "
 msgstr ""
 
-#: admin.py:211
+#: admin.py:230
 msgid "Item's parent left unchanged. Item couldn't be parent to itself."
 msgstr ""
 
-#: models.py:26 models.py:46 templates/admin/sitetree/tree/change_form.html:40
+#: models.py:31 models.py:56 templates/admin/sitetree/tree/change_form.html:40
 msgid "Title"
 msgstr ""
 
-#: models.py:26
+#: models.py:31
 msgid "Site tree title for presentational purposes."
 msgstr ""
 
-#: models.py:27 models.py:52
+#: models.py:32 models.py:62
 msgid "Alias"
 msgstr ""
 
-#: models.py:27
+#: models.py:32
 msgid ""
 "Short name to address site tree from templates.<br /><b>Note:</b> change "
 "with care."
 msgstr ""
 
-#: models.py:30 models.py:50
+#: models.py:36 models.py:60
 msgid "Site Tree"
 msgstr ""
 
-#: models.py:31
+#: models.py:37
 msgid "Site Trees"
 msgstr ""
 
-#: models.py:42
+#: models.py:52
 msgid "Any"
 msgstr ""
 
-#: models.py:43
+#: models.py:53
 msgid "All"
 msgstr ""
 
-#: models.py:46
+#: models.py:56
 msgid ""
 "Site tree item title. Can contain template variables E.g.: {{ mytitle }}."
 msgstr ""
 
-#: models.py:47
+#: models.py:57
 msgid "Hint"
 msgstr ""
 
-#: models.py:47
+#: models.py:57
 msgid "Some additional information about this item that is used as a hint."
 msgstr ""
 
-#: models.py:48 templates/admin/sitetree/tree/change_form.html:41
+#: models.py:58 templates/admin/sitetree/tree/change_form.html:41
 msgid "URL"
 msgstr ""
 
-#: models.py:48
+#: models.py:58
 msgid "Exact URL or URL pattern (see \"Additional settings\") for this item."
 msgstr ""
 
-#: models.py:49
+#: models.py:59
 msgid "URL as Pattern"
 msgstr ""
 
-#: models.py:49
+#: models.py:59
 msgid ""
 "Whether the given URL should be treated as a pattern.<br /><b>Note:</b> "
 "Refer to Django \"URL dispatcher\" documentation (e.g. \"Naming URL patterns"
 "\" part)."
 msgstr ""
 
-#: models.py:50
+#: models.py:60
 msgid "Site tree this item belongs to."
 msgstr ""
 
-#: models.py:51 templates/admin/sitetree/tree/change_form.html:34
+#: models.py:61 templates/admin/sitetree/tree/change_form.html:34
 msgid "Hidden"
 msgstr ""
 
-#: models.py:51
+#: models.py:61
 msgid "Whether to show this item in navigation."
 msgstr ""
 
-#: models.py:52
+#: models.py:62
 msgid ""
 "Short name to address site tree item from a template.<br /><b>Reserved "
 "aliases:</b> \"trunk\", \"this-children\", \"this-siblings\" and \"this-"
 "ancestor-children\"."
 msgstr ""
 
-#: models.py:53
+#: models.py:63
 msgid "Description"
 msgstr ""
 
-#: models.py:53
+#: models.py:63
 msgid "Additional comments on this item."
 msgstr ""
 
-#: models.py:54
+#: models.py:64
 msgid "Show in menu"
 msgstr ""
 
-#: models.py:54
+#: models.py:64
 msgid "Whether to show this item in a menu."
 msgstr ""
 
-#: models.py:55
+#: models.py:65
 msgid "Show in breadcrumb path"
 msgstr ""
 
-#: models.py:55
+#: models.py:65
 msgid "Whether to show this item in a breadcrumb path."
 msgstr ""
 
-#: models.py:56
+#: models.py:66
 msgid "Show in site tree"
 msgstr ""
 
-#: models.py:56
+#: models.py:66
 msgid "Whether to show this item in a site tree."
 msgstr ""
 
-#: models.py:57
+#: models.py:67
 msgid "Logged in only"
 msgstr ""
 
-#: models.py:57
+#: models.py:67
 msgid "Check it to grant access to this item to authenticated users only."
 msgstr ""
 
-#: models.py:58
+#: models.py:68
 msgid "Restrict access to permissions"
 msgstr ""
 
-#: models.py:58
+#: models.py:68
 msgid ""
 "Check it to restrict user access to this item, using Django permissions "
 "system."
 msgstr ""
 
-#: models.py:59
+#: models.py:69
 msgid "Permissions granting access"
 msgstr ""
 
-#: models.py:60
+#: models.py:70
 msgid "Permissions interpretation"
 msgstr ""
 
-#: models.py:63
+#: models.py:70
+msgid ""
+"<b>Any</b> &mdash; user should have any of chosen permissions. <b>All</b> "
+"&mdash; user should have all chosen permissions."
+msgstr ""
+
+#: models.py:73
 msgid "Parent"
 msgstr ""
 
-#: models.py:63
+#: models.py:73
 msgid "Parent site tree item."
 msgstr ""
 
-#: models.py:64 templates/admin/sitetree/tree/change_form.html:42
+#: models.py:74 templates/admin/sitetree/tree/change_form.html:42
 msgid "Sort order"
 msgstr ""
 
-#: models.py:64
+#: models.py:74
 msgid "Item position among other site tree items under the same parent."
 msgstr ""
 
-#: models.py:77
+#: models.py:88
 msgid "Site Tree Item"
 msgstr ""
 
-#: models.py:78 templates/admin/sitetree/tree/change_form.html:17
+#: models.py:89 templates/admin/sitetree/tree/change_form.html:17
 msgid "Site Tree Items"
 msgstr ""
 
@@ -241,4 +247,20 @@ msgstr ""
 
 #: templates/admin/sitetree/tree/tree.html:24
 msgid "Move down"
+msgstr ""
+
+#: templates/admin/sitetree/treeitem/breadcrumbs.html:5
+msgid "Home"
+msgstr ""
+
+#: templates/admin/sitetree/treeitem/breadcrumbs.html:11
+msgid "Delete"
+msgstr ""
+
+#: templates/admin/sitetree/treeitem/breadcrumbs.html:15
+msgid "History"
+msgstr ""
+
+#: templates/admin/sitetree/treeitem/breadcrumbs.html:17
+msgid "Add"
 msgstr ""
