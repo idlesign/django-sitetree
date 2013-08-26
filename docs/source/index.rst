@@ -50,6 +50,7 @@ Table of Contents
     hooks
     admin
     forms
+    models
 
 
 Get involved into django-sitetree
