@@ -67,7 +67,7 @@ class TreeItemBase(models.Model):
     access_loggedin = models.BooleanField(_('Logged in only'), help_text=_('Check it to grant access to this item to authenticated users only.'), db_index=True, default=False)
     access_restricted = models.BooleanField(_('Restrict access to permissions'), help_text=_('Check it to restrict user access to this item, using Django permissions system.'), db_index=True, default=False)
     access_permissions = models.ManyToManyField(Permission, verbose_name=_('Permissions granting access'), blank=True)
-    access_perm_type = models.IntegerField(_('Permissions interpretation'), help_text='<b>Any</b> &mdash; user should have any of chosen permissions. <b>All</b> &mdash; user should have all chosen permissions.', choices=PERM_TYPE_CHOICES, default=PERM_TYPE_ANY)
+    access_perm_type = models.IntegerField(_('Permissions interpretation'), help_text=_('<b>Any</b> &mdash; user should have any of chosen permissions. <b>All</b> &mdash; user should have all chosen permissions.'), choices=PERM_TYPE_CHOICES, default=PERM_TYPE_ANY)
     # These two are for 'adjacency list' model.
     # This is the current approach of tree representation for sitetree.
     parent = models.ForeignKey('self', related_name='%(class)s_parent', verbose_name=_('Parent'), help_text=_('Parent site tree item.'), db_index=True, null=True, blank=True)
