@@ -1,3 +1,10 @@
+v0.10.0
+-------
++ Added experimental support for user-defined sitetree models (see #64).
++ Implemented `sitetree_page_hint` template tag (closes #103).
++ Added Spanish translation (closes #101).
+
+
 v0.9.5
 ------
 + Added `sitetree_page_description` template tag.
