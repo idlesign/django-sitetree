@@ -1,10 +1,70 @@
 from django import VERSION
 from django.db.models import get_model
 from django.core.exceptions import ImproperlyConfigured
+from django.utils.importlib import import_module
+from django.utils.module_loading import module_has_submodule
 
-import settings
+from sitetree import settings
 
 DJANGO_VERSION_INT = int('%s%s%s' % VERSION[:3])
+
+
+def tree(alias, title='', items=None):
+    """Dynamically creates and returns a sitetree.
+    `items` - dynamic sitetree items objects created by `item` function.
+
+    """
+    tree_obj = get_tree_model()(alias=alias, title=title)
+    tree_obj.id = id(tree_obj)
+
+    if items is not None:
+        tree_obj.dynamic_items = []
+        def traverse(items):
+            for item in items:
+                item.tree = tree_obj
+                tree_obj.dynamic_items.append(item)
+                if hasattr(item, 'dynamic_children'):
+                    traverse(item.dynamic_children)
+
+        traverse(items)
+    return tree_obj
+
+
+def item(title, url, children=None, url_as_pattern=True, hint='', alias='', description='', in_menu=True, in_breadcrumbs=True, in_sitetree=True, access_loggedin=False):
+    """Dynamically creates and returns a sitetree item object.
+    `children` - a list of children for tree item. Children should also be created by `item` function.
+
+    """
+    item_obj = get_tree_item_model()(title=title, url=url, urlaspattern=url_as_pattern,
+                                   hint=hint, alias=alias, description=description, inmenu=in_menu,
+                                   insitetree=in_sitetree, inbreadcrumbs=in_breadcrumbs,
+                                   access_loggedin=access_loggedin)
+    item_obj.id = id(item_obj)
+    item_obj.dynamic_children = []
+
+    if children is not None:
+        for child in children:
+            child.parent_id = item_obj.id
+            item_obj.dynamic_children.append(child)
+    return item_obj
+
+
+def import_sitetrees():
+    """Imports sitetrees modules from packages (apps)."""
+    from django.conf import settings
+    module_name = 'sitetree'
+
+    submodules = []
+    for app in settings.INSTALLED_APPS:
+        module = import_module(app)
+        try:
+            sub_module = import_module('%s.%s' % (app, module_name))
+            submodules.append(sub_module)
+        except:
+            if module_has_submodule(module, module_name):
+                raise
+
+    return submodules
 
 
 def get_app_n_model(settings_entry_name):
