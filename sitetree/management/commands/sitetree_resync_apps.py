@@ -24,13 +24,17 @@ class Command(BaseCommand):
         trees_modules = import_sitetrees()
         for module in trees_modules:
             sitetrees = getattr(module, 'sitetrees', None)
-            if sitetrees is not None:
-                for tree in sitetrees:
-                    if not apps or (apps and tree.alias in apps):
+            app = module.__dict__['__package__']
+            if not apps or (apps and app in apps):
+                if sitetrees is not None:
+                    self.stdout.write('Sitetrees found in `%s` app ...\n' % app)
+                    for tree in sitetrees:
+                        self.stdout.write('  Processing `%s` tree ...\n' % tree.alias)
                         # Delete trees with the same name beforehand.
                         MODEL_TREE_CLASS.objects.filter(alias=tree.alias).using(using).delete()
                         tree.id = None
                         tree.save(using=using)
                         for item in tree.dynamic_items:
+                            self.stdout.write('    Adding `%s` tree item ...\n' % item.title)
                             item.tree = tree
                             item.save(using=using)
