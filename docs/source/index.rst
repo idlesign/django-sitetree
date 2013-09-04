@@ -44,6 +44,7 @@ Table of Contents
     quickstart
     tags
     i18n
+    apps
     management
     templatesmod
     tagsadv
