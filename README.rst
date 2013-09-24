@@ -36,3 +36,7 @@ Documentation
 -------------
 
 http://django-sitetree.readthedocs.org/
+
+
+
+[![Analytics by Bitdeli](https://d2weczhvl823v0.cloudfront.net/idlesign/django-sitegate/trend.png)](https://bitdeli.com/free "Analytics by Bitdeli")
