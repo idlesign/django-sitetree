@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-08-26 14:08+0700\n"
+"POT-Creation-Date: 2013-09-25 22:11+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -44,7 +44,7 @@ msgstr ""
 msgid "Item's parent left unchanged. Item couldn't be parent to itself."
 msgstr ""
 
-#: models.py:31 models.py:56 templates/admin/sitetree/tree/change_form.html:40
+#: models.py:31 models.py:56 templates/admin/sitetree/tree/change_form.html:41
 msgid "Title"
 msgstr ""
 
@@ -91,7 +91,7 @@ msgstr ""
 msgid "Some additional information about this item that is used as a hint."
 msgstr ""
 
-#: models.py:58 templates/admin/sitetree/tree/change_form.html:41
+#: models.py:58 templates/admin/sitetree/tree/change_form.html:42
 msgid "URL"
 msgstr ""
 
@@ -123,10 +123,10 @@ msgid "Whether to show this item in navigation."
 msgstr ""
 
 #: models.py:62
+#, python-format
 msgid ""
 "Short name to address site tree item from a template.<br /><b>Reserved "
-"aliases:</b> \"trunk\", \"this-children\", \"this-siblings\" and \"this-"
-"ancestor-children\"."
+"aliases:</b> \"%s\"."
 msgstr ""
 
 #: models.py:63
@@ -169,51 +169,59 @@ msgstr ""
 msgid "Check it to grant access to this item to authenticated users only."
 msgstr ""
 
-#: models.py:68
-msgid "Restrict access to permissions"
+#: models.py:68 templates/admin/sitetree/tree/change_form.html:40
+msgid "Guests only"
 msgstr ""
 
 #: models.py:68
+msgid "Check it to grant access to this item to guests only."
+msgstr ""
+
+#: models.py:69
+msgid "Restrict access to permissions"
+msgstr ""
+
+#: models.py:69
 msgid ""
 "Check it to restrict user access to this item, using Django permissions "
 "system."
 msgstr ""
 
-#: models.py:69
+#: models.py:70
 msgid "Permissions granting access"
 msgstr ""
 
-#: models.py:70
+#: models.py:71
 msgid "Permissions interpretation"
 msgstr ""
 
-#: models.py:70
+#: models.py:71
 msgid ""
 "<b>Any</b> &mdash; user should have any of chosen permissions. <b>All</b> "
 "&mdash; user should have all chosen permissions."
 msgstr ""
 
-#: models.py:73
+#: models.py:74
 msgid "Parent"
 msgstr ""
 
-#: models.py:73
+#: models.py:74
 msgid "Parent site tree item."
 msgstr ""
 
-#: models.py:74 templates/admin/sitetree/tree/change_form.html:42
+#: models.py:75 templates/admin/sitetree/tree/change_form.html:43
 msgid "Sort order"
 msgstr ""
 
-#: models.py:74
+#: models.py:75
 msgid "Item position among other site tree items under the same parent."
 msgstr ""
 
-#: models.py:88
+#: models.py:89
 msgid "Site Tree Item"
 msgstr ""
 
-#: models.py:89 templates/admin/sitetree/tree/change_form.html:17
+#: models.py:90 templates/admin/sitetree/tree/change_form.html:17
 msgid "Site Tree Items"
 msgstr ""
 
@@ -234,18 +242,18 @@ msgid "Tree"
 msgstr ""
 
 #: templates/admin/sitetree/tree/change_form.html:38
-msgid "Rights Restriction"
+msgid "Restricted"
 msgstr ""
 
 #: templates/admin/sitetree/tree/change_form.html:39
-msgid "For logged in"
+msgid "Users only"
 msgstr ""
 
-#: templates/admin/sitetree/tree/tree.html:22
+#: templates/admin/sitetree/tree/tree.html:23
 msgid "Move up"
 msgstr ""
 
-#: templates/admin/sitetree/tree/tree.html:24
+#: templates/admin/sitetree/tree/tree.html:25
 msgid "Move down"
 msgstr ""
 
