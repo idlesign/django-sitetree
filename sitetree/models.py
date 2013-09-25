@@ -4,7 +4,7 @@ from django.contrib.auth.models import Permission
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import python_2_unicode_compatible
 
-from .settings import MODEL_TREE
+from .settings import MODEL_TREE, TREE_ITEMS_ALIASES
 
 
 # This allows South to handle our custom 'CharFieldNullable' field.
@@ -59,7 +59,7 @@ class TreeItemBase(models.Model):
     urlaspattern = models.BooleanField(_('URL as Pattern'), help_text=_('Whether the given URL should be treated as a pattern.<br /><b>Note:</b> Refer to Django "URL dispatcher" documentation (e.g. "Naming URL patterns" part).'), db_index=True, default=False)
     tree = models.ForeignKey(MODEL_TREE, related_name='%(class)s_tree', verbose_name=_('Site Tree'), help_text=_('Site tree this item belongs to.'), db_index=True)
     hidden = models.BooleanField(_('Hidden'), help_text=_('Whether to show this item in navigation.'), db_index=True, default=False)
-    alias = CharFieldNullable(_('Alias'), max_length=80, help_text=_('Short name to address site tree item from a template.<br /><b>Reserved aliases:</b> "trunk", "this-children", "this-siblings" and "this-ancestor-children".'), db_index=True, blank=True, null=True)
+    alias = CharFieldNullable(_('Alias'), max_length=80, help_text=_('Short name to address site tree item from a template.<br /><b>Reserved aliases:</b> "%s".' % '", "'.join(TREE_ITEMS_ALIASES)), db_index=True, blank=True, null=True)
     description = models.TextField(_('Description'), help_text=_('Additional comments on this item.'), blank=True, default='')
     inmenu = models.BooleanField(_('Show in menu'), help_text=_('Whether to show this item in a menu.'), db_index=True, default=True)
     inbreadcrumbs = models.BooleanField(_('Show in breadcrumb path'), help_text=_('Whether to show this item in a breadcrumb path.'), db_index=True, default=True)

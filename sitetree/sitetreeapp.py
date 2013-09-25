@@ -16,6 +16,7 @@ from django.template import Context
 from django.template.defaulttags import url as url_tag
 
 from .utils import DJANGO_VERSION_INT, get_tree_model, get_tree_item_model
+from .settings import ALIAS_TRUNK, ALIAS_THIS_CHILDREN, ALIAS_THIS_SIBLINGS, ALIAS_THIS_PARENT_SIBLINGS, ALIAS_THIS_ANCESTOR_CHILDREN
 
 
 MODEL_TREE_CLASS = get_tree_model()
@@ -443,18 +444,18 @@ class SiteTree(object):
         # Support item addressing both through identifiers and aliases.
         for branch_id in tree_branches.split(','):
             branch_id = branch_id.strip()
-            if branch_id == 'trunk':
+            if branch_id == ALIAS_TRUNK:
                 parent_isnull = True
-            elif branch_id == 'this-children' and current_item is not None:
+            elif branch_id == ALIAS_THIS_CHILDREN and current_item is not None:
                 branch_id = current_item.id
                 parent_ids.append(branch_id)
-            elif branch_id == 'this-ancestor-children' and current_item is not None:
+            elif branch_id == ALIAS_THIS_ANCESTOR_CHILDREN and current_item is not None:
                 branch_id = self.get_ancestor_item(tree_alias, current_item).id
                 parent_ids.append(branch_id)
-            elif branch_id == 'this-siblings' and current_item is not None:
+            elif branch_id == ALIAS_THIS_SIBLINGS and current_item is not None:
                 branch_id = current_item.parent.id
                 parent_ids.append(branch_id)
-            elif branch_id == 'this-parent-siblings' and current_item is not None:
+            elif branch_id == ALIAS_THIS_PARENT_SIBLINGS and current_item is not None:
                 branch_id = self.get_ancestor_level(current_item, deep=2).id
                 parent_ids.append(branch_id)
             elif branch_id.isdigit():
