@@ -1,208 +1,228 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-#
+# 
 # Translators:
-# Igor Starikov <idlesign@yandex.ru>, 2011-2012.
+# Igor Starikov <idlesign@yandex.ru>, 2011-2013
 msgid ""
 msgstr ""
 "Project-Id-Version: django-sitetree\n"
 "Report-Msgid-Bugs-To: https://github.com/idlesign/django-sitetree/issues\n"
-"POT-Creation-Date: 2012-09-11 22:07+0700\n"
-"PO-Revision-Date: 2012-09-19 20:31+0700\n"
-"Last-Translator: Igor 'idle sign' Starikov <idlesign@yandex.ru>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"POT-Creation-Date: 2013-09-25 22:11+0700\n"
+"PO-Revision-Date: 2013-09-25 15:23+0000\n"
+"Last-Translator: Igor Starikov <idlesign@yandex.ru>\n"
+"Language-Team: Russian (http://www.transifex.com/projects/p/django-sitetree/language/ru/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: ru\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: admin.py:54
+#: admin.py:81
 msgid "Basic settings"
 msgstr "Основные настройки"
 
-#: admin.py:57
+#: admin.py:84
 msgid "Access settings"
 msgstr "Настройки доступа"
 
-#: admin.py:61
+#: admin.py:88
 msgid "Display settings"
 msgstr "Настройки отображения"
 
-#: admin.py:65
+#: admin.py:92
 msgid "Additional settings"
 msgstr "Дополнительные настройки"
 
-#: admin.py:148
-msgid "You are seeing this warning because \"URL as Pattern\" option is active and pattern entered above seems to be invalid. Currently registered URL pattern names and parameters: "
+#: admin.py:153
+msgid ""
+"You are seeing this warning because \"URL as Pattern\" option is active and "
+"pattern entered above seems to be invalid. Currently registered URL pattern "
+"names and parameters: "
 msgstr "Вы видите это предупреждение, потому что включена опция «URL как шаблон», а шаблон указанный выше, похоже, содержит ошибку. Зарегистрированные на данный момент имена шаблонов и их параметры:"
 
-#: admin.py:211
+#: admin.py:230
 msgid "Item's parent left unchanged. Item couldn't be parent to itself."
 msgstr "Родитель элемента оставлен без изменений. Элемент не может являться родителем сам для себя."
 
-#: models.py:26
-#: models.py:46
-#: templates/admin/sitetree/tree/change_form.html:40
+#: models.py:31 models.py:56 templates/admin/sitetree/tree/change_form.html:41
 msgid "Title"
 msgstr "Заголовок"
 
-#: models.py:26
+#: models.py:31
 msgid "Site tree title for presentational purposes."
 msgstr "Название древа для удобства ориентирования."
 
-#: models.py:27
-#: models.py:52
+#: models.py:32 models.py:62
 msgid "Alias"
 msgstr "Псевдоним"
 
-#: models.py:27
-msgid "Short name to address site tree from templates.<br /><b>Note:</b> change with care."
+#: models.py:32
+msgid ""
+"Short name to address site tree from templates.<br /><b>Note:</b> change "
+"with care."
 msgstr "Короткое имя для обращения к древу сайта из шаблонов.<br /><b>Примечание:</b> изменяя, будьте осторожны."
 
-#: models.py:30
-#: models.py:50
+#: models.py:36 models.py:60
 msgid "Site Tree"
 msgstr "Древо сайта"
 
-#: models.py:31
+#: models.py:37
 msgid "Site Trees"
 msgstr "Дерева сайта"
 
-#: models.py:42
+#: models.py:52
 msgid "Any"
 msgstr "Любое"
 
-#: models.py:43
+#: models.py:53
 msgid "All"
 msgstr "Все"
 
-#: models.py:46
-msgid "Site tree item title. Can contain template variables E.g.: {{ mytitle }}."
+#: models.py:56
+msgid ""
+"Site tree item title. Can contain template variables E.g.: {{ mytitle }}."
 msgstr "Заголовок элемента древа сайта. Может содержать переменные, н.п.:  {{ mytitle }}."
 
-#: models.py:47
+#: models.py:57
 msgid "Hint"
 msgstr "Подсказка"
 
-#: models.py:47
+#: models.py:57
 msgid "Some additional information about this item that is used as a hint."
 msgstr "Дополнительная информация об элементе, которая будет использована в качестве подсказки."
 
-#: models.py:48
-#: templates/admin/sitetree/tree/change_form.html:41
+#: models.py:58 templates/admin/sitetree/tree/change_form.html:42
 msgid "URL"
 msgstr "URL"
 
-#: models.py:48
+#: models.py:58
 msgid "Exact URL or URL pattern (see \"Additional settings\") for this item."
 msgstr "Точный URL (ссылка) или URL шаблон (см. «Дополнительные настройки») для данного элемента."
 
-#: models.py:49
+#: models.py:59
 msgid "URL as Pattern"
 msgstr "URL как шаблон"
 
-#: models.py:49
-msgid "Whether the given URL should be treated as a pattern.<br /><b>Note:</b> Refer to Django \"URL dispatcher\" documentation (e.g. \"Naming URL patterns\" part)."
+#: models.py:59
+msgid ""
+"Whether the given URL should be treated as a pattern.<br /><b>Note:</b> "
+"Refer to Django \"URL dispatcher\" documentation (e.g. \"Naming URL "
+"patterns\" part)."
 msgstr "Следует ли трактовать указанный URL как шаблон.<br /><b>К сведению:</b> Обратитесь к руководству по Django, раздел «URL dispatcher» (н.п. к «Naming URL patterns») за дополнительной информацией."
 
-#: models.py:50
+#: models.py:60
 msgid "Site tree this item belongs to."
 msgstr "Древо сайта, к которому принадлежит элемент."
 
-#: models.py:51
-#: templates/admin/sitetree/tree/change_form.html:34
+#: models.py:61 templates/admin/sitetree/tree/change_form.html:34
 msgid "Hidden"
 msgstr "Скрыт"
 
-#: models.py:51
+#: models.py:61
 msgid "Whether to show this item in navigation."
 msgstr "Следует ли скрыть данный элемент для всех типов навигации."
 
-#: models.py:52
-msgid "Short name to address site tree item from a template.<br /><b>Reserved aliases:</b> \"trunk\", \"this-children\", \"this-siblings\" and \"this-ancestor-children\"."
-msgstr "Короткое имя для обращения к элементу из шаблона.<br /><b>Зарезервированные псевдонимы:</b> «trunk», «this-children»,  «this-siblings» и «this-ancestor-children»."
+#: models.py:62
+#, python-format
+msgid ""
+"Short name to address site tree item from a template.<br /><b>Reserved "
+"aliases:</b> \"%s\"."
+msgstr "Короткое имя для обращения к элементу из шаблона.<br /><b>Зарезервированные псевдонимы:</b> \"%s\"."
 
-#: models.py:53
+#: models.py:63
 msgid "Description"
 msgstr "Описание"
 
-#: models.py:53
+#: models.py:63
 msgid "Additional comments on this item."
 msgstr "Дополнительная информация об элементе."
 
-#: models.py:54
+#: models.py:64
 msgid "Show in menu"
 msgstr "Отображать в меню"
 
-#: models.py:54
+#: models.py:64
 msgid "Whether to show this item in a menu."
 msgstr "Следует ли показывать данный элемент в меню."
 
-#: models.py:55
+#: models.py:65
 msgid "Show in breadcrumb path"
 msgstr "Отображать в навигационной цепочке"
 
-#: models.py:55
+#: models.py:65
 msgid "Whether to show this item in a breadcrumb path."
 msgstr "Следует ли показывать данный элемент в навигационной цепочке."
 
-#: models.py:56
+#: models.py:66
 msgid "Show in site tree"
 msgstr "Отображать в древе сайта"
 
-#: models.py:56
+#: models.py:66
 msgid "Whether to show this item in a site tree."
 msgstr "Следует ли показывать данный элемент в древе сайта."
 
-#: models.py:57
+#: models.py:67
 msgid "Logged in only"
 msgstr "Только для авторизовавшихся"
 
-#: models.py:57
+#: models.py:67
 msgid "Check it to grant access to this item to authenticated users only."
 msgstr "Поставьте галочку, чтобы разрешить доступ к этому элементу дерева только авторизовавшимся пользователям."
 
-#: models.py:58
+#: models.py:68 templates/admin/sitetree/tree/change_form.html:40
+msgid "Guests only"
+msgstr "Только гости"
+
+#: models.py:68
+msgid "Check it to grant access to this item to guests only."
+msgstr "Поставьте галочку, чтобы разрешить доступ к этому элементу дерева только гостям."
+
+#: models.py:69
 msgid "Restrict access to permissions"
 msgstr "Ограничить доступ правами"
 
-#: models.py:58
-msgid "Check it to restrict user access to this item, using Django permissions system."
+#: models.py:69
+msgid ""
+"Check it to restrict user access to this item, using Django permissions "
+"system."
 msgstr "Поставьте галочку, чтобы включить ограничение доступа к этому элементу, используя систему прав Django."
 
-#: models.py:59
+#: models.py:70
 msgid "Permissions granting access"
 msgstr "Права, необходимые для доступа"
 
-#: models.py:60
+#: models.py:71
 msgid "Permissions interpretation"
 msgstr "Интерпретация прав"
 
-#: models.py:63
+#: models.py:71
+msgid ""
+"<b>Any</b> &mdash; user should have any of chosen permissions. <b>All</b> "
+"&mdash; user should have all chosen permissions."
+msgstr "<b>Любое</b> &mdash; пользователь должен обладать любым из выбранных прав. <b>Все</b> &mdash; пользователь должен обладать всеми выбранными правами."
+
+#: models.py:74
 msgid "Parent"
 msgstr "Родитель"
 
-#: models.py:63
+#: models.py:74
 msgid "Parent site tree item."
 msgstr "Родительский элемент древа."
 
-#: models.py:64
-#: templates/admin/sitetree/tree/change_form.html:42
+#: models.py:75 templates/admin/sitetree/tree/change_form.html:43
 msgid "Sort order"
 msgstr "Порядок сортировки"
 
-#: models.py:64
+#: models.py:75
 msgid "Item position among other site tree items under the same parent."
 msgstr "Позиция элемента среди других элементов того же родителя."
 
-#: models.py:77
+#: models.py:89
 msgid "Site Tree Item"
 msgstr "Элемент древа сайта"
 
-#: models.py:78
-#: templates/admin/sitetree/tree/change_form.html:17
+#: models.py:90 templates/admin/sitetree/tree/change_form.html:17
 msgid "Site Tree Items"
 msgstr "Элементы древа сайта"
 
@@ -223,18 +243,33 @@ msgid "Tree"
 msgstr "Древо"
 
 #: templates/admin/sitetree/tree/change_form.html:38
-msgid "Rights Restriction"
-msgstr "Ограничение правами"
+msgid "Restricted"
+msgstr "Доступ ограничен"
 
 #: templates/admin/sitetree/tree/change_form.html:39
-msgid "For logged in"
-msgstr "Для авторизовавшихся"
+msgid "Users only"
+msgstr "Только пользователи"
 
-#: templates/admin/sitetree/tree/tree.html:22
+#: templates/admin/sitetree/tree/tree.html:23
 msgid "Move up"
 msgstr "Передвинуть выше"
 
-#: templates/admin/sitetree/tree/tree.html:24
+#: templates/admin/sitetree/tree/tree.html:25
 msgid "Move down"
 msgstr "Передвинуть ниже"
 
+#: templates/admin/sitetree/treeitem/breadcrumbs.html:5
+msgid "Home"
+msgstr "Домой"
+
+#: templates/admin/sitetree/treeitem/breadcrumbs.html:11
+msgid "Delete"
+msgstr "Удалить"
+
+#: templates/admin/sitetree/treeitem/breadcrumbs.html:15
+msgid "History"
+msgstr "История"
+
+#: templates/admin/sitetree/treeitem/breadcrumbs.html:17
+msgid "Add"
+msgstr "Добавить"
