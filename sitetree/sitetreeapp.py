@@ -489,9 +489,14 @@ class SiteTree(object):
         return _ITEMS_PROCESSOR(tree_items=items, tree_sender=sender)
 
     def check_access(self, item, context):
-        """Checks whether user have access to certain item."""
+        """Checks whether a current user has an access to a certain item."""
 
-        if item.access_loggedin and not self._global_context['request'].user.is_authenticated():
+        authenticated = self._global_context['request'].user.is_authenticated()
+
+        if item.access_loggedin and not authenticated:
+            return False
+
+        if item.access_guest and authenticated:
             return False
 
         if item.access_restricted:

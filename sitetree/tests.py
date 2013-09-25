@@ -107,6 +107,9 @@ class TreeItemModelTest(unittest.TestCase):
         t2_root6 = TreeItem(title='url quoting 1.5 style', tree=t2, url='"url" 2 put_var', urlaspattern=True)
         t2_root6.save(force_insert=True)
 
+        t2_root7 = TreeItem(title='for guests only', tree=t2, url='/some_other/', access_guest=True)
+        t2_root7.save(force_insert=True)
+
         cls.t1 = t1
         cls.t1_root = t1_root
         cls.t1_root_child1 = t1_root_child1
@@ -123,6 +126,7 @@ class TreeItemModelTest(unittest.TestCase):
         cls.t2_root4 = t2_root4
         cls.t2_root5 = t2_root5
         cls.t2_root6 = t2_root6
+        cls.t2_root7 = t2_root7
 
         # set urlconf to test's one
         cls.old_urlconf = urlresolvers.get_urlconf()
@@ -185,7 +189,7 @@ class TreeItemModelTest(unittest.TestCase):
         self.assertEqual(menu[0].in_current_branch, True)
 
         menu = self.sitetree.menu('tree2', 'trunk', get_mock_context(path='/sub/'))
-        self.assertEqual(len(menu), 5)
+        self.assertEqual(len(menu), 6)
         self.assertEqual(menu[0].id, self.t2_root1.id)
         self.assertEqual(menu[1].id, self.t2_root2.id)
         self.assertEqual(menu[0].is_current, False)
@@ -242,13 +246,22 @@ class TreeItemModelTest(unittest.TestCase):
         self.assertEqual(st1[0].has_children, True)
 
         st2 = self.sitetree.tree('tree2', get_mock_context(path='/'))
-        self.assertEqual(len(st2), 5)  # Not every item is visible for non logged in.
+        self.assertIn(self.t2_root7, st2)   # Not every item is visible for non logged in.
+        self.assertNotIn(self.t2_root3, st2)
+        self.assertEqual(len(st2), 6)
+
         self.assertEqual(st2[0].id, self.t2_root1.id)
         self.assertEqual(st2[1].id, self.t2_root2.id)
 
         self.assertEqual(self.t2_root1.access_loggedin, False)
+        self.assertEqual(self.t2_root1.access_guest, False)
         self.assertEqual(self.t2_root2.access_loggedin, False)
+        self.assertEqual(self.t2_root2.access_guest, False)
         self.assertEqual(self.t2_root3.access_loggedin, True)
+        self.assertEqual(self.t2_root3.access_guest, False)
+
+        self.assertEqual(self.t2_root7.access_loggedin, False)
+        self.assertEqual(self.t2_root7.access_guest, True)
 
         self.assertEqual(st2[0].title, '{{ t2_root1_title }}')
         self.assertEqual(st2[1].title, 'put {{ t2_root2_title }} inside')
@@ -262,6 +275,12 @@ class TreeItemModelTest(unittest.TestCase):
         self.assertEqual(st2[1].depth, 0)
         self.assertEqual(st2[0].has_children, False)
         self.assertEqual(st2[1].has_children, False)
+
+        st2 = self.sitetree.tree('tree2', get_mock_context(path='/', user_authorized=True))
+        self.assertNotIn(self.t2_root7, st2)   # Not every item is visible for non logged in.
+        self.assertIn(self.t2_root3, st2)
+        self.assertEqual(len(st2), 6)
+
 
     def test_items_hook_tree(self):
         def my_processor(tree_items, tree_sender):

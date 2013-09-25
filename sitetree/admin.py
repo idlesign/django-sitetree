@@ -83,7 +83,7 @@ class TreeItemAdmin(admin.ModelAdmin):
         }),
         (_('Access settings'), {
             'classes': ('collapse',),
-            'fields': ('access_loggedin', 'access_restricted', 'access_permissions', 'access_perm_type')
+            'fields': ('access_loggedin', 'access_guest', 'access_restricted', 'access_permissions', 'access_perm_type')
         }),
         (_('Display settings'), {
             'classes': ('collapse',),
