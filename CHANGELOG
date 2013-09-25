@@ -1,3 +1,11 @@
+v0.11.0
+-------
++ Implemented helpers for dynamic tree structuring (see #105)
++ Added experimental support for app-defined trees (see #105).
++ Implemented tree item access restriction "for guests only" (closes #108)
++ Added Bootstrap 3 templates (closes #100).
+
+
 v0.10.0
 -------
 + Added experimental support for user-defined sitetree models (see #64).
