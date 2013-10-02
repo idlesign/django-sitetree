@@ -41,6 +41,10 @@ Templates for Foundation Framework
 
 The following templates are bundled with SiteTree:
 
+ * `sitetree/breadcrumbs_foundation.html`
+
+   This template can be used to construct a breadcrumb navigation from a sitetree.
+
  * `sitetree/menu_foundation.html`
 
    This template can be used to construct Foundation Nav Bar (classic horizontal top menu) from a sitetree.
