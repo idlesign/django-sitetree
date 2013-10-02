@@ -34,10 +34,10 @@ To customize visual representation of navigation elements you should override th
   5. See :ref:`Advanced SiteTree tags section <tags-advanced>` for clarification on two advanced SiteTree template tags.
 
 
-Templates for Foundation CSS Framework
+Templates for Foundation Framework
 --------------------------------------
 
-*Information about Foundation CSS Framework is available at* http://foundation.zurb.com
+*Information about Foundation Framework is available at* http://foundation.zurb.com
 
 The following templates are bundled with SiteTree:
 
@@ -68,10 +68,10 @@ The following templates are bundled with SiteTree:
 You can take a look at Foundation navigation elements examples at http://foundation.zurb.com/docs/navigation.php
 
 
-Templates for Bootstrap CSS Framework
+Templates for Bootstrap Framework
 -------------------------------------
 
-*Information about Bootstrap CSS Framework is available at* http://twitter.github.com/bootstrap/
+*Information about Bootstrap Framework is available at* http://getbootstrap.com
 
 The following templates are bundled with SiteTree:
 
@@ -140,3 +140,51 @@ The following templates are bundled with SiteTree:
 
 
 You can find Bootstrap navigation elements examples at http://getbootstrap.com/components/
+
+
+Templates for Semantic UI Framework
+--------------------------------------
+
+*Information about Semantic UI Framework is available at* http://semantic-ui.com/
+
+The following templates are bundled with SiteTree:
+
+ * `sitetree/breadcrumbs_semantic.html`
+
+   This template can be used to construct a breadcrumb navigation from a sitetree.
+
+
+ * `sitetree/menu_semantic.html`
+
+   This template can be used to construct Semantic Menu (classic horizontal top menu) from a sitetree.
+
+   .. warning::
+
+        To widen the number of possible use-cases for which this template can be applied,
+        it renders only menu contents, but not the UI Menu container itself.
+
+        This means that one should wrap `sitetree_menu` call into the appropriately styled divs
+        (i.e. having `ui menu` classes).
+
+        Example::
+
+            <div class="ui menu">
+                <a class="item" href="/">MY SITE</a>
+                {% sitetree_menu from "main" include "topmenu" template "sitetree/menu_semantic.html" %}
+            </div>
+
+        Please see Semantic UI Menu documentation for more information on subject.
+
+   .. note::
+
+        The template renders no more than two levels of a tree with hover dropdowns for root items having children.
+
+
+ * `sitetree/menu_semantic-vertical.html`
+
+   This template can be used to construct a vertical version of Semantic UI Menu, suitable for sidebar navigation.
+
+   .. note::
+
+        The template renders no more than two levels of a tree with hover dropdowns for root items having children.
+
