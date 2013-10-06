@@ -51,11 +51,11 @@ def item(title, url, children=None, url_as_pattern=True, hint='', alias='', desc
 
 def import_sitetrees():
     """Imports sitetrees modules from packages (apps)."""
-    from django.conf import settings
-    module_name = 'sitetree'
+    from django.conf import settings as django_settings
+    module_name = settings.APP_MODULE_NAME
 
     submodules = []
-    for app in settings.INSTALLED_APPS:
+    for app in django_settings.INSTALLED_APPS:
         module = import_module(app)
         try:
             sub_module = import_module('%s.%s' % (app, module_name))

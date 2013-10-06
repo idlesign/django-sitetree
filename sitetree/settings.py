@@ -4,6 +4,8 @@ from django.conf import settings
 MODEL_TREE = getattr(settings, 'SITETREE_MODEL_TREE', 'sitetree.Tree')
 MODEL_TREE_ITEM = getattr(settings, 'SITETREE_MODEL_TREE_ITEM', 'sitetree.TreeItem')
 
+APP_MODULE_NAME = getattr(settings, 'SITETREE_APP_MODULE_NAME', 'sitetrees')
+
 # Reserved tree items aliases.
 ALIAS_TRUNK = 'trunk'
 ALIAS_THIS_CHILDREN = 'this-children'
