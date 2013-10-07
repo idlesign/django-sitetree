@@ -44,7 +44,7 @@ def item(title, url, children=None, url_as_pattern=True, hint='', alias='', desc
 
     if children is not None:
         for child in children:
-            child.parent_id = item_obj.id
+            child.parent = item_obj
             item_obj.dynamic_children.append(child)
     return item_obj
 
