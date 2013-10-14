@@ -9,13 +9,19 @@ from sitetree import settings
 DJANGO_VERSION_INT = int('%s%s%s' % VERSION[:3])
 
 
+def generate_id_for(obj):
+    """Generates and returns a unique identifier for the given object."""
+    return id(obj)
+
+
 def tree(alias, title='', items=None):
     """Dynamically creates and returns a sitetree.
     `items` - dynamic sitetree items objects created by `item` function.
 
     """
     tree_obj = get_tree_model()(alias=alias, title=title)
-    tree_obj.id = id(tree_obj)
+    tree_obj.id = generate_id_for(tree_obj)
+    tree_obj.is_dynamic = True
 
     if items is not None:
         tree_obj.dynamic_items = []
@@ -39,7 +45,8 @@ def item(title, url, children=None, url_as_pattern=True, hint='', alias='', desc
                                    hint=hint, alias=alias, description=description, inmenu=in_menu,
                                    insitetree=in_sitetree, inbreadcrumbs=in_breadcrumbs,
                                    access_loggedin=access_loggedin, access_guest=access_guest)
-    item_obj.id = id(item_obj)
+    item_obj.id = generate_id_for(item_obj)
+    item_obj.is_dynamic = True
     item_obj.dynamic_children = []
 
     if children is not None:
@@ -49,21 +56,24 @@ def item(title, url, children=None, url_as_pattern=True, hint='', alias='', desc
     return item_obj
 
 
-def import_sitetrees():
+def import_app_sitetree_module(app):
+    """Imports sitetree module from a given app."""
+    module_name = settings.APP_MODULE_NAME
+    module = import_module(app)
+    try:
+        sub_module = import_module('%s.%s' % (app, module_name))
+        return sub_module
+    except:
+        if module_has_submodule(module, module_name):
+            raise
+
+
+def import_project_sitetree_modules():
     """Imports sitetrees modules from packages (apps)."""
     from django.conf import settings as django_settings
-    module_name = settings.APP_MODULE_NAME
-
     submodules = []
     for app in django_settings.INSTALLED_APPS:
-        module = import_module(app)
-        try:
-            sub_module = import_module('%s.%s' % (app, module_name))
-            submodules.append(sub_module)
-        except:
-            if module_has_submodule(module, module_name):
-                raise
-
+        submodules.append(import_app_sitetree_module(app))
     return submodules
 
 

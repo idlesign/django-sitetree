@@ -3,7 +3,7 @@ from optparse import make_option
 from django.core.management.base import BaseCommand
 from django.db import DEFAULT_DB_ALIAS
 
-from sitetree.utils import get_tree_model, get_tree_item_model, import_sitetrees
+from sitetree.utils import get_tree_model, import_project_sitetree_modules
 from sitetree.settings import APP_MODULE_NAME
 
 
@@ -22,12 +22,12 @@ class Command(BaseCommand):
     def handle(self, *apps, **options):
         using = options.get('database', DEFAULT_DB_ALIAS)
 
-        trees_modules = import_sitetrees()
+        tree_modules = import_project_sitetree_modules()
 
-        if not trees_modules:
+        if not tree_modules:
             self.stdout.write('No sitetrees found in project apps (searched in %%app%%/%s.py).\n' % APP_MODULE_NAME)
 
-        for module in trees_modules:
+        for module in tree_modules:
             sitetrees = getattr(module, 'sitetrees', None)
             app = module.__dict__['__package__']
             if not apps or (apps and app in apps):

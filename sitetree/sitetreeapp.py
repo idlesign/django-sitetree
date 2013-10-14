@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import warnings
 
 from collections import defaultdict
-from copy import copy
+from copy import copy, deepcopy
 
 from django.conf import settings
 from django import template
@@ -15,7 +15,7 @@ from django.utils.translation import get_language
 from django.template import Context
 from django.template.defaulttags import url as url_tag
 
-from .utils import DJANGO_VERSION_INT, get_tree_model, get_tree_item_model
+from .utils import DJANGO_VERSION_INT, get_tree_model, get_tree_item_model, import_app_sitetree_module, generate_id_for
 from .settings import ALIAS_TRUNK, ALIAS_THIS_CHILDREN, ALIAS_THIS_SIBLINGS, ALIAS_THIS_PARENT_SIBLINGS, ALIAS_THIS_ANCESTOR_CHILDREN
 
 
@@ -31,6 +31,12 @@ CACHE_TIMEOUT = 31536000
 _ITEMS_PROCESSOR = None
 # Holds aliases of trees that support internationalization.
 _I18N_TREES = []
+# Holds trees dynamically loaded from project apps.
+_DYNAMIC_TREES = {}
+# Dictionary index in `_DYNAMIC_TREES` for orphaned trees list.
+_IDX_ORPHAN_TREES = 'orphans'
+# Dictinary index name template in `_DYNAMIC_TREES`.
+_IDX_TPL = '%s|:|%s'
 
 
 def register_items_hook(callable):
@@ -97,6 +103,98 @@ def register_i18n_trees(aliases):
     """
     global _I18N_TREES
     _I18N_TREES = aliases
+
+
+def register_dynamic_trees(trees):
+    """Registers dynamic trees to be available for `sitetree` runtime.
+    Expects `trees` to be an iterable with structures created with `compose_dynamic_tree()`.
+
+    Example::
+
+        register_dynamic_trees((
+
+            # Get all the trees from `my_app`.
+            compose_dynamic_tree('my_app'),
+
+            # Get all the trees from `my_app` and attach them to `main` tree root.
+            compose_dynamic_tree('my_app', target_tree_alias='main'),
+
+            # Get all the trees from `my_app` and attach them to `has_dynamic` aliased item in `main` tree.
+            compose_dynamic_tree('articles', target_tree_alias='main', parent_tree_item_alias='has_dynamic'),
+
+            # Define a tree right on the registration.
+            compose_dynamic_tree((
+                tree('dynamic', items=(
+                    item('dynamic_1', 'dynamic_1_url', children=(
+                        item('dynamic_1_sub_1', 'dynamic_1_sub_1_url'),
+                    )),
+                    item('dynamic_2', 'dynamic_2_url'),
+                )),
+            )),
+        ))
+
+    """
+
+    global _DYNAMIC_TREES
+
+    if _IDX_ORPHAN_TREES not in _DYNAMIC_TREES:
+        _DYNAMIC_TREES[_IDX_ORPHAN_TREES] = {}
+
+    for tree in trees:
+        if tree['sitetrees'] is not None:
+            if tree['tree'] is None:
+                # Register trees as they are defined in app.
+                for st in tree['sitetrees']:
+                    if st.alias not in _DYNAMIC_TREES[_IDX_ORPHAN_TREES]:
+                        _DYNAMIC_TREES[_IDX_ORPHAN_TREES][st.alias] = []
+                    _DYNAMIC_TREES[_IDX_ORPHAN_TREES][st.alias].append(st)
+            else:
+                # Register tree items as parts of existing trees.
+                index = _IDX_TPL % (tree['tree'], tree['parent_item'])
+                if index not in _DYNAMIC_TREES:
+                    _DYNAMIC_TREES[index] = []
+                _DYNAMIC_TREES[index].extend(tree['sitetrees'])
+
+
+def get_dynamic_trees():
+    """Returns a dictionary with currently registered dynamic trees."""
+    return _DYNAMIC_TREES
+
+
+def compose_dynamic_tree(src, target_tree_alias=None, parent_tree_item_alias=None, include_trees=None):
+    """Returns a structure describing a dynamic sitetree.utils
+    The structure can be built from various sources,
+
+    Thus, if a string is passed to `src`, it'll be treated as the name of an app,
+    from where one want to import sitetrees definitions.
+
+    On the other hand, `src` can be an iterable of trees definitions
+    (see `sitetree.utils.tree()` and `item()` functions).
+
+
+    `target_tree_alias` - expects a static tree alias to attach items from dynamic trees to.
+    `parent_tree_item_alias` - expects a tree item alias from a static tree to attach items from dynamic trees to.
+    `include_trees` - expects a list of sitetree aliases to filter `src`.
+
+
+    """
+
+    def result(sitetrees=src):
+        if include_trees is not None:
+            sitetrees = [tree for tree in sitetrees if tree.alias in include_trees]
+        return {'app': src, 'sitetrees': sitetrees, 'tree': target_tree_alias, 'parent_item': parent_tree_item_alias}
+
+    if isinstance(src, six.string_types):
+        # Considered an application name.
+        try:
+            module = import_app_sitetree_module(src)
+            return result(getattr(module, 'sitetrees', None))
+        except ImportError as e:
+            if settings.DEBUG:
+                warnings.warn('Unable to register dynamic sitetree(s) for `%s` application: %s. ' % (src, e))
+    else:
+        return result()
+    return None
 
 
 class LazyTitle(object):
@@ -197,6 +295,55 @@ class SiteTree(object):
                 alias = i18n_tree_alias
         return alias
 
+    @staticmethod
+    def attach_dynamic_tree_items(tree_alias, src_tree_items):
+        """Attaches dynamic sitetrees items registered with `register_dynamic_trees()`
+        to an initial (source) items list.
+
+        """
+        if not _DYNAMIC_TREES:
+            return src_tree_items
+
+        # This guarantees that a dynamic source stays intact,
+        # no matter how dynamic sitetrees are attached.
+        TREES = deepcopy(_DYNAMIC_TREES)
+
+        items = []
+        if not src_tree_items:
+            if _IDX_ORPHAN_TREES in TREES and tree_alias in TREES[_IDX_ORPHAN_TREES]:
+                for tree in TREES[_IDX_ORPHAN_TREES][tree_alias]:
+                    items.extend(tree.dynamic_items)
+        else:
+
+            # TODO Seems to be underoptimized %)
+
+            # Tree item attachment by alias.
+            for static_item in list(src_tree_items):
+                items.append(static_item)
+                if static_item.alias:
+                    idx = _IDX_TPL % (tree_alias, static_item.alias)
+                    if idx in TREES:
+                        for tree in TREES[idx]:
+                            tree.alias = tree_alias
+                            for dyn_item in tree.dynamic_items:
+                                if dyn_item.parent is None:
+                                    dyn_item.parent = static_item
+                                # Unique IDs are required for the same trees attached
+                                # to different parents.
+                                dyn_item.id = generate_id_for(dyn_item)
+                                items.append(dyn_item)
+
+            # Tree root attachment.
+            idx = _IDX_TPL % (tree_alias, None)
+            if idx in _DYNAMIC_TREES:
+                TREES = deepcopy(_DYNAMIC_TREES)
+                for tree in TREES[idx]:
+                    tree.alias = tree_alias
+                    items.extend(tree.dynamic_items)
+
+        return items
+
+
     def get_sitetree(self, alias):
         """Gets site tree items from the given site tree.
         Caches result to dictionary.
@@ -212,6 +359,7 @@ class SiteTree(object):
         if not sitetree:
             sitetree = MODEL_TREE_ITEM_CLASS.objects.select_related('parent', 'tree').\
                    filter(tree__alias__exact=alias).order_by('parent__sort_order', 'sort_order')
+            sitetree = self.attach_dynamic_tree_items(alias, sitetree)
             self.set_cache_entry('sitetrees', alias, sitetree)
             sitetree_needs_caching = True
 

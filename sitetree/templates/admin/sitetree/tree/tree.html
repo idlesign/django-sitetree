@@ -14,9 +14,10 @@
         <td class="align-center"><img src="{{ STATIC_URL }}admin/img/icon-{{ item.access_loggedin|yesno:"yes,no" }}.gif" alt="{{ item.access_loggedin }}" /></td>
         <td class="align-center"><img src="{{ STATIC_URL }}admin/img/icon-{{ item.access_guest|yesno:"yes,no" }}.gif" alt="{{ item.access_guest }}" /></td>
 		<td>
-		{% for d in item.depth_range %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% endfor %}
-		{% if item.parent %}|&#8212;{% endif %}
-		<a href="item_{{ item.id }}/">{{ item.title }}</a></td>
+            {% for d in item.depth_range %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% endfor %}
+            {% if item.parent %}|&#8212;{% endif %}
+            {% if item.is_dynamic %}{{ item.title }}{% else %}<a href="item_{{ item.id }}/">{{ item.title }}</a>{% endif %}
+        </td>
 		<td>{{ item.url }}</td>
 		<td>
 			&nbsp;&nbsp;
