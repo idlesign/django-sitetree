@@ -1,3 +1,12 @@
+v0.12.0
+-------
++ Implemented runtime defined (dynamic) trees (see #105).
++ Added Foundation breadcrumbs template.
++ Added Semantic UI templates.
+* Fixed `DatabaseError: integer out of range` generated on `sitetree_resync_apps` (see #105).
+* Sitetree for apps module name made adjustable and defaults to `sitetrees` to prevent module name clashes.
+
+
 v0.11.0
 -------
 + Implemented helpers for dynamic tree structuring (see #105)
