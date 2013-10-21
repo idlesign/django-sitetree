@@ -4,7 +4,8 @@ from django import template
 from django.core import urlresolvers
 
 from sitetree.models import Tree, TreeItem
-from sitetree.sitetreeapp import SiteTree, SiteTreeError, register_items_hook, register_i18n_trees
+from sitetree.utils import tree, item
+from sitetree.sitetreeapp import SiteTree, SiteTreeError, register_items_hook, register_i18n_trees, register_dynamic_trees, compose_dynamic_tree
 
 from django.conf.urls import patterns, url
 
@@ -396,3 +397,57 @@ class TreeTest(unittest.TestCase):
         self.assertFalse(children[1].is_current)
         self.assertTrue(children[2].is_current)
         self.assertFalse(children[3].is_current)
+
+
+class DynamicTreeTest(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.sitetree = SiteTree()
+
+        t1 = Tree(alias='main')
+        t1.save(force_insert=True)
+
+        t1_root = TreeItem(title='root', tree=t1, url='/', alias='for_dynamic')
+        t1_root.save(force_insert=True)
+
+        cls.t1 = t1
+        cls.t1_root = t1_root
+
+    def test_basic(self):
+        register_dynamic_trees((
+            compose_dynamic_tree((
+                tree('dynamic_main_root', items=(
+                    item('dynamic_main_root_1', 'dynamic_main_root_1_url', url_as_pattern=False),
+                    item('dynamic_main_root_2', 'dynamic_main_root_2_url', url_as_pattern=False),
+                )),
+            ), target_tree_alias='main'),
+            compose_dynamic_tree((
+                tree('dynamic_main_sub', items=(
+                    item('dynamic_main_sub_1', 'dynamic_main_sub_1_url', url_as_pattern=False),
+                    item('dynamic_main_sub_2', 'dynamic_main_sub_2_url', url_as_pattern=False),
+                )),
+            ), target_tree_alias='main', parent_tree_item_alias='for_dynamic'),
+            compose_dynamic_tree((
+                tree('dynamic', items=(
+                    item('dynamic_1', 'dynamic_1_url', children=(
+                        item('dynamic_1_sub_1', 'dynamic_1_sub_1_url', url_as_pattern=False),
+                    ), url_as_pattern=False),
+                    item('dynamic_2', 'dynamic_2_url', url_as_pattern=False),
+                )),
+            )),
+        ))
+
+        self.sitetree._global_context = get_mock_context(path='/the_same_url/')
+        tree_alias, sitetree_items = self.sitetree.get_sitetree('main')
+        self.assertEqual(len(sitetree_items), 5)
+        self.assertEqual(sitetree_items[3].title, 'dynamic_main_root_1')
+        self.assertEqual(sitetree_items[4].title, 'dynamic_main_root_2')
+        children = self.sitetree.get_children('main', self.t1_root)
+        self.assertEqual(len(children), 2)
+
+
+        tree_alias, sitetree_items = self.sitetree.get_sitetree('dynamic')
+        self.assertEqual(len(sitetree_items), 3)
+        children = self.sitetree.get_children('dynamic', sitetree_items[0])
+        self.assertEqual(len(children), 1)

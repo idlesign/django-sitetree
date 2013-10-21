@@ -141,7 +141,7 @@ def register_dynamic_trees(trees):
         _DYNAMIC_TREES[_IDX_ORPHAN_TREES] = {}
 
     for tree in trees:
-        if tree['sitetrees'] is not None:
+        if tree is not None and tree['sitetrees'] is not None:
             if tree['tree'] is None:
                 # Register trees as they are defined in app.
                 for st in tree['sitetrees']:

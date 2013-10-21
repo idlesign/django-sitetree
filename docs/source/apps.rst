@@ -48,3 +48,41 @@ Or solely for `books` application::
 
   python manage.py sitetree_resync_apps books
 
+
+
+
+Dynamic sitetree structuring
+----------------------------
+
+Optionally you can structure app-defined sitetrees into existing or new trees runtime.
+
+Basically one should compose a dynamic tree with `compose_dynamic_tree()` and register it with `register_dynamic_trees()`.
+
+Let's suppose the following code is in `setting.py` of your project::
+
+    from sitetree.sitetreeapp import register_dynamic_trees, compose_dynamic_tree
+    from sitetree.utils import tree, item
+
+
+    register_dynamic_trees((
+
+        # Gather all the trees from `books`,
+        compose_dynamic_tree('books'),
+
+        # or gather all the trees from `books` and attach them to `main` tree root,
+        compose_dynamic_tree('books', target_tree_alias='main'),
+
+        # or gather all the trees from `books` and attach them to `for_books` aliased item in `main` tree,
+        compose_dynamic_tree('books', target_tree_alias='main', parent_tree_item_alias='for_books'),
+
+        # or even define a tree right at the process of registration.
+        compose_dynamic_tree((
+            tree('dynamic', items=(
+                item('dynamic_1', 'dynamic_1_url', children=(
+                    item('dynamic_1_sub_1', 'dynamic_1_sub_1_url'),
+                )),
+                item('dynamic_2', 'dynamic_2_url'),
+            )),
+        )),
+    ))
+
