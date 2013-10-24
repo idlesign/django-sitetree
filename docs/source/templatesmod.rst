@@ -24,11 +24,12 @@ To customize visual representation of navigation elements you should override th
 
   1. Switch to sitetree folder
   2. Switch further to 'templates/sitetree'
-  3. There you'll find the following templates:
+  3. There among others you'll find the following templates:
 
-    * breadcrumbs.html
-    * menu.html
-    * tree.html
+    * breadcrumbs.html (basic breadcrumbs)
+    * breadcrumbs-title.html (breadcrumbs that can be put inside html `title` tag)
+    * menu.html (basic menu)
+    * tree.html (basic tree)
 
   4. Copy whichever of them you need into your project templates directory and feel free to customize it.
   5. See :ref:`Advanced SiteTree tags section <tags-advanced>` for clarification on two advanced SiteTree template tags.
