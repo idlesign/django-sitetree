@@ -188,6 +188,8 @@ def compose_dynamic_tree(src, target_tree_alias=None, parent_tree_item_alias=Non
         # Considered an application name.
         try:
             module = import_app_sitetree_module(src)
+            if module is None:
+                return None
             return result(getattr(module, 'sitetrees', None))
         except ImportError as e:
             if settings.DEBUG:

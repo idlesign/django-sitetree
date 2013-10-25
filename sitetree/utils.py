@@ -66,6 +66,7 @@ def import_app_sitetree_module(app):
     except:
         if module_has_submodule(module, module_name):
             raise
+        return None
 
 
 def import_project_sitetree_modules():
@@ -73,7 +74,9 @@ def import_project_sitetree_modules():
     from django.conf import settings as django_settings
     submodules = []
     for app in django_settings.INSTALLED_APPS:
-        submodules.append(import_app_sitetree_module(app))
+        module = import_app_sitetree_module(app)
+        if module is not None:
+            submodules.append(module)
     return submodules
 
 
