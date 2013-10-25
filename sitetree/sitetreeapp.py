@@ -16,7 +16,7 @@ from django.template import Context
 from django.template.defaulttags import url as url_tag
 
 from .utils import DJANGO_VERSION_INT, get_tree_model, get_tree_item_model, import_app_sitetree_module, generate_id_for
-from .settings import ALIAS_TRUNK, ALIAS_THIS_CHILDREN, ALIAS_THIS_SIBLINGS, ALIAS_THIS_PARENT_SIBLINGS, ALIAS_THIS_ANCESTOR_CHILDREN
+from .settings import ALIAS_TRUNK, ALIAS_THIS_CHILDREN, ALIAS_THIS_SIBLINGS, ALIAS_THIS_PARENT_SIBLINGS, ALIAS_THIS_ANCESTOR_CHILDREN, UNRESOLVED_ITEM_MARKER
 
 
 MODEL_TREE_CLASS = get_tree_model()
@@ -522,7 +522,7 @@ class SiteTree(object):
 
                 # We make an anchor link from an unresolved URL as a reminder.
                 if not context['item.url_resolved']:
-                    resolved_url = u'#unresolved'
+                    resolved_url = UNRESOLVED_ITEM_MARKER
                 else:
                     resolved_url = context['item.url_resolved']
             else:
