@@ -245,7 +245,9 @@ class SiteTree(object):
 
     def cache_save(self):
         """Saves sitetree data to Django cache."""
-        cache.set('sitetrees', self.cache, CACHE_TIMEOUT)
+        # Disable caching in Admin (see issue #114)
+        if self._global_context.current_app != 'admin':
+            cache.set('sitetrees', self.cache, CACHE_TIMEOUT)
 
     def cache_empty(self, **kwargs):
         """Empties cached sitetree data."""
