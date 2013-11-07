@@ -1,3 +1,7 @@
+v0.12.1
+-------
++ Fixed bug when running sitetree with django version 1.4.10
+
 v0.12.0
 -------
 + Implemented runtime defined (dynamic) trees (see #105).
@@ -93,7 +97,7 @@ v0.6.0
 ------
 + Added i18n trees support (see #27).
 + Added tree items processing hook support (see #26).
-* Fixed various tree items filtering issues (see #34, #35). 
+* Fixed various tree items filtering issues (see #34, #35).
 
 
 v0.5.2
