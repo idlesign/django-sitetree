@@ -6,7 +6,7 @@ from django.utils.module_loading import module_has_submodule
 
 from sitetree import settings
 
-DJANGO_VERSION_INT = int('%s%s%s' % VERSION[:3])
+DJANGO_VERSION_TUPLE = VERSION[:3]
 
 
 def generate_id_for(obj):

@@ -2,3 +2,5 @@
 .project
 .pydevproject
 .idea
+.tox
+django_sitetree.egg-info
