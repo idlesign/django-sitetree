@@ -6,6 +6,7 @@ from collections import defaultdict
 from copy import copy, deepcopy
 
 from django.conf import settings
+from django import VERSION
 from django import template
 from django.core.cache import cache
 from django.db.models import signals
@@ -15,7 +16,7 @@ from django.utils.translation import get_language
 from django.template import Context
 from django.template.defaulttags import url as url_tag
 
-from .utils import DJANGO_VERSION_TUPLE, get_tree_model, get_tree_item_model, import_app_sitetree_module, generate_id_for
+from .utils import get_tree_model, get_tree_item_model, import_app_sitetree_module, generate_id_for
 from .settings import ALIAS_TRUNK, ALIAS_THIS_CHILDREN, ALIAS_THIS_SIBLINGS, ALIAS_THIS_PARENT_SIBLINGS, ALIAS_THIS_ANCESTOR_CHILDREN, UNRESOLVED_ITEM_MARKER
 
 
@@ -499,7 +500,7 @@ class SiteTree(object):
                     all_arguments.append('"%s"' % str(resolved))  # We enclose arg in double quotes as already resolved.
                 view_path = view_path[0].strip('"\' ')
 
-            if DJANGO_VERSION_TUPLE >= (1, 5, 0):  # "new-style" url tag - consider sitetree named urls literals.
+            if VERSION >= (1, 5, 0):  # "new-style" url tag - consider sitetree named urls literals.
                 view_path = "'%s'" % view_path
 
             url_pattern = u'%s %s' % (view_path, ' '.join(all_arguments))

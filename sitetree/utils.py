@@ -1,12 +1,9 @@
-from django import VERSION
 from django.db.models import get_model
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.importlib import import_module
 from django.utils.module_loading import module_has_submodule
 
 from sitetree import settings
-
-DJANGO_VERSION_TUPLE = VERSION[:3]
 
 
 def generate_id_for(obj):
