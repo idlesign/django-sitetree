@@ -137,28 +137,22 @@ class TreeItemModelTest(unittest.TestCase):
     def tearDownClass(cls):
         urlresolvers.set_urlconf(cls.old_urlconf)
 
-    def test_url_with_vars(self):
-        menu = self.sitetree.menu('tree1', 'trunk', get_mock_context(path='/articles/'))
-        children = self.sitetree.get_children('tree1', menu[0])
-        self.assertEqual(children[2].url_resolved, '/articles/')
-        self.assertEqual(children[3].url_resolved, '#unresolved')
-
     def test_url_resolve(self):
         self.sitetree.menu('tree1', 'trunk', get_mock_context(path='/', put_var='abrakadabra'))
 
-        url = self.sitetree.url(self.t2_root4, None, get_mock_context(path='/articles/2_slugged/'))
+        url = self.sitetree.url(self.t2_root4, get_mock_context(path='/articles/2_slugged/'))
         self.assertTrue(url.find('abrakadabra') > -1)
 
         self.sitetree.menu('tree1', 'trunk', get_mock_context(path='/', put_var='booo'))
-        url = self.sitetree.url(self.t2_root4, None, get_mock_context(path='/articles/2_slugged-mugged/'))
+        url = self.sitetree.url(self.t2_root4, get_mock_context(path='/articles/2_slugged-mugged/'))
         self.assertTrue(url.find('booo') > -1)
 
         self.sitetree.menu('tree1', 'trunk', get_mock_context(path='/', put_var='rolling'))
-        url = self.sitetree.url(self.t2_root5, None, get_mock_context(path='/articles/2_quoted/'))
+        url = self.sitetree.url(self.t2_root5, get_mock_context(path='/articles/2_quoted/'))
         self.assertTrue(url.find('rolling') > -1)
 
         self.sitetree.menu('tree1', 'trunk', get_mock_context(path='/', put_var='spoon'))
-        url = self.sitetree.url(self.t2_root6, None, get_mock_context(path='/articles/2_quoted/'))
+        url = self.sitetree.url(self.t2_root6, get_mock_context(path='/articles/2_quoted/'))
         self.assertTrue(url.find('spoon') > -1)
 
     def test_no_tree(self):

@@ -451,21 +451,13 @@ class SiteTree(object):
 
         return current_item
 
-    def url(self, sitetree_item, tag_arguments=None, context=None):
+    def url(self, sitetree_item, context=None):
         """Resolves item's URL.
 
         'sitetree_item' points to TreeItem object, 'url' property of which
             is processed as URL pattern or simple URL.
 
-        'tag_arguments' is a list of additional arguments passed to
-            'sitetree_url' in template.
-
         """
-        if tag_arguments is None:
-            tag_arguments = []
-        else:
-            # TODO Remove tag_arguments in 1.0.
-            warnings.warn('Use of sitetree_url tag additional arguments is deprecated. Feature support will be completely removed in 1.0.', DeprecationWarning)
 
         if context is None:
             context = self._global_context
@@ -475,20 +467,12 @@ class SiteTree(object):
 
         # Resolve only if item's URL is marked as pattern.
         if sitetree_item.urlaspattern:
-            resolved_var = self.resolve_var(sitetree_item.url, context)
+            url = sitetree_item.url
+            view_path = url
+            all_arguments = []
 
-            # Check whether a template variable is used instead of a URL pattern.
-            if resolved_var != sitetree_item.url:
-                if not isinstance(resolved_var, six.string_types):  # Variable contains what we're not expecting, revert to original URL.
-                    resolved_var = sitetree_item.url
-                # TODO Remove template var resolution in 1.0.
-                warnings.warn('Use of a template variable in URL field is deprecated. Feature support will be completely removed in 1.0.', DeprecationWarning)
-
-            view_path = resolved_var
-            all_arguments = copy(tag_arguments)
-
-            if ' ' in resolved_var:
-                view_path = resolved_var.split(' ')
+            if ' ' in url:
+                view_path = url.split(' ')
                 # We should try to resolve URL parameters from site tree item.
                 for view_argument in view_path[1:]:
                     resolved = self.resolve_var(view_argument)
