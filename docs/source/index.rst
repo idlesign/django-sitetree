@@ -52,6 +52,7 @@ Table of Contents
     admin
     forms
     models
+    performance
 
 
 Get involved into django-sitetree

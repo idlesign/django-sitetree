@@ -346,7 +346,6 @@ class SiteTree(object):
 
         return items
 
-
     def get_sitetree(self, alias):
         """Gets site tree items from the given site tree.
         Caches result to dictionary.
