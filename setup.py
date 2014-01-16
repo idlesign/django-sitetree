@@ -8,7 +8,7 @@ f.close()
 
 setup(
     name='django-sitetree',
-    version=".".join(map(str, VERSION)),
+    version='.'.join(map(str, VERSION)),
     description='This reusable Django app introduces site tree, menu and breadcrumbs navigation elements',
     long_description=readme,
     author="Igor 'idle sign' Starikov",
@@ -18,7 +18,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
         'Framework :: Django',
         'Intended Audience :: Developers',

@@ -1,6 +1,17 @@
+v1.0.0
+-------
++ Added `breadcrumbs-title` template.
++ UNRESOLVED_ITEM_MARKER introduced to settings.
++ Added Django 1.6 test rules.
+* Fixed django 1.4.10 issue (see #116).
+- Dropped deprecated `sitetree_url` tag arguments.
+- Dropped deprecated template var support in sitetree item URL field.
+
+
 v0.12.1
 -------
 + Fixed bug when running sitetree with django version 1.4.10
+
 
 v0.12.0
 -------
