@@ -389,7 +389,7 @@ class SiteTree(object):
 
                 # Resolve item permissions.
                 if item.access_restricted:
-                    item.perms = set([u'%s.%s' % (perm.content_type.app_label, perm.codename) for perm in
+                    item.perms = set(['%s.%s' % (perm.content_type.app_label, perm.codename) for perm in
                                                item.access_permissions.select_related()])
             # Contextual properties.
             item.url_resolved = self.url(item)
@@ -486,7 +486,7 @@ class SiteTree(object):
             if VERSION >= (1, 5, 0):  # "new-style" url tag - consider sitetree named urls literals.
                 view_path = "'%s'" % view_path
 
-            url_pattern = u'%s %s' % (view_path, ' '.join(all_arguments))
+            url_pattern = '%s %s' % (view_path, ' '.join(all_arguments))
         else:
             url_pattern = str(sitetree_item.url)
 
@@ -503,7 +503,7 @@ class SiteTree(object):
         else:
             if sitetree_item.urlaspattern:
                 # Form token to pass to Django 'url' tag.
-                url_token = u'url %s as item.url_resolved' % url_pattern
+                url_token = 'url %s as item.url_resolved' % url_pattern
                 url_tag(template.Parser(None), template.Token(token_type=template.TOKEN_BLOCK, contents=url_token)).render(context)
 
                 # We make an anchor link from an unresolved URL as a reminder.
