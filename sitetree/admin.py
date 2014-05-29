@@ -97,13 +97,15 @@ class TreeItemAdmin(admin.ModelAdmin):
     filter_horizontal = ('access_permissions',)
     change_form_template = 'admin/sitetree/treeitem/change_form.html'
 
-    def response_add(self, request, obj, post_url_continue='../item_%s/', **kwargs):
+    def response_add(self, request, obj, post_url_continue=None, **kwargs):
         """Redirects to the appropriate items' 'continue' page on item add.
 
         As we administer tree items within tree itself, we
         should make some changes to redirection process.
 
         """
+        if post_url_continue is None:
+            post_url_continue = '../item_%s/' % obj.pk
         return super(TreeItemAdmin, self).response_add(request, obj, post_url_continue)
 
     def response_change(self, request, obj, **kwargs):
