@@ -13,6 +13,7 @@ from django.db.models import signals
 from django.utils import six
 from django.utils.http import urlquote
 from django.utils.translation import get_language
+from django.utils.encoding import python_2_unicode_compatible
 from django.template import Context
 from django.template.defaulttags import url as url_tag
 
@@ -200,6 +201,7 @@ def compose_dynamic_tree(src, target_tree_alias=None, parent_tree_item_alias=Non
     return None
 
 
+@python_2_unicode_compatible
 class LazyTitle(object):
     """Lazily resolves any variable found in a title of an item.
     Produces resolved title as unicode representation."""
@@ -207,7 +209,7 @@ class LazyTitle(object):
     def __init__(self, title):
         self.title = title
 
-    def __unicode__(self):
+    def __str__(self):
         my_lexer = template.Lexer(self.title, template.UNKNOWN_SOURCE)
         my_tokens = my_lexer.tokenize()
 
@@ -220,7 +222,7 @@ class LazyTitle(object):
         return my_parser.parse().render(SiteTree.get_global_context())
 
     def __eq__(self, other):
-        return self.__unicode__() == other
+        return self.__str__() == other
 
 
 class SiteTree(object):
