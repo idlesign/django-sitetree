@@ -21,9 +21,9 @@
 		<td>{{ item.url }}</td>
 		<td>
 			&nbsp;&nbsp;
-			<a href="item_{{ item.id }}/move_up/"><img src="{{ STATIC_URL }}admin/img/arrow-up.gif" class="ctl arr_up" border="0" title="{% trans "Move up" %}"/></a>
+			<a href="item_{{ item.id }}/move_up/" class="ctl arr_up" title="{% trans "Move up" %}"/></a>
 			&nbsp;&nbsp;&nbsp;
-			<a href="item_{{ item.id }}/move_down/"><img src="{{ STATIC_URL }}admin/img/arrow-down.gif" class="ctl arr_dn" border="0" title="{% trans "Move down" %}"/></a>
+			<a href="item_{{ item.id }}/move_down/" class="ctl arr_dn" title="{% trans "Move down" %}"/></a>
 		</td>
 	</tr>
 	{% if item.has_children %}
