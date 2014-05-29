@@ -274,7 +274,7 @@ class SiteTree(object):
         Almost all variables are resolved against global context.
 
         """
-        if not cls._global_context or hash(context) != hash(cls._global_context):
+        if not cls._global_context or repr(context) != repr(cls._global_context):
             cls._global_context = context
 
     @classmethod
