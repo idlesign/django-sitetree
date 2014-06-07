@@ -39,8 +39,3 @@ Documentation
 -------------
 
 http://django-sitetree.readthedocs.org/
-
-
-
-.. image:: https://d2weczhvl823v0.cloudfront.net/idlesign/django-sitegate/trend.png
-        :target: https://bitdeli.com/free

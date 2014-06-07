@@ -68,7 +68,7 @@ Get involved into django-sitetree
 **Spread the word.** If you have some tips and tricks or any other words in mind that you think might be of interest for the others — publish it.
 
 
-The tip
--------
+Also
+----
 
 If the application is not what you want for site navigation, you might be interested in considering the other choices — http://djangopackages.com/grids/g/navigation/

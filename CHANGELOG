@@ -1,3 +1,6 @@
+django-sitetree changelog
+=========================
+
 v1.0.0
 -------
 + Added `breadcrumbs-title` template.
