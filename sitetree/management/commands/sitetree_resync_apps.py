@@ -49,3 +49,6 @@ class Command(BaseCommand):
                                 item.parent_id = item.parent.id
                             item.tree = tree
                             item.save(using=using)
+                            # Copy permissions to M2M field once `item`
+                            # has been saved
+                            item.access_permissions = item.permissions
