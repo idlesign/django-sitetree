@@ -34,7 +34,7 @@ def tree(alias, title='', items=None):
     return tree_obj
 
 
-def item(title, url, children=None, url_as_pattern=True, hint='', alias='', description='', in_menu=True, in_breadcrumbs=True, in_sitetree=True, access_loggedin=False, access_guest=False, permissions=None, perm_any=True):
+def item(title, url, children=None, url_as_pattern=True, hint='', alias='', description='', in_menu=True, in_breadcrumbs=True, in_sitetree=True, access_loggedin=False, access_guest=False, permissions=None, perm_any=True, access_restricted=False):
     """Dynamically creates and returns a sitetree item object.
     `children` - a list of children for tree item. Children should also be created by `item` function.
 
@@ -81,6 +81,16 @@ def item(title, url, children=None, url_as_pattern=True, hint='', alias='', desc
                     " instances")
             cleaned_permissions.append(perm)
     item_obj.permissions = cleaned_permissions or []
+
+    # access_restricted may be True, False or None. If T/F, the field is
+    # to that value. If None, the field is set to True if permissions
+    # have been specified, and other False.
+    if type(access_restricted) == bool:
+        item_obj.access_restricted = access_restricted
+    elif access_restricted is None:
+        item_obj.access_restricted = bool(cleaned_permissions)
+    else:
+        raise ValueError("access_restricted must be True, False or None")
 
     # Set access_perm_type based on perm_any
     item_obj.access_perm_type = item_obj.PERM_TYPE_ANY if perm_any else \

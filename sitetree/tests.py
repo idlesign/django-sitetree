@@ -482,3 +482,28 @@ class UtilsItemTest(unittest.TestCase):
     def test_bad_string_permissions(self):
         self.assertRaises(ValueError, item, 'root', 'url',
                           permissions='bad name')
+
+    def test_access_restricted(self):
+        # Test that default is False
+        i0 = item('root', 'url', permissions=1)
+        self.assertEqual(i0.access_restricted, False)
+
+        # True is respected
+        i1 = item('root', 'url', access_restricted=True, permissions=1)
+        self.assertEqual(i1.access_restricted, True)
+
+        # False is respected
+        i2 = item('root', 'url', access_restricted=False, permissions=1)
+        self.assertEqual(i2.access_restricted, False)
+
+        # None => True w/ permission
+        i3 = item('root', 'url', access_restricted=None, permissions=1)
+        self.assertEqual(i3.access_restricted, True)
+
+        # None => False w/o permission
+        i3 = item('root', 'url', access_restricted=None, permissions=[])
+        self.assertEqual(i3.access_restricted, False)
+
+        # Invalid value raises error
+        self.assertRaises(
+            ValueError, item, 'root', 'url', access_restricted='invalid')
