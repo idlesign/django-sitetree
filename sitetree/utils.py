@@ -1,4 +1,5 @@
 from django.db.models import get_model
+from django.contrib.auth.models import Permission
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.importlib import import_module
 from django.utils.module_loading import module_has_submodule
@@ -33,7 +34,7 @@ def tree(alias, title='', items=None):
     return tree_obj
 
 
-def item(title, url, children=None, url_as_pattern=True, hint='', alias='', description='', in_menu=True, in_breadcrumbs=True, in_sitetree=True, access_loggedin=False, access_guest=False):
+def item(title, url, children=None, url_as_pattern=True, hint='', alias='', description='', in_menu=True, in_breadcrumbs=True, in_sitetree=True, access_loggedin=False, access_guest=False, permissions=None, perm_any=True, access_restricted=False):
     """Dynamically creates and returns a sitetree item object.
     `children` - a list of children for tree item. Children should also be created by `item` function.
 
@@ -45,6 +46,55 @@ def item(title, url, children=None, url_as_pattern=True, hint='', alias='', desc
     item_obj.id = generate_id_for(item_obj)
     item_obj.is_dynamic = True
     item_obj.dynamic_children = []
+
+    # Clean the permissions (convert strings to Permission objects), and
+    # save to item_obj.permissions.
+    # `management.commands.sitetree_resync_apps` will copy
+    # item_obj.permissions to item_obj.access_permissions once item_obj
+    # has been saved
+    cleaned_permissions = []
+    if permissions:
+        # Make permissions a list if currently a single object
+        if type(permissions) != list:
+            permissions = [permissions]
+        for perm in permissions:
+            if type(perm) == str or type(perm) == unicode:
+                # Get permission object from string
+                perm_split = perm.split(".")
+                if len(perm_split) != 2:
+                    raise ValueError(
+                        "Permission string must be in format"
+                        "`<app label>.<permission codename>`, was instead {}"\
+                            .format(perm))
+                app_label = perm_split[0]
+                codename = perm_split[1]
+                try:
+                    perm = Permission.objects.get(
+                        codename=codename, content_type__app_label=app_label)
+                except Permission.DoesNotExist:
+                    raise ValueError(
+                        "Permission `{0}.{1}` does not exist"
+                            .format(app_label, codename))
+            elif type(perm) not in [int, Permission]:
+                raise ValueError(
+                    "Permissions must be given as strings, ints, or Permission"
+                    " instances")
+            cleaned_permissions.append(perm)
+    item_obj.permissions = cleaned_permissions or []
+
+    # access_restricted may be True, False or None. If T/F, the field is
+    # to that value. If None, the field is set to True if permissions
+    # have been specified, and other False.
+    if type(access_restricted) == bool:
+        item_obj.access_restricted = access_restricted
+    elif access_restricted is None:
+        item_obj.access_restricted = bool(cleaned_permissions)
+    else:
+        raise ValueError("access_restricted must be True, False or None")
+
+    # Set access_perm_type based on perm_any
+    item_obj.access_perm_type = item_obj.PERM_TYPE_ANY if perm_any else \
+        item_obj.PERM_TYPE_ALL
 
     if children is not None:
         for child in children:
