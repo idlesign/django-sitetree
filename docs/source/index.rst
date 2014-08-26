@@ -1,5 +1,5 @@
 django-sitetree documentation
-===============================
+=============================
 
 *django-sitetree is a reusable application for Django, introducing site tree, menu and breadcrumbs navigation elements.*
 
@@ -31,8 +31,8 @@ Requirements
 
 1. Python 2.6+, 3.3+
 2. Django 1.4.2+
-3. Admin site Django contrib package
-4. Auth Django contrib package
+3. Auth Django contrib package
+4. Admin site Django contrib package (optional)
 5. South 0.7.1+ for Django (required for version upgrades)
 
 
