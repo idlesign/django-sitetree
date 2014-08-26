@@ -54,6 +54,7 @@ Table of Contents
     forms
     models
     performance
+    addons
 
 
 Get involved into django-sitetree
