@@ -107,13 +107,13 @@ def register_i18n_trees(aliases):
     _I18N_TREES = aliases
 
 
-def register_dynamic_trees(trees):
+def register_dynamic_trees(trees, *args):
     """Registers dynamic trees to be available for `sitetree` runtime.
     Expects `trees` to be an iterable with structures created with `compose_dynamic_tree()`.
 
     Example::
 
-        register_dynamic_trees((
+        register_dynamic_trees(
 
             # Get all the trees from `my_app`.
             compose_dynamic_tree('my_app'),
@@ -133,7 +133,7 @@ def register_dynamic_trees(trees):
                     item('dynamic_2', 'dynamic_2_url'),
                 )),
             )),
-        ))
+        )
 
     """
 
@@ -141,6 +141,10 @@ def register_dynamic_trees(trees):
 
     if _IDX_ORPHAN_TREES not in _DYNAMIC_TREES:
         _DYNAMIC_TREES[_IDX_ORPHAN_TREES] = {}
+
+    if isinstance(trees, dict):  # New `less-brackets` style registration.
+        trees = [trees]
+        trees.extend(args)
 
     for tree in trees:
         if tree is not None and tree['sitetrees'] is not None:
