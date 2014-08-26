@@ -1,7 +1,14 @@
-from django.db.models import get_model
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.importlib import import_module
 from django.utils.module_loading import module_has_submodule
+
+try:
+    from django.apps import apps
+    apps_get_model = apps.get_model
+except ImportError:  # Django < 1.7
+    from django.db.models import get_model
+    apps_get_model = None
+
 
 from sitetree import settings
 
@@ -89,7 +96,13 @@ def get_app_n_model(settings_entry_name):
 def get_model_class(settings_entry_name):
     """Returns a certain sitetree model as defined in the project settings."""
     app_name, model_name = get_app_n_model(settings_entry_name)
-    model = get_model(app_name, model_name)
+    if apps_get_model is None:
+        model = get_model(app_name, model_name)
+    else:
+        try:
+            model = apps_get_model(app_name, model_name)
+        except (LookupError, ValueError):
+            model = None
 
     if model is None:
         raise ImproperlyConfigured('`SITETREE_%s` refers to model `%s` that has not been installed.' % (settings_entry_name, model_name))
