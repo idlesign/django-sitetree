@@ -1,6 +1,7 @@
 from django.utils import unittest
 from django.utils.translation import activate
 from django import template
+from django.contrib.auth.models import Permission
 from django.core import urlresolvers
 
 from sitetree.models import Tree, TreeItem
@@ -445,3 +446,64 @@ class DynamicTreeTest(unittest.TestCase):
         self.assertEqual(len(sitetree_items), 3)
         children = self.sitetree.get_children('dynamic', sitetree_items[0])
         self.assertEqual(len(children), 1)
+
+class UtilsItemTest(unittest.TestCase):
+    def test_permission_any(self):
+        i1 = item('root', 'url')
+        self.assertEqual(i1.access_perm_type, i1.PERM_TYPE_ANY)
+
+        i2 = item('root', 'url', perm_any=True)
+        self.assertEqual(i2.access_perm_type, i1.PERM_TYPE_ANY)
+
+        i3 = item('root', 'url', perm_any=False)
+        self.assertEqual(i3.access_perm_type, i1.PERM_TYPE_ALL)
+
+    def test_permissions_none(self):
+        i1 = item('root', 'url')
+        self.assertEqual(i1.permissions, [])
+
+    def test_int_permissions(self):
+        i1 = item('root', 'url', permissions=[1, 2, 3])
+        self.assertEqual(i1.permissions, [1, 2, 3])
+
+    def test_valid_string_permissions(self):
+        perm = Permission.objects.all()[0]
+        perm_name = "{}.{}".format(perm.content_type.app_label, perm.codename)
+
+        i1 = item('root', 'url', permissions=perm_name)
+        self.assertEqual(i1.permissions, [perm])
+
+    def test_perm_obj_permissions(self):
+        perm = Permission.objects.all()[0]
+
+        i1 = item('root', 'url', permissions=perm)
+        self.assertEqual(i1.permissions, [perm])
+
+    def test_bad_string_permissions(self):
+        self.assertRaises(ValueError, item, 'root', 'url',
+                          permissions='bad name')
+
+    def test_access_restricted(self):
+        # Test that default is False
+        i0 = item('root', 'url', permissions=1)
+        self.assertEqual(i0.access_restricted, False)
+
+        # True is respected
+        i1 = item('root', 'url', access_restricted=True, permissions=1)
+        self.assertEqual(i1.access_restricted, True)
+
+        # False is respected
+        i2 = item('root', 'url', access_restricted=False, permissions=1)
+        self.assertEqual(i2.access_restricted, False)
+
+        # None => True w/ permission
+        i3 = item('root', 'url', access_restricted=None, permissions=1)
+        self.assertEqual(i3.access_restricted, True)
+
+        # None => False w/o permission
+        i3 = item('root', 'url', access_restricted=None, permissions=[])
+        self.assertEqual(i3.access_restricted, False)
+
+        # Invalid value raises error
+        self.assertRaises(
+            ValueError, item, 'root', 'url', access_restricted='invalid')
