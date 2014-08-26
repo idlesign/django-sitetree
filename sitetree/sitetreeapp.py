@@ -592,7 +592,7 @@ class SiteTree(object):
             elif branch_id == ALIAS_THIS_ANCESTOR_CHILDREN and current_item is not None:
                 branch_id = self.get_ancestor_item(tree_alias, current_item).id
                 parent_ids.append(branch_id)
-            elif branch_id == ALIAS_THIS_SIBLINGS and current_item is not None:
+            elif branch_id == ALIAS_THIS_SIBLINGS and current_item is not None and current_item.parent is not None:
                 branch_id = current_item.parent.id
                 parent_ids.append(branch_id)
             elif branch_id == ALIAS_THIS_PARENT_SIBLINGS and current_item is not None:
