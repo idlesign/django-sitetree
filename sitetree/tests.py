@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.utils import unittest
 from django.utils.translation import activate
 from django import template
@@ -173,7 +174,10 @@ class TreeItemModelTest(unittest.TestCase):
 
     def test_context_proc_required(self):
         context = template.Context()
+        old_debug = settings.DEBUG
+        settings.DEBUG = True
         self.assertRaises(SiteTreeError, self.sitetree.menu, 'tree1', 'trunk', context)
+        settings.DEBUG = old_debug
 
     def test_menu(self):
         menu = self.sitetree.menu('tree1', 'trunk', get_mock_context(path='/about/'))
