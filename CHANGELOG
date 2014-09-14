@@ -1,6 +1,19 @@
 django-sitetree changelog
 =========================
 
+
+v1.1.0
+-------
++ Django 1.7 ready.
++ item() now accepts `access_by_perms` and `perms_mode_all`.
+* Fixed SiteTreeError for TEMPLATE_CONTEXT_PROCESSORS when not DEBUG.
+* Fixed `this-siblings` item alias behavior.
+* register_dynamic_trees() refactored to a less-brackets style.
+* LazyTitle objects made py3 compatible.
+* Fixed "Save and continue editing" on Tree Item yields "does not exist" error.
+* Global context is change is now tested with id().
+
+
 v1.0.0
 -------
 + Added `breadcrumbs-title` template.
