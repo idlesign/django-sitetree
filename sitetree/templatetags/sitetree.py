@@ -1,11 +1,11 @@
 from django import template
 
-from ..sitetreeapp import SiteTree
+from ..sitetreeapp import get_sitetree
 
 register = template.Library()
 
 # All utility methods are implemented in SiteTree class
-sitetree = SiteTree()
+sitetree = get_sitetree()
 
 
 @register.tag

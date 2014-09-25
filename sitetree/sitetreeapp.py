@@ -39,6 +39,19 @@ _DYNAMIC_TREES = {}
 _IDX_ORPHAN_TREES = 'orphans'
 # Dictinary index name template in `_DYNAMIC_TREES`.
 _IDX_TPL = '%s|:|%s'
+# SiteTree app-wise object.
+_SITETREE = None
+
+
+def get_sitetree():
+    """Returns SiteTree [singleton] object, implementing utility methods.
+
+    :return: SiteTree
+    """
+    global _SITETREE
+    if _SITETREE is None:
+        _SITETREE = SiteTree()
+    return _SITETREE
 
 
 def register_items_hook(callable):
@@ -107,7 +120,7 @@ def register_i18n_trees(aliases):
     _I18N_TREES = aliases
 
 
-def register_dynamic_trees(trees, *args):
+def register_dynamic_trees(trees, *args, **kwargs):
     """Registers dynamic trees to be available for `sitetree` runtime.
     Expects `trees` to be an iterable with structures created with `compose_dynamic_tree()`.
 
@@ -135,6 +148,9 @@ def register_dynamic_trees(trees, *args):
             )),
         )
 
+    Accepted kwargs:
+
+    :param bool reset_cache: Resets tree cache, to introduce all changes made to a tree immediately.
     """
 
     global _DYNAMIC_TREES
@@ -160,6 +176,10 @@ def register_dynamic_trees(trees, *args):
                 if index not in _DYNAMIC_TREES:
                     _DYNAMIC_TREES[index] = []
                 _DYNAMIC_TREES[index].extend(tree['sitetrees'])
+
+    reset_cache = kwargs.get('reset_cache', False)
+    if reset_cache:
+        get_sitetree().cache_empty()
 
 
 def get_dynamic_trees():
