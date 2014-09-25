@@ -12,8 +12,9 @@ Let's suppose you have `books` application and want do define a sitetree for it.
 * First create `sitetree.py` in the directory of `books` app.
 
 * Then define a sitetree with the help of `tree` and `item` functions from `sitetree.utils` module
-  and assign it to `sitetrees` module attribute::
+  and assign it to `sitetrees` module attribute
 
+.. code-block:: python
 
       from sitetree.utils import tree, item
 
@@ -58,13 +59,16 @@ Optionally you can structure app-defined sitetrees into existing or new trees ru
 
 Basically one should compose a dynamic tree with `compose_dynamic_tree()` and register it with `register_dynamic_trees()`.
 
-Let's suppose the following code is in `setting.py` of your project::
+Let's suppose the following code is in `setting.py` of your project
+
+
+.. code-block:: python
 
     from sitetree.sitetreeapp import register_dynamic_trees, compose_dynamic_tree
     from sitetree.utils import tree, item
 
 
-    register_dynamic_trees((
+    register_dynamic_trees(
 
         # Gather all the trees from `books`,
         compose_dynamic_tree('books'),
@@ -84,5 +88,9 @@ Let's suppose the following code is in `setting.py` of your project::
                 item('dynamic_2', 'dynamic_2_url'),
             )),
         )),
-    ))
+
+        # Line below tells sitetree to drop and recreate cache, so that all newly registered
+        # dynamic trees are rendered immediately.
+        reset_cache=True
+    )
 

@@ -28,19 +28,6 @@ Now you can use the following template tags:
   + :ref:`sitetree_page_description <tag-page-description>` - to render current page description resolved against definite sitetree.
 
 
-Upgrade hint
-------------
-
-When switching from older version of SiteTree to newer do not forget to upgrade your database schema.
-
-That could be done with the following command issued in your Django project directory::
-
-./manage.py migrate
-
-Note that the command **requires** `South <http://south.aeracode.org/>`_.
-
-
-
 .. _making-tree:
 
 Making tree

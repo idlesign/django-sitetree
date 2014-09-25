@@ -15,7 +15,9 @@ The following functions from `sitetree.admin` could be used to override tree and
     * `override_item_admin()` is used to customize tree item representation.
 
 
-Example::
+Example:
+
+.. code-block:: python
 
     # Supposing we are in admin.py of your own application.
 
@@ -50,7 +52,9 @@ In the example below we'll use django-seo application from https://github.com/wi
 According to django-seo documentation it allows an addition of custom metadata fields to your models,
 so we use it to connect metadata to sitetree items.
 
-That's how one might render django-seo inline form on sitetree item create and edit pages::
+That's how one might render django-seo inline form on sitetree item create and edit pages:
+
+.. code-block:: python
 
     from rollyourown.seo.admin import get_inline
     from sitetree.admin import TreeItemAdmin, TreeAdmin, override_tree_admin, override_item_admin

@@ -16,10 +16,13 @@ Given that ``my_tree_en``, ``my_tree_ru`` and other ``my_tree_{locale-id}``-like
 trees are considered internationalization sitetrees. These are used (if available)
 in accordance with current locale used in project.
 
-Example::
+Example:
+
+.. code-block:: python
 
     # First import the register function.
     from sitetree.sitetreeapp import register_i18n_trees
+
 
     # Now register i18n trees.
     register_i18n_trees(['my_tree', 'my_another_tree'])

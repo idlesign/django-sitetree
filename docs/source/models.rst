@@ -12,12 +12,14 @@ Models customization
 Now let's pretend you are not satisfied with SiteTree built-in models and want to customize them.
 
 1. First thing you should do is to define your own `tree` and `tree item` models inherited from `TreeBase`
-and `TreeItemBase` classes respectively::
+and `TreeItemBase` classes respectively:
+
+.. code-block:: python
 
     # Suppose you have `myapp` application.
     # In its `models.py` you define your customized models.
-
     from sitetree.models import TreeItemBase, TreeBase
+
 
     class MyTree(TreeBase):
         """This is your custom tree model.
@@ -34,7 +36,9 @@ and `TreeItemBase` classes respectively::
 
 
 2. Now when `models.py` in your `myapp` application has the definitions of custom sitetree models, you need
-to instruct Django to use them for your project instead of built-in ones::
+to instruct Django to use them for your project instead of built-in ones:
+
+.. code-block:: python
 
     # Somewhere in your settings.py do the following.
     # Here `myapp` is the name of your application, `MyTree` and `MyTreeItem`
@@ -61,7 +65,10 @@ Models referencing
 ------------------
 
 You can reference sitetree models (including customized) from other models, with the help
-of `MODEL_TREE`, `MODEL_TREE_ITEM` settings::
+of `MODEL_TREE`, `MODEL_TREE_ITEM` settings:
+
+
+.. code-block:: python
 
     from sitetree.settings import MODEL_TREE, MODEL_TREE_ITEM
 
@@ -70,7 +77,9 @@ of `MODEL_TREE`, `MODEL_TREE_ITEM` settings::
 
 
 
-If you need to get current `tree` or `tree item` classes use `get_tree_model` and `get_tree_item_model` functions::
+If you need to get current `tree` or `tree item` classes use `get_tree_model` and `get_tree_item_model` functions:
+
+.. code-block:: python
 
     from sitetree.utils import get_tree_model, get_tree_item_model
 

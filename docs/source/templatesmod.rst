@@ -36,7 +36,7 @@ To customize visual representation of navigation elements you should override th
 
 
 Templates for Foundation Framework
---------------------------------------
+----------------------------------
 
 *Information about Foundation Framework is available at* http://foundation.zurb.com
 

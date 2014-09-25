@@ -24,10 +24,13 @@ Note that callable should be able to:
     b) return a list of extended TreeItems objects to pass to template.
 
 
-Example::
+Example:
+
+.. code-block:: python
 
     # First import the register function.
     from sitetree.sitetreeapp import register_items_hook
+
 
     # The following function will be used as items processor.
     def my_items_processor(tree_items, tree_sender):

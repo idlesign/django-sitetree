@@ -11,9 +11,12 @@ them). You can achieve it with the help of generic forms and fields shipped with
 TreeItemForm
 ------------
 
-You can inherit from that form to have a dropdown with tree items for a certain tree::
+You can inherit from that form to have a dropdown with tree items for a certain tree:
+
+.. code-block:: python
 
     from sitetree.forms import TreeItemForm
+
 
     class MyTreeItemForm(TreeItemForm):
         """We inherit from TreeItemForm to allow user link some title to sitetree item.
@@ -42,10 +45,12 @@ TreeItemChoiceField
 `TreeItemChoiceField` is what `TreeItemForm` uses internally to represent sitetree items dropdown,
 and what used in Admin contrib on sitetree item create/edit pages.
 
-You can inherit from it (and customized it) or use it as it is in your own forms::
+You can inherit from it (and customized it) or use it as it is in your own forms:
 
+.. code-block:: python
 
     from sitetree.fields import TreeItemChoiceField
+
 
     class MyField(TreeItemChoiceField):
 

@@ -105,7 +105,7 @@ please use :ref:`tree hooks <tree-hooks>`.
 
 Sitetree items could be addressed not only by aliases but also by IDs::
 
-{% sitetree_menu from "mytree" include "10" %}
+  {% sitetree_menu from "mytree" include "10" %}
 
 
 
@@ -118,7 +118,7 @@ This tag renders breadcrumbs path (from tree root to current page) based on site
 
 Usage example::
 
-{% sitetree_breadcrumbs from "mytree" %}
+  {% sitetree_breadcrumbs from "mytree" %}
 
 This command renders breadcrumbs from tree named 'mytree'.
 
@@ -133,7 +133,7 @@ This tag renders entire site tree.
 
 Usage example::
 
-{% sitetree_tree from "mytree" %}
+  {% sitetree_tree from "mytree" %}
 
 This command renders sitetree from tree named 'mytree'.
 
@@ -148,7 +148,7 @@ This tag renders current page title resolved against definite sitetree. Title is
 
 Usage example::
 
-{% sitetree_page_title from "mytree" %}
+  {% sitetree_page_title from "mytree" %}
 
 This command renders current page title from tree named 'mytree'.
 
@@ -165,6 +165,6 @@ That can be useful for meta description for an HTML page.
 
 Usage example::
 
-{% sitetree_page_description from "mytree" %}
+  {% sitetree_page_description from "mytree" %}
 
 This command renders current page description from tree named 'mytree'.
