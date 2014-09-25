@@ -2,6 +2,12 @@ django-sitetree changelog
 =========================
 
 
+v1.2.0
+-------
++ Added support for both South and Django 1.7 migrations.
++ register_dynamic_trees() now accepts `reset_cache` kwarg.
+
+
 v1.1.0
 -------
 + Django 1.7 ready.
