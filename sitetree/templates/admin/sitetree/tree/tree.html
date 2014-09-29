@@ -1,4 +1,8 @@
 {% load i18n sitetree %}
+{% load static %}
+
+{% get_static_prefix as STATIC_URL %}
+
 <style type="text/css">
     .ctl { width: 14px; height: 12px; display: inline-block;}
     .arr_up { background: url('{{ STATIC_URL }}admin/img/sorting-icons.gif') -5px -50px no-repeat; }
