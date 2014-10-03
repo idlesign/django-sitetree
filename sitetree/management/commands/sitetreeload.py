@@ -80,7 +80,7 @@ class Command(BaseCommand):
             tree_items_new_indexes = {}
 
             for obj in objects:
-                if router.allow_syncdb(using, obj.object.__class__):
+                if router.allow_migrate(using, obj.object.__class__):
                     if isinstance(obj.object, (MODEL_TREE_CLASS, MODEL_TREE_ITEM_CLASS)):
                         if isinstance(obj.object, MODEL_TREE_CLASS):
                             trees.append(obj.object)
