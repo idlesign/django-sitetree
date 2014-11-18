@@ -2,6 +2,7 @@ import sys
 from optparse import make_option
 from collections import defaultdict
 
+import django
 from django.core import serializers
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management.color import no_style
@@ -50,9 +51,11 @@ class Command(BaseCommand):
 
         self.style = no_style()
 
-        transaction.commit_unless_managed(using=using)
+        if django.get_version() < '1.7':
+            transaction.commit_unless_managed(using=using)
         transaction.enter_transaction_management(using=using)
-        transaction.managed(True, using=using)
+        if django.get_version() < '1.7':
+            transaction.managed(True, using=using)
 
         loaded_object_count = 0
 
