@@ -2,6 +2,7 @@ import sys
 from optparse import make_option
 from collections import defaultdict
 
+import django
 from django.core import serializers
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management.color import no_style
@@ -50,9 +51,11 @@ class Command(BaseCommand):
 
         self.style = no_style()
 
-        transaction.commit_unless_managed(using=using)
+        if django.get_version() < '1.7':
+            transaction.commit_unless_managed(using=using)
         transaction.enter_transaction_management(using=using)
-        transaction.managed(True, using=using)
+        if django.get_version() < '1.7':
+            transaction.managed(True, using=using)
 
         loaded_object_count = 0
 
@@ -67,7 +70,7 @@ class Command(BaseCommand):
 
             self.stdout.write('Loading fixture from `%s` ...\n' % fixture_file)
 
-            fixture = file(fixture_file, 'r')
+            fixture = open(fixture_file, 'r')
 
             try:
                 objects = serializers.deserialize('json', fixture, using=using)
@@ -79,8 +82,14 @@ class Command(BaseCommand):
             tree_item_parents = defaultdict(list)
             tree_items_new_indexes = {}
 
+            try:
+                allow_migrate = router.allow_migrate
+            except AttributeError:
+                # Django < 1.7
+                allow_migrate = router.allow_syncdb
+
             for obj in objects:
-                if router.allow_syncdb(using, obj.object.__class__):
+                if allow_migrate(using, obj.object.__class__):
                     if isinstance(obj.object, (MODEL_TREE_CLASS, MODEL_TREE_ITEM_CLASS)):
                         if isinstance(obj.object, MODEL_TREE_CLASS):
                             trees.append(obj.object)
