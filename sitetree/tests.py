@@ -1,9 +1,15 @@
+try:
+    from unittest import mock
+except ImportError:
+    import mock
+
 from django.conf import settings
 from django.utils import unittest
 from django.utils.translation import activate
 from django import template
 from django.contrib.auth.models import Permission
 from django.core import urlresolvers
+from django.core.management import call_command
 
 from sitetree.models import Tree, TreeItem
 from sitetree.utils import tree, item
@@ -496,3 +502,25 @@ class UtilsItemTest(unittest.TestCase):
         # True is respected
         i1 = item('root', 'url')
         self.assertEqual(i1.access_restricted, False)
+
+
+class TestManagementCommands(unittest.TestCase):
+
+    def setUp(self):
+        self.file_contents = '[{"pk": 2, "fields": {"alias": "/tree1/", "title": "tree one"}, "model": "sitetree.tree"}, {"pk": 3, "fields": {"alias": "/tree2/", "title": "tree two"}, "model": "sitetree.tree"}, {"pk": 7, "fields": {"access_restricted": false, "inmenu": true, "title": "tree item one", "hidden": false, "description": "", "alias": null, "url": "/tree1/item1/", "access_loggedin": false, "urlaspattern": false, "access_perm_type": 1, "tree": 2, "hint": "", "inbreadcrumbs": true, "access_permissions": [], "sort_order": 7, "access_guest": false, "parent": null, "insitetree": true}, "model": "sitetree.treeitem"}]'
+
+    def test_sitetreeload(self):
+        try:
+            import __builtin__
+            patch_val = '__builtin__.file'
+        except ImportError:
+            # python3
+            patch_val = 'builtins.file'
+        with mock.patch(patch_val) as mock_file:
+            mock_file.return_value.__enter__ = lambda s: s
+            mock_file.return_value.__exit__ = mock.Mock()
+            mock_file.return_value.read.return_value = self.file_contents
+            call_command('sitetreeload', 'somefile.json')
+            self.assertTrue(Tree.objects.filter(title='tree one').exists())
+            self.assertTrue(Tree.objects.filter(title='tree two').exists())
+            self.assertTrue(TreeItem.objects.filter(title='tree item one').exists())
