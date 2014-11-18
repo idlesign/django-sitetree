@@ -79,8 +79,14 @@ class Command(BaseCommand):
             tree_item_parents = defaultdict(list)
             tree_items_new_indexes = {}
 
+            try:
+                allow_migrate = router.allow_migrate
+            except AttributeError:
+                # Django < 1.7
+                allow_migrate = router.allow_syncdb
+
             for obj in objects:
-                if router.allow_syncdb(using, obj.object.__class__):
+                if allow_migrate(using, obj.object.__class__):
                     if isinstance(obj.object, (MODEL_TREE_CLASS, MODEL_TREE_ITEM_CLASS)):
                         if isinstance(obj.object, MODEL_TREE_CLASS):
                             trees.append(obj.object)
