@@ -512,10 +512,10 @@ class TestManagementCommands(unittest.TestCase):
     def test_sitetreeload(self):
         try:
             import __builtin__
-            patch_val = '__builtin__.file'
+            patch_val = '__builtin__.open'
         except ImportError:
             # python3
-            patch_val = 'builtins.file'
+            patch_val = 'builtins.open'
         with mock.patch(patch_val) as mock_file:
             mock_file.return_value.__enter__ = lambda s: s
             mock_file.return_value.__exit__ = mock.Mock()

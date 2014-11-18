@@ -67,7 +67,7 @@ class Command(BaseCommand):
 
             self.stdout.write('Loading fixture from `%s` ...\n' % fixture_file)
 
-            fixture = file(fixture_file, 'r')
+            fixture = open(fixture_file, 'r')
 
             try:
                 objects = serializers.deserialize('json', fixture, using=using)
