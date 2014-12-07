@@ -14,7 +14,7 @@ env:
   
 install:
   - pip install -U coverage coveralls $DJANGO
-  - python -c 'from __future__ import print_function; import django; print('Django %s' % django.get_version())'
+  - python -c 'from __future__ import print_function; import django; print("Django %s" % django.get_version())'
   
 script: sitetree/runtests.py
 
