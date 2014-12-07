@@ -1,7 +1,4 @@
 [run]
 include = sitetree/*
-omit = sitetree/migrations/*
-omit = sitetree/south_migrations/*
-omit = sitetree/runtests.py
-omit = sitetree/tests.py
+omit = sitetree/migrations/*, sitetree/south_migrations/*, sitetree/runtests.py, sitetree/tests.py
 branch = 1
