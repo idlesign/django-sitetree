@@ -7,6 +7,9 @@ http://github.com/idlesign/django-sitetree
 
 .. image:: https://pypip.in/d/django-sitetree/badge.png
         :target: https://crate.io/packages/django-sitetree
+        
+.. image:: https://coveralls.io/repos/idlesign/django-sitetree/badge.png 
+        :target: https://coveralls.io/r/idlesign/django-sitetree
 
 
 What's that
