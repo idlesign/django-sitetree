@@ -6,10 +6,13 @@ http://github.com/idlesign/django-sitetree
     :target: http://badge.fury.io/py/django-sitetree
 
 .. image:: https://pypip.in/d/django-sitetree/badge.png
-        :target: https://crate.io/packages/django-sitetree
+    :target: https://crate.io/packages/django-sitetree
         
 .. image:: https://coveralls.io/repos/idlesign/django-sitetree/badge.png 
-        :target: https://coveralls.io/r/idlesign/django-sitetree
+    :target: https://coveralls.io/r/idlesign/django-sitetree
+
+.. image:: https://travis-ci.org/idlesign/django-sitetree.svg?branch=master
+    :target: https://travis-ci.org/idlesign/django-sitetree
 
 
 What's that
