@@ -15,7 +15,7 @@ install:
   - pip install -U coverage coveralls $DJANGO
   - python -c 'from __future__ import print_function; import django; print("Django %s" % django.get_version())'
   
-script: sitetree/runtests.py
+script: coverage run -a sitetree/runtests.py
 
 matrix:
 
@@ -32,3 +32,6 @@ matrix:
   include:
    - python: 3.4
      env: DJANGO="Django>=1.7,<1.8"
+
+after_success:
+  coveralls
