@@ -480,7 +480,7 @@ class UtilsItemTest(unittest.TestCase):
 
     def test_valid_string_permissions(self):
         perm = Permission.objects.all()[0]
-        perm_name = "{}.{}".format(perm.content_type.app_label, perm.codename)
+        perm_name = '%s.%s' % (perm.content_type.app_label, perm.codename)
 
         i1 = item('root', 'url', access_by_perms=perm_name)
         self.assertEqual(i1.permissions, [perm])
