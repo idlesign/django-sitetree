@@ -1,3 +1,6 @@
+import sys
+from json import loads
+from cStringIO import StringIO
 from django.core.exceptions import ImproperlyConfigured
 
 try:
@@ -14,6 +17,7 @@ from django.contrib.admin.sites import site
 from django.core.management import call_command
 
 from sitetree.models import Tree, TreeItem
+from sitetree.management.commands.sitetree_resync_apps import Command as ResyncCommand
 from sitetree.forms import TreeItemForm
 from sitetree.admin import TreeAdmin, TreeItemAdmin, redirects_handler
 from sitetree.utils import (
@@ -573,16 +577,16 @@ class TestAdmin(unittest.TestCase):
             return redirects_handler(*args, **kwargs)
 
         handler = get_handler('/')
-        self.assertEqual(handler.url, '/../')
+        self.assertEqual(handler._headers['location'][1], '/../')
 
         handler = get_handler('/delete/')
-        self.assertEqual(handler.url, '/delete/../../')
+        self.assertEqual(handler._headers['location'][1], '/delete/../../')
 
         handler = get_handler('/history/')
-        self.assertEqual(handler.url, '/history/../../')
+        self.assertEqual(handler._headers['location'][1], '/history/../../')
 
         handler = get_handler('/history/', 42)
-        self.assertEqual(handler.url, '/history/../')
+        self.assertEqual(handler._headers['location'][1], '/history/../')
 
     def test_tree_item_admin(self):
         admin = TreeItemAdmin(TreeItem, site)
@@ -653,6 +657,18 @@ class TestManagementCommands(unittest.TestCase):
     def setUp(self):
         self.file_contents = '[{"pk": 2, "fields": {"alias": "/tree1/", "title": "tree one"}, "model": "sitetree.tree"}, {"pk": 3, "fields": {"alias": "/tree2/", "title": "tree two"}, "model": "sitetree.tree"}, {"pk": 7, "fields": {"access_restricted": false, "inmenu": true, "title": "tree item one", "hidden": false, "description": "", "alias": null, "url": "/tree1/item1/", "access_loggedin": false, "urlaspattern": false, "access_perm_type": 1, "tree": 2, "hint": "", "inbreadcrumbs": true, "access_permissions": [], "sort_order": 7, "access_guest": false, "parent": null, "insitetree": true}, "model": "sitetree.treeitem"}]'
 
+    def test_sitetreedump(self):
+        stdout = sys.stdout
+        sys.stdout = StringIO()
+
+        call_command('sitetreedump')
+
+        output = loads(sys.stdout.getvalue())
+        sys.stdout = stdout
+
+        self.assertEqual(output[0]['model'], 'sitetree.tree')
+        self.assertEqual(output[1]['model'], 'sitetree.treeitem')
+
     def test_sitetreeload(self):
         try:
             import __builtin__
@@ -660,11 +676,14 @@ class TestManagementCommands(unittest.TestCase):
         except ImportError:
             # python3
             patch_val = 'builtins.open'
+
         with mock.patch(patch_val) as mock_file:
             mock_file.return_value.__enter__ = lambda s: s
             mock_file.return_value.__exit__ = mock.Mock()
             mock_file.return_value.read.return_value = self.file_contents
+
             call_command('sitetreeload', 'somefile.json')
+
             self.assertTrue(Tree.objects.filter(title='tree one').exists())
             self.assertTrue(Tree.objects.filter(title='tree two').exists())
             self.assertTrue(TreeItem.objects.filter(title='tree item one').exists())
