@@ -76,6 +76,7 @@ def override_item_admin(admin_class):
 
 
 class TreeItemAdmin(admin.ModelAdmin):
+
     exclude = ('tree', 'sort_order')
     fieldsets = (
         (_('Basic settings'), {
@@ -197,9 +198,11 @@ class TreeItemAdmin(admin.ModelAdmin):
             sort_order = 'sort_order'
         else:
             sort_order = '-sort_order'
+
         siblings = MODEL_TREE_ITEM_CLASS._default_manager.filter(
             parent=current_item.parent,
-            tree=current_item.tree).order_by(sort_order)
+            tree=current_item.tree
+        ).order_by(sort_order)
 
         previous_item = None
         for item in siblings:
@@ -254,6 +257,7 @@ def redirects_handler(*args, **kwargs):
 
 
 class TreeAdmin(admin.ModelAdmin):
+
     list_display = ('alias', 'title')
     list_display_links = ('title', 'alias')
     search_fields = ['title', 'alias']

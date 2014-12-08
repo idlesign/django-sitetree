@@ -28,6 +28,7 @@ class CharFieldNullable(models.CharField):
 
 @python_2_unicode_compatible
 class TreeBase(models.Model):
+
     title = models.CharField(_('Title'), max_length=100, help_text=_('Site tree title for presentational purposes.'), blank=True)
     alias = models.CharField(_('Alias'), max_length=80, help_text=_('Short name to address site tree from templates.<br /><b>Note:</b> change with care.'), unique=True, db_index=True)
 
@@ -45,6 +46,7 @@ class TreeBase(models.Model):
 
 @python_2_unicode_compatible
 class TreeItemBase(models.Model):
+
     PERM_TYPE_ANY = 1
     PERM_TYPE_ALL = 2
 

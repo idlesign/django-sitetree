@@ -120,7 +120,7 @@ def import_app_sitetree_module(app):
     try:
         sub_module = import_module('%s.%s' % (app, module_name))
         return sub_module
-    except:
+    except ImportError:
         if module_has_submodule(module, module_name):
             raise
         return None

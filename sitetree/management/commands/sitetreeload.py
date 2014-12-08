@@ -30,7 +30,6 @@ class Command(BaseCommand):
     help = 'Loads sitetrees from fixture in JSON format into database.'
     args = '[fixture_file fixture_file ...]'
 
-
     def handle(self, *fixture_files, **options):
 
         using = options.get('database', DEFAULT_DB_ALIAS)
@@ -160,8 +159,11 @@ class Command(BaseCommand):
                 transaction.rollback(using=using)
                 transaction.leave_transaction_management(using=using)
                 self.stderr.write(
-                    self.style.ERROR('Fixture `%s` import error: %s\n' % (fixture_file,
-                          ''.join(traceback.format_exception(sys.exc_type, sys.exc_value, sys.exc_traceback))))
+                    self.style.ERROR('Fixture `%s` import error: %s\n' % (
+                        fixture_file, ''.join(traceback.format_exception(
+                            sys.exc_type, sys.exc_value, sys.exc_traceback
+                        ))
+                    ))
                 )
 
             fixture.close()
