@@ -1,6 +1,6 @@
 import sys
 from json import loads
-from cStringIO import StringIO
+from StringIO import StringIO
 from django.core.exceptions import ImproperlyConfigured
 
 try:
