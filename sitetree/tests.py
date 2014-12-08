@@ -1,8 +1,11 @@
 import sys
 from json import loads
-from StringIO import StringIO
-from django.core.exceptions import ImproperlyConfigured
 
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
+    
 try:
     from unittest import mock
 except ImportError:
@@ -15,6 +18,7 @@ from django import template
 from django.contrib.auth.models import Permission
 from django.contrib.admin.sites import site
 from django.core.management import call_command
+from django.core.exceptions import ImproperlyConfigured
 
 from sitetree.models import Tree, TreeItem
 from sitetree.management.commands.sitetree_resync_apps import Command as ResyncCommand
