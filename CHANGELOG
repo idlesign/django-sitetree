@@ -2,6 +2,13 @@ django-sitetree changelog
 =========================
 
 
+v1.2.1
+-------
+* {{ STATIC_URL }} is replaced with {% static %} admin templates.
+* Fixed `sitetreeload` management command compatibility with py3.
+* Fixed `sitetreeload` management command compatibility with Django 1.7.
+
+
 v1.2.0
 -------
 + Added support for both South and Django 1.7 migrations.
