@@ -66,6 +66,7 @@ class TreeItemBase(models.Model):
     inmenu = models.BooleanField(_('Show in menu'), help_text=_('Whether to show this item in a menu.'), db_index=True, default=True)
     inbreadcrumbs = models.BooleanField(_('Show in breadcrumb path'), help_text=_('Whether to show this item in a breadcrumb path.'), db_index=True, default=True)
     insitetree = models.BooleanField(_('Show in site tree'), help_text=_('Whether to show this item in a site tree.'), db_index=True, default=True)
+    placeholder = models.BooleanField(_('Show as placeholder'), help_text=_('Whether to show this item without a link, making it a non-clickable placeholder. You still have to define a URL, but it will be ignored.'), default=False) 
     access_loggedin = models.BooleanField(_('Logged in only'), help_text=_('Check it to grant access to this item to authenticated users only.'), db_index=True, default=False)
     access_guest = models.BooleanField(_('Guests only'), help_text=_('Check it to grant access to this item to guests only.'), db_index=True, default=False)
     access_restricted = models.BooleanField(_('Restrict access to permissions'), help_text=_('Check it to restrict user access to this item, using Django permissions system.'), db_index=True, default=False)

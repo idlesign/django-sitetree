@@ -5,7 +5,9 @@
 	{% for item in sitetree_items %}
 		{% if not forloop.last %}
 			<li>
+				{% if item.placeholder %}{{ item.title_resolved }}{% else %}
 				<a href="{% sitetree_url for item %}" {% if item.hint %}title="{{ item.hint }}"{% endif %}>{{ item.title_resolved }}</a>
+				{% endif %}
 			</li>
 			<li>&gt;</li>
 		{% else %}
