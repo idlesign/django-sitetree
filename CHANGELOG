@@ -1,6 +1,10 @@
 django-sitetree changelog
 =========================
 
+Unreleased
+----------
++ Implemented django-smuggler thirdparty support.
+
 
 v1.2.1
 -------

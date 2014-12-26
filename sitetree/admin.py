@@ -1,3 +1,4 @@
+from django.conf import settings as django_settings
 from django.core.urlresolvers import get_urlconf, get_resolver
 from django.utils.translation import ugettext_lazy as _
 from django.utils import six
@@ -7,9 +8,12 @@ from django.contrib.admin.sites import NotRegistered
 from django.contrib import messages
 from django.conf.urls import patterns, url
 
+from .settings import MODEL_TREE, MODEL_TREE_ITEM
 from .fields import TreeItemChoiceField
 from .utils import get_tree_model, get_tree_item_model, get_app_n_model
 
+
+SMUGGLER_INSTALLED = 'smuggler' in django_settings.INSTALLED_APPS
 
 MODEL_TREE_CLASS = get_tree_model()
 MODEL_TREE_ITEM_CLASS = get_tree_item_model()
@@ -266,6 +270,10 @@ class TreeAdmin(admin.ModelAdmin):
     change_form_template = 'admin/sitetree/tree/change_form.html'
 
     def __init__(self, *args, **kwargs):
+
+        if SMUGGLER_INSTALLED:
+            self.change_list_template = 'admin/sitetree/tree/change_list_.html'
+
         super(TreeAdmin, self).__init__(*args, **kwargs)
         self.tree_admin = _ITEM_ADMIN()(MODEL_TREE_ITEM_CLASS, admin.site)
 
@@ -288,7 +296,21 @@ class TreeAdmin(admin.ModelAdmin):
             url(r'^(?P<tree_id>\d+)/item_(?P<item_id>\d+)/move_(?P<direction>(up|down))/$',
                 self.admin_site.admin_view(self.tree_admin.item_move), name=get_tree_item_url_name('move')),
         )
+
+        if SMUGGLER_INSTALLED:
+            sitetree_urls += (url(r'^dump_all/$', self.admin_site.admin_view(self.dump_view), name='sitetree_dump'),)
+
         return sitetree_urls + urls
+
+    @classmethod
+    def dump_view(cls, request):
+        """Dumps sitetrees with items using django-smuggler.
+
+        :param request:
+        :return:
+        """
+        from smuggler.views import dump_to_response
+        return dump_to_response(request, [MODEL_TREE, MODEL_TREE_ITEM], filename_prefix='sitetrees')
 
 
 _reregister_tree_admin()

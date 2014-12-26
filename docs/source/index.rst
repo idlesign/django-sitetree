@@ -55,6 +55,7 @@ Table of Contents
     models
     performance
     addons
+    thirdparty
 
 
 Get involved into django-sitetree
