@@ -514,8 +514,9 @@ class SiteTree(object):
                     if isinstance(resolved, six.text_type):
                         if resolved.encode('ascii', 'ignore').decode('ascii') != resolved:
                             resolved = view_argument
-                        # URL parameters from site tree item should be concatenated with those from template.
-                    all_arguments.append('"%s"' % str(resolved))  # We enclose arg in double quotes as already resolved.
+
+                    # We enclose arg in double quotes as already resolved.
+                    all_arguments.append('"%s"' % str(resolved))
                 view_path = view_path[0].strip('"\' ')
 
             if VERSION >= (1, 5, 0):  # "new-style" url tag - consider sitetree named urls literals.
