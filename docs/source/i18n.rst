@@ -20,6 +20,9 @@ Example:
 
 .. code-block:: python
 
+    # This code usually belongs to urls.py (or `ready` method of a user defined
+    # sitetree application config if Django 1.7+).
+
     # First import the register function.
     from sitetree.sitetreeapp import register_i18n_trees
 
