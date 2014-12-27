@@ -4,6 +4,7 @@ django-sitetree changelog
 Unreleased
 ----------
 + Implemented django-smuggler thirdparty support.
+* Fix menu alias clash with context variable (closes #117).
 
 
 v1.2.1

@@ -704,11 +704,7 @@ class SiteTree(object):
         """
         # Resolve parent item and current tree alias.
         parent_item = self.resolve_var(parent_item, context)
-        tree_alias = parent_item.tree.alias
-        # Resolve tree_alias from the context.
-        tree_alias = self.resolve_var(tree_alias)
-        # Get tree.
-        tree_alias, tree_items = self.get_sitetree(tree_alias)
+        tree_alias, tree_items = self.get_sitetree(parent_item.tree.alias)
         # Mark path to current item.
         self.tree_climber(tree_alias, self.get_tree_current_item(tree_alias))
 
