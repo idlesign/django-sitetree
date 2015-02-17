@@ -423,6 +423,7 @@ class TreeTest(unittest.TestCase):
         self.assertTrue(children[1].is_current)
 
         activate('ru')
+        self.sitetree.lang_init()
         self.sitetree.get_sitetree('tree3')
         children = self.sitetree.get_children('tree3', self.t1_root)
         self.assertEqual(len(children), 5)
