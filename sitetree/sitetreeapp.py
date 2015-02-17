@@ -4,6 +4,7 @@ import warnings
 
 from collections import defaultdict
 from copy import copy, deepcopy
+from threading import local
 
 from django.conf import settings
 from django import VERSION
@@ -42,6 +43,9 @@ _IDX_ORPHAN_TREES = 'orphans'
 _IDX_TPL = '%s|:|%s'
 # SiteTree app-wise object.
 _SITETREE = None
+
+_THREAD_LOCAL = local()
+_THREAD_LANG = 'sitetree_lang'
 
 
 def get_sitetree():
@@ -315,7 +319,7 @@ class SiteTree(object):
         If so, returns i18n alias. If not, returns the initial alias.
         """
         if alias in _I18N_TREES:
-            current_language_code = get_language().replace('_', '-').split('-')[0]
+            current_language_code = self.lang_get().replace('_', '-').split('-')[0]
             i18n_tree_alias = '%s_%s' % (alias, current_language_code)
             trees_count = self.get_cache_entry('tree_aliases', i18n_tree_alias)
             if trees_count is False:
@@ -473,7 +477,7 @@ class SiteTree(object):
         else:
             # urlquote is an attempt to support non-ascii in url.
             current_url = urlquote(self._global_context['request'].path)
-            urls_cache = self.get_cache_entry('urls', tree_alias)
+            urls_cache = self.get_cache_entry('urls', '%s%s' % (tree_alias, self.lang_get()))
             if urls_cache:
                 for url_item in urls_cache:
                     urls_cache[url_item][1].is_current = False
@@ -484,6 +488,24 @@ class SiteTree(object):
             current_item.is_current = True
 
         return current_item
+
+    @classmethod
+    def lang_get(cls):
+        """Returns language code for current thread.
+
+        :return:
+        """
+        return getattr(_THREAD_LOCAL, _THREAD_LANG, '') or cls.lang_init()
+
+    @classmethod
+    def lang_init(cls):
+        """Initializes and returns language code for current thread.
+
+        :return:
+        """
+        lang = get_language()
+        setattr(_THREAD_LOCAL, _THREAD_LANG, lang)
+        return lang
 
     def url(self, sitetree_item, context=None):
         """Resolves item's URL.
@@ -526,13 +548,14 @@ class SiteTree(object):
         else:
             url_pattern = str(sitetree_item.url)
 
-        tree_alias = sitetree_item.tree.alias
+        # i18n_patterns compatibility organized using compound cache key.
+        cache_key = '%s%s' % (sitetree_item.tree.alias, self.lang_get())
 
-        entry_from_cache = self.get_cache_entry('urls', tree_alias)
+        entry_from_cache = self.get_cache_entry('urls', cache_key)
         if not entry_from_cache:
             # Create 'cache_urls' for this tree.
             entry_from_cache = {}
-            self.set_cache_entry('urls', tree_alias, {})
+            self.set_cache_entry('urls', cache_key, {})
 
         if url_pattern in entry_from_cache:
             resolved_url = entry_from_cache[url_pattern][0]
@@ -553,7 +576,7 @@ class SiteTree(object):
             else:
                 resolved_url = url_pattern
 
-            self.update_cache_entry_value('urls', tree_alias, {url_pattern: (resolved_url, sitetree_item)})
+            self.update_cache_entry_value('urls', cache_key, {url_pattern: (resolved_url, sitetree_item)})
 
         return resolved_url
 
@@ -565,6 +588,8 @@ class SiteTree(object):
         """
         # Current context we will consider global.
         self.set_global_context(context)
+        # Initialize language to use it in current thread.
+        self.lang_init()
         # Resolve tree_alias from the context.
         tree_alias = self.resolve_var(tree_alias)
         # Get tree.
