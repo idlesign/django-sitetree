@@ -1,11 +1,12 @@
 django-sitetree changelog
 =========================
 
-Unreleased
+
+v1.3.0
 ----------
-+ Implemented django-smuggler thirdparty support.
++ Implemented `django-smuggler` thirdparty support.
++ Implemented `i18n_patterns` compatibility (closes #148).
 * Fixed menu alias clash with context variable (closes #117).
-* Fixed `i18n_patterns` compatibility (closes #148).
 
 
 v1.2.1
