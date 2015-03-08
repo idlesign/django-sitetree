@@ -134,7 +134,7 @@ def sitetree_url(parser, token):
         sitetree_item = parser.compile_filter(tokens[2])
         return sitetree_urlNode(sitetree_item, as_var)
     else:
-        raise template.TemplateSyntaxError("%r tag should look like {%% sitetree_url for someitem params %%}." % tokens[0])
+        raise template.TemplateSyntaxError("%r tag should look like {%% sitetree_url for someitem %%}." % tokens[0])
 
 
 @register.tag
