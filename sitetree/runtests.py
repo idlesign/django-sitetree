@@ -17,6 +17,9 @@ def main():
             DATABASES={'default': {'ENGINE': 'django.db.backends.sqlite3'}},
             ROOT_URLCONF = 'sitetree.tests',
             MIDDLEWARE_CLASSES=global_settings.MIDDLEWARE_CLASSES,  # Prevents Django 1.7 warning.
+            TEMPLATE_CONTEXT_PROCESSORS=global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
+                'django.core.context_processors.request',
+            )
         )
 
     try:  # Django 1.7 +

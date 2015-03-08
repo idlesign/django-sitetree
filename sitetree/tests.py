@@ -14,11 +14,15 @@ except ImportError:
 from django.conf import settings
 from django.utils import unittest
 from django.utils.translation import activate
-from django import template
+from django.template.base import TemplateDoesNotExist, Template, TemplateSyntaxError
+from django.template.context import Context
+from django.test.utils import override_settings
+from django.test import TestCase
 from django.contrib.auth.models import Permission
 from django.contrib.admin.sites import site
 from django.core.management import call_command
 from django.core.exceptions import ImproperlyConfigured
+from django.conf.urls import patterns, url
 
 from sitetree.models import Tree, TreeItem
 from sitetree.management.commands.sitetree_resync_apps import Command as ResyncCommand
@@ -30,8 +34,6 @@ from sitetree.utils import (
 from sitetree.sitetreeapp import (
     SiteTree, SiteTreeError, register_items_hook, register_i18n_trees, register_dynamic_trees, compose_dynamic_tree
 )
-
-from django.conf.urls import patterns, url
 
 
 urlpatterns = patterns('',
@@ -65,17 +67,162 @@ class MockUser(object):
 
 
 def get_mock_context(app=None, path=None, user_authorized=False, tree_item=None, put_var=None):
-    ctx = template.Context({'request': MockRequest(path, user_authorized),
-                            't2_root2_title': 'my_real_title', 'art_id': 10, 'tree_item': tree_item,
-                            'somevar_str': 'articles_list', 'somevar_list': ['a', 'b'], 'put_var': put_var}, current_app=app)
+    ctx = Context(
+        {
+            'request': MockRequest(path, user_authorized),
+            't2_root2_title': 'my_real_title', 'art_id': 10, 'tree_item': tree_item,
+            'somevar_str': 'articles_list', 'somevar_list': ['a', 'b'], 'put_var': put_var
+        },
+        current_app=app
+    )
     return ctx
 
 
-class TreeModelTest(unittest.TestCase):
+def render_string(string, context=None, context_put_var=None, context_path=None):
+    return Template(string).render(Context(context or get_mock_context(path=context_path, put_var=context_put_var)))
+
+
+class SitetreeTest(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.init_trees()
+
+    @classmethod
+    def init_trees(cls):
+        cls.sitetree = SiteTree()
+
+        ###########################################################
+
+        t1 = Tree(alias='tree1')
+        t1.save()
+        cls.t1 = t1
+
+        t1_root = TreeItem(title='root', tree=t1, url='/')
+        t1_root.save()
+        cls.tree_ttags_root = t1_root
+
+        t1_root_child1 = TreeItem(title='child1', tree=t1, parent=t1_root, url='/about/')
+        t1_root_child1.save()
+        cls.tree_ttags_root_child1 = t1_root_child1
+
+        t1_root_child2 = TreeItem(title='child2', tree=t1, parent=t1_root, url='articles_list', urlaspattern=True, description='items_descr')
+        t1_root_child2.save()
+        cls.t1_root_child2 = t1_root_child2
+
+        t1_root_child2_sub1 = TreeItem(title='subchild1', tree=t1, parent=t1_root_child2,
+            url='articles_detailed art_id', urlaspattern=True)
+        t1_root_child2_sub1.save()
+        cls.t1_root_child2_sub1 = t1_root_child2_sub1
+
+        t1_root_child2_sub2 = TreeItem(title='subchild2', tree=t1, parent=t1_root_child2, url='/not_articles/10/')
+        t1_root_child2_sub2.save()
+        cls.t1_root_child2_sub2 = t1_root_child2_sub2
+
+        t1_root_child3 = TreeItem(title='child_with_var_str', tree=t1, parent=t1_root, url='somevar_str', urlaspattern=True)
+        t1_root_child3.save()
+        cls.t1_root_child3 = t1_root_child3
+
+        t1_root_child4 = TreeItem(title='child_with_var_list', tree=t1, parent=t1_root, url='somevar_list', urlaspattern=True)
+        t1_root_child4.save()
+
+        t2 = Tree(alias='tree2')
+        t2.save()
+        cls.t2 = t2
+
+        t2_root1 = TreeItem(title='{{ t2_root1_title }}', tree=t2, url='/')
+        t2_root1.save()
+        cls.t2_root1 = t2_root1
+
+        t2_root2 = TreeItem(title='put {{ t2_root2_title }} inside', tree=t2, url='/sub/')
+        t2_root2.save()
+        cls.t2_root2 = t2_root2
+
+        t2_root3 = TreeItem(title='for logged in only', tree=t2, url='/some/', access_loggedin=True)
+        t2_root3.save()
+        cls.t2_root3 = t2_root3
+
+        t2_root4 = TreeItem(title='url quoting', tree=t2, url='url 2 put_var', urlaspattern=True)
+        t2_root4.save()
+        cls.t2_root4 = t2_root4
+
+        t2_root5 = TreeItem(title='url quoting 1.5 style', tree=t2, url="'url' 2 put_var", urlaspattern=True)
+        t2_root5.save()
+        cls.t2_root5 = t2_root5
+
+        t2_root6 = TreeItem(title='url quoting 1.5 style', tree=t2, url='"url" 2 put_var', urlaspattern=True)
+        t2_root6.save()
+        cls.t2_root6 = t2_root6
+
+        t2_root7 = TreeItem(title='for guests only', tree=t2, url='/some_other/', access_guest=True)
+        t2_root7.save()
+        cls.t2_root7 = t2_root7
+
+        ###########################################################
+
+        t3 = Tree(alias='tree3')
+        t3.save()
+        cls.t3 = t3
+
+        t3_en_root = TreeItem(title='root', tree=t3, url='/', hidden=True)
+        t3_en_root.save()
+        cls.t3_root = t3_en_root
+
+        t3_root_child1 = TreeItem(title='child1', tree=t3, parent=t3_en_root, url='/0/', access_loggedin=True)
+        t3_root_child1.save()
+        cls.t3_root_child1 = t3_root_child1
+
+        t3_root_child2 = TreeItem(title='child2', tree=t3, parent=t3_en_root, url='/1/', inmenu=True, hidden=True)
+        t3_root_child2.save()
+        cls.t3_root_child2 = t3_root_child2
+
+        t3_root_child3 = TreeItem(title='child3', tree=t3, parent=t3_en_root, url='/the_same_url/', inmenu=False)
+        t3_root_child3.save()
+        cls.t3_root_child3 = t3_root_child3
+
+        t3_root_child4 = TreeItem(title='child4', tree=t3, parent=t3_en_root, url='/3/', hidden=True)
+        t3_root_child4.save()
+        cls.t3_root_child4 = t3_root_child4
+
+        t3_root_child5 = TreeItem(title='child5', tree=t3, parent=t3_en_root, url='/4/', inmenu=True, hidden=True)
+        t3_root_child5.save()
+        cls.t3_root_child5 = t3_root_child5
+
+        t3_en = Tree(alias='tree3_en', title='tree3en_title')
+        t3_en.save()
+        cls.t3_en = t3_en
+
+        t3_en_root = TreeItem(title='root_en', tree=t3_en, url='/')
+        t3_en_root.save()
+        cls.t3_en_root = t3_en_root
+
+        t3_en_root_child1 = TreeItem(title='child1_en', tree=t3_en, parent=t3_en_root, url='/0_en/')
+        t3_en_root_child1.save()
+
+        t3_en_root_child2 = TreeItem(title='child2_en', tree=t3_en, parent=t3_en_root, url='/the_same_url/')
+        t3_en_root_child2.save()
+
+        ###########################################################
+
+        tree_main = Tree(alias='main')
+        tree_main.save()
+        cls.tree_main = tree_main
+
+        tree_main_root = TreeItem(title='root', tree=tree_main, url='/', alias='for_dynamic')
+        tree_main_root.save()
+        cls.tree_main_root = tree_main_root
+
+    @classmethod
+    def tearDownClass(cls):
+        Tree.objects.all().delete()
+        TreeItem.objects.all().delete()
+
+
+class TreeModelTest(SitetreeTest):
 
     def test_create_rename_delete(self):
         tree = Tree(alias='mytree')
-        tree.save(force_insert=True)
+        tree.save()
         self.assertIsNotNone(tree.id)
         self.assertEqual(tree.alias, 'mytree')
         tree.alias = 'not_mytree'
@@ -86,83 +233,12 @@ class TreeModelTest(unittest.TestCase):
 
     def test_unique_aliases(self):
         tree1 = Tree(alias='mytree')
-        tree1.save(force_insert=True)
+        tree1.save()
         tree2 = Tree(alias='mytree')
         self.assertRaises(Exception, tree2.save)
 
 
-class TreeItemModelTest(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        cls.sitetree = SiteTree()
-
-        t1 = Tree(alias='tree1')
-        t1.save(force_insert=True)
-
-        t1_root = TreeItem(title='root', tree=t1, url='/')
-        t1_root.save(force_insert=True)
-
-        t1_root_child1 = TreeItem(title='child1', tree=t1, parent=t1_root, url='/about/')
-        t1_root_child1.save(force_insert=True)
-
-        t1_root_child2 = TreeItem(title='child2', tree=t1, parent=t1_root, url='articles_list', urlaspattern=True, description='items_descr')
-        t1_root_child2.save(force_insert=True)
-
-        t1_root_child2_sub1 = TreeItem(title='subchild1', tree=t1, parent=t1_root_child2,
-            url='articles_detailed art_id', urlaspattern=True)
-        t1_root_child2_sub1.save(force_insert=True)
-
-        t1_root_child2_sub2 = TreeItem(title='subchild2', tree=t1, parent=t1_root_child2, url='/not_articles/10/')
-        t1_root_child2_sub2.save(force_insert=True)
-
-        t1_root_child3 = TreeItem(title='child_with_var_str', tree=t1, parent=t1_root, url='somevar_str', urlaspattern=True)
-        t1_root_child3.save(force_insert=True)
-
-        t1_root_child4 = TreeItem(title='child_with_var_list', tree=t1, parent=t1_root, url='somevar_list', urlaspattern=True)
-        t1_root_child4.save(force_insert=True)
-
-        t2 = Tree(alias='tree2')
-        t2.save(force_insert=True)
-
-        t2_root1 = TreeItem(title='{{ t2_root1_title }}', tree=t2, url='/')
-        t2_root1.save(force_insert=True)
-
-        t2_root2 = TreeItem(title='put {{ t2_root2_title }} inside', tree=t2, url='/sub/')
-        t2_root2.save(force_insert=True)
-
-        t2_root3 = TreeItem(title='for logged in only', tree=t2, url='/some/', access_loggedin=True)
-        t2_root3.save(force_insert=True)
-
-        t2_root4 = TreeItem(title='url quoting', tree=t2, url='url 2 put_var', urlaspattern=True)
-        t2_root4.save(force_insert=True)
-
-        t2_root5 = TreeItem(title='url quoting 1.5 style', tree=t2, url="'url' 2 put_var", urlaspattern=True)
-        t2_root5.save(force_insert=True)
-
-        t2_root6 = TreeItem(title='url quoting 1.5 style', tree=t2, url='"url" 2 put_var', urlaspattern=True)
-        t2_root6.save(force_insert=True)
-
-        t2_root7 = TreeItem(title='for guests only', tree=t2, url='/some_other/', access_guest=True)
-        t2_root7.save(force_insert=True)
-
-        cls.t1 = t1
-        cls.t1_root = t1_root
-        cls.t1_root_child1 = t1_root_child1
-        cls.t1_root_child2 = t1_root_child2
-        cls.t1_root_child3 = t1_root_child3
-        cls.t1_root_child2_sub1 = t1_root_child2_sub1
-        cls.t1_root_child2_sub2 = t1_root_child2_sub2
-
-        cls.t2 = t2
-        cls.t2_root1 = t2_root1
-
-        cls.t2_root2 = t2_root2
-        cls.t2_root3 = t2_root3
-        cls.t2_root4 = t2_root4
-        cls.t2_root5 = t2_root5
-        cls.t2_root6 = t2_root6
-        cls.t2_root7 = t2_root7
+class TreeItemModelTest(SitetreeTest):
 
     def test_url_resolve(self):
         self.sitetree.menu('tree1', 'trunk', get_mock_context(path='/', put_var='abrakadabra'))
@@ -188,7 +264,7 @@ class TreeItemModelTest(unittest.TestCase):
 
     def test_create_rename_delete(self):
         ti1 = TreeItem(title='new_root_item', tree=self.t1)
-        ti1.save(force_insert=True)
+        ti1.save()
         self.assertIsNotNone(ti1.id)
         self.assertEqual(ti1.title, 'new_root_item')
         ti1.title = 'not_new_root_item'
@@ -198,7 +274,7 @@ class TreeItemModelTest(unittest.TestCase):
         self.assertIsNone(ti1.id)
 
     def test_context_proc_required(self):
-        context = template.Context()
+        context = Context()
         old_debug = settings.DEBUG
         settings.DEBUG = True
         self.assertRaises(SiteTreeError, self.sitetree.menu, 'tree1', 'trunk', context)
@@ -207,7 +283,7 @@ class TreeItemModelTest(unittest.TestCase):
     def test_menu(self):
         menu = self.sitetree.menu('tree1', 'trunk', get_mock_context(path='/about/'))
         self.assertEqual(len(menu), 1)
-        self.assertEqual(menu[0].id, self.t1_root.id)
+        self.assertEqual(menu[0].id, self.tree_ttags_root.id)
         self.assertEqual(menu[0].is_current, False)
         self.assertEqual(menu[0].depth, 0)
         self.assertEqual(menu[0].has_children, True)
@@ -231,7 +307,7 @@ class TreeItemModelTest(unittest.TestCase):
 
         self.assertEqual(len(bc1), 3)
 
-        self.assertEqual(bc1[0].id, self.t1_root.id)
+        self.assertEqual(bc1[0].id, self.tree_ttags_root.id)
         self.assertEqual(bc1[1].id, self.t1_root_child2.id)
         self.assertEqual(bc1[1].url_resolved, '/articles/')
         self.assertEqual(bc1[2].id, self.t1_root_child2_sub2.id)
@@ -265,7 +341,7 @@ class TreeItemModelTest(unittest.TestCase):
     def test_sitetree(self):
         st1 = self.sitetree.tree('tree1', get_mock_context(path='/articles/'))
         self.assertEqual(len(st1), 1)
-        self.assertEqual(st1[0].id, self.t1_root.id)
+        self.assertEqual(st1[0].id, self.tree_ttags_root.id)
         self.assertEqual(st1[0].is_current, False)
         self.assertEqual(st1[0].depth, 0)
         self.assertEqual(st1[0].has_children, True)
@@ -343,67 +419,149 @@ class TreeItemModelTest(unittest.TestCase):
         self.assertEqual(items[0].title_resolved, 'FakedBreadcrumbsItem')
 
 
-class TreeTest(unittest.TestCase):
+class TemplateTagsTest(SitetreeTest):
 
     @classmethod
     def setUpClass(cls):
         cls.sitetree = SiteTree()
 
-        t1 = Tree(alias='tree3')
-        t1.save(force_insert=True)
+        tree_ttags = Tree(alias='ttags')
+        tree_ttags.save()
+        cls.tree_ttags = tree_ttags
 
-        t1_root = TreeItem(title='root', tree=t1, url='/', hidden=True)
-        t1_root.save(force_insert=True)
+        tree_ttags_root = TreeItem(
+            title='root', tree=tree_ttags, url='/',
+            insitetree=True, inbreadcrumbs=True, inmenu=True
+        )
+        tree_ttags_root.save()
+        cls.tree_ttags_root = tree_ttags_root
 
-        t1_root_child1 = TreeItem(title='child1', tree=t1, parent=t1_root, url='/0/', access_loggedin=True)
-        t1_root_child1.save(force_insert=True)
+        tree_ttags_root_child1 = TreeItem(
+            title='sometitle', tree=tree_ttags, parent=tree_ttags_root, url='/child1',
+            insitetree=True, inbreadcrumbs=True, inmenu=True,
+            hint='somehint', description='somedescr'
+        )
+        tree_ttags_root_child1.save()
+        cls.tree_ttags_root_child1 = tree_ttags_root_child1
 
-        t1_root_child2 = TreeItem(title='child2', tree=t1, parent=t1_root, url='/1/', inmenu=True, hidden=True)
-        t1_root_child2.save(force_insert=True)
+    def test_sitetree_tree(self):
 
-        t1_root_child3 = TreeItem(title='child3', tree=t1, parent=t1_root, url='/the_same_url/', inmenu=False)
-        t1_root_child3.save(force_insert=True)
+        tpl = '{% load sitetree %}{% sitetree_tree "mytree" %}'
+        self.assertRaises(TemplateSyntaxError, render_string, tpl)
 
-        t1_root_child4 = TreeItem(title='child4', tree=t1, parent=t1_root, url='/3/', hidden=True)
-        t1_root_child4.save(force_insert=True)
+        tpl = '{% load sitetree %}{% sitetree_tree from "mytree" %}'
+        result = render_string(tpl)
+        self.assertEqual(result.strip(), '')
 
-        t1_root_child5 = TreeItem(title='child5', tree=t1, parent=t1_root, url='/4/', inmenu=True, hidden=True)
-        t1_root_child5.save(force_insert=True)
+        tpl = '{% load sitetree %}{% sitetree_tree from "ttags" %}'
+        result = render_string(tpl)
+        self.assertIn('href="/"', result)
 
-        t2 = Tree(alias='tree3_en', title='tree3en_title')
-        t2.save(force_insert=True)
+    def test_sitetree_children(self):
 
-        t2_root = TreeItem(title='root_en', tree=t2, url='/')
-        t2_root.save(force_insert=True)
+        context = get_mock_context(put_var=self.tree_ttags_root)
+        self.sitetree.set_global_context(context)
 
-        t2_root_child1 = TreeItem(title='child1_en', tree=t2, parent=t2_root, url='/0_en/')
-        t2_root_child1.save(force_insert=True)
+        tpl = '{% load sitetree %}{% sitetree_children %}'
+        self.assertRaises(TemplateSyntaxError, render_string, tpl)
 
-        t2_root_child2 = TreeItem(title='child2_en', tree=t2, parent=t2_root, url='/the_same_url/')
-        t2_root_child2.save(force_insert=True)
+        tpl = '{% load sitetree %}{% sitetree_children of put_var for sitetree template "sitetree/tree.html" %}'
+        result = render_string(tpl, context=context)
+        self.assertIn('href="/child1"', result)
 
-        cls.t1 = t1
-        cls.t1_root = t1_root
-        cls.t1_root_child1 = t1_root_child1
-        cls.t1_root_child2 = t1_root_child2
-        cls.t1_root_child2 = t1_root_child3
-        cls.t1_root_child2 = t1_root_child4
-        cls.t1_root_child2 = t1_root_child5
+    def test_sitetree_breadcrumbs(self):
 
-        cls.t2 = t2
-        cls.t2_root = t2_root
+        tpl = '{% load sitetree %}{% sitetree_breadcrumbs %}'
+        self.assertRaises(TemplateSyntaxError, render_string, tpl)
+
+        tpl = '{% load sitetree %}{% sitetree_breadcrumbs from "mytree" %}'
+        result = render_string(tpl)
+        self.assertEqual(result.strip(), '<ul>\n\t\n</ul>')
+
+        tpl = '{% load sitetree %}{% sitetree_breadcrumbs from "ttags" %}'
+        result = render_string(tpl, context_path='/child1')
+
+        self.assertIn('href="/"', result)
+        self.assertIn('root', result)
+        self.assertIn('sometitle', result)
+
+    def test_sitetree_menu(self):
+
+        tpl = '{% load sitetree %}{% sitetree_menu %}'
+        self.assertRaises(TemplateSyntaxError, render_string, tpl)
+
+        tpl = '{% load sitetree %}{% sitetree_menu from "mytree" include "trunk" %}'
+        result = render_string(tpl)
+        self.assertEqual(result.strip(), '<ul>\n\t\n</ul>')
+
+        tpl = '{% load sitetree %}{% sitetree_menu from "ttags" include "trunk" %}'
+        result = render_string(tpl, context_path='/child1')
+        self.assertIn('current_branch">root', result)
+        self.assertIn('current_item current_branch">sometitle', result)
+
+    def test_sitetree_page_title(self):
+        tpl = '{% load sitetree %}{% sitetree_page_title %}'
+        self.assertRaises(TemplateSyntaxError, render_string, tpl)
+
+        with override_settings(DEBUG=True):
+            tpl = '{% load sitetree %}{% sitetree_page_title from "ttags" %}'
+            self.assertRaises(SiteTreeError, render_string, tpl, context_path='/somewhere')
+
+        tpl = '{% load sitetree %}{% sitetree_page_title from "ttags" %}'
+        result = render_string(tpl, context_path='/child1')
+        self.assertEqual(result, 'sometitle')
+
+    def test_sitetree_page_hint(self):
+        tpl = '{% load sitetree %}{% sitetree_page_hint %}'
+        self.assertRaises(TemplateSyntaxError, render_string, tpl)
+
+        with override_settings(DEBUG=True):
+            tpl = '{% load sitetree %}{% sitetree_page_hint from "ttags" %}'
+            self.assertRaises(SiteTreeError, render_string, tpl, context_path='/somewhere')
+
+        tpl = '{% load sitetree %}{% sitetree_page_hint from "ttags" %}'
+        result = render_string(tpl, context_path='/child1')
+        self.assertEqual(result, 'somehint')
+
+    def test_sitetree_page_description(self):
+        tpl = '{% load sitetree %}{% sitetree_page_description %}'
+        self.assertRaises(TemplateSyntaxError, render_string, tpl)
+
+        with override_settings(DEBUG=True):
+            tpl = '{% load sitetree %}{% sitetree_page_description from "ttags" %}'
+            self.assertRaises(SiteTreeError, render_string, tpl, context_path='/somewhere')
+
+        tpl = '{% load sitetree %}{% sitetree_page_description from "ttags" %}'
+        result = render_string(tpl, context_path='/child1')
+        self.assertEqual(result, 'somedescr')
+
+    def test_sitetree_url(self):
+        tpl = '{% load sitetree %}{% sitetree_url %}'
+        self.assertRaises(TemplateSyntaxError, render_string, tpl)
+
+        context = get_mock_context(path='/child1', put_var=self.tree_ttags_root_child1)
+        tpl = '{% load sitetree %}{% sitetree_url for put_var %}'
+        result = render_string(tpl, context)
+        self.assertEqual(result, '/child1')
+
+        tpl = '{% load sitetree %}{% sitetree_url for put_var as res_var %}'
+        result = render_string(tpl, context)
+        self.assertEqual(context.get('res_var'), '/child1')
+
+
+class TreeTest(SitetreeTest):
 
     def test_str(self):
-        self.assertEqual(self.t1.alias, str(self.t1))
+        self.assertEqual(self.t3.alias, str(self.t3))
 
     def test_get_title(self):
-        self.assertEqual(self.t1.get_title(), 'tree3')
-        self.assertEqual(self.t2.get_title(), 'tree3en_title')
+        self.assertEqual(self.t3.get_title(), 'tree3')
+        self.assertEqual(self.t3_en.get_title(), 'tree3en_title')
 
     def test_children_filtering(self):
         self.sitetree._global_context = get_mock_context(path='/')
         self.sitetree.get_sitetree('tree3')
-        children = self.sitetree.get_children('tree3', self.t1_root)
+        children = self.sitetree.get_children('tree3', self.t3_root)
         filtered = self.sitetree.filter_items(children, 'menu')
         self.assertEqual(filtered, [])
 
@@ -417,7 +575,7 @@ class TreeTest(unittest.TestCase):
 
         activate('en')
         self.sitetree.get_sitetree('tree3')
-        children = self.sitetree.get_children('tree3', self.t2_root)
+        children = self.sitetree.get_children('tree3', self.t3_en_root)
         self.assertEqual(len(children), 2)
         self.assertFalse(children[0].is_current)
         self.assertTrue(children[1].is_current)
@@ -425,27 +583,14 @@ class TreeTest(unittest.TestCase):
         activate('ru')
         self.sitetree.lang_init()
         self.sitetree.get_sitetree('tree3')
-        children = self.sitetree.get_children('tree3', self.t1_root)
+        children = self.sitetree.get_children('tree3', self.t3_root)
         self.assertEqual(len(children), 5)
         self.assertFalse(children[1].is_current)
         self.assertTrue(children[2].is_current)
         self.assertFalse(children[3].is_current)
 
 
-class DynamicTreeTest(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        cls.sitetree = SiteTree()
-
-        t1 = Tree(alias='main')
-        t1.save(force_insert=True)
-
-        t1_root = TreeItem(title='root', tree=t1, url='/', alias='for_dynamic')
-        t1_root.save(force_insert=True)
-
-        cls.t1 = t1
-        cls.t1_root = t1_root
+class DynamicTreeTest(SitetreeTest):
 
     def test_basic_old(self):
         self.basic_test()
@@ -492,7 +637,7 @@ class DynamicTreeTest(unittest.TestCase):
         self.assertEqual(len(sitetree_items), 5)
         self.assertEqual(sitetree_items[3].title, 'dynamic_main_root_1')
         self.assertEqual(sitetree_items[4].title, 'dynamic_main_root_2')
-        children = self.sitetree.get_children('main', self.t1_root)
+        children = self.sitetree.get_children('main', self.tree_main_root)
         self.assertEqual(len(children), 2)
 
 
@@ -502,7 +647,7 @@ class DynamicTreeTest(unittest.TestCase):
         self.assertEqual(len(children), 1)
 
 
-class UtilsItemTest(unittest.TestCase):
+class UtilsItemTest(SitetreeTest):
 
     def test_permission_any(self):
         i1 = item('root', 'url')
@@ -566,7 +711,7 @@ class UtilsItemTest(unittest.TestCase):
         self.assertEqual(i1.access_restricted, False)
 
 
-class TestAdmin(unittest.TestCase):
+class TestAdmin(SitetreeTest):
 
     def test_redirects_handler(self):
 
@@ -595,7 +740,7 @@ class TestAdmin(unittest.TestCase):
 
     def test_tree_item_admin(self):
         admin = TreeItemAdmin(TreeItem, site)
-        admin.tree = Tree.objects.get(pk=1)
+        admin.tree = Tree.objects.get(alias='main')
         form = admin.get_form(MockRequest())
         self.assertEqual(len(form.known_url_names), 3)
         self.assertIn('articles_list', form.known_url_names)
@@ -603,22 +748,27 @@ class TestAdmin(unittest.TestCase):
         self.assertIn('url', form.known_url_names)
 
     def test_tree_item_admin_get_tree(self):
+        main_tree = Tree.objects.get(alias='main')
+        main_tree_item = TreeItem.objects.filter(tree__alias='main')[0]
+
         admin = TreeItemAdmin(TreeItem, site)
-        tree = admin.get_tree(MockRequest(), 1)
+        tree = admin.get_tree(MockRequest(), main_tree.pk)
         self.assertEqual(tree.alias, 'main')
-        tree = admin.get_tree(MockRequest(), None, 1)
+        tree = admin.get_tree(MockRequest(), None, main_tree_item.pk)
         self.assertEqual(tree.alias, 'main')
 
     def test_tree_item_admin_item_move(self):
+        main_tree = Tree.objects.get(alias='main')
+
         admin = TreeItemAdmin(TreeItem, site)
 
-        new_item_1 = TreeItem(title='title_1', sort_order=1, tree_id=1)
+        new_item_1 = TreeItem(title='title_1', sort_order=1, tree_id=main_tree.pk)
         new_item_1.save()
 
-        new_item_2 = TreeItem(title='title_2', sort_order=2, tree_id=1)
+        new_item_2 = TreeItem(title='title_2', sort_order=2, tree_id=main_tree.pk)
         new_item_2.save()
 
-        new_item_3 = TreeItem(title='title_3', sort_order=3, tree_id=1)
+        new_item_3 = TreeItem(title='title_3', sort_order=3, tree_id=main_tree.pk)
         new_item_3.save()
 
         admin.item_move(None, None, new_item_2.id, 'up')
@@ -634,9 +784,11 @@ class TestAdmin(unittest.TestCase):
         self.assertEqual(TreeItem.objects.get(pk=new_item_3.id).sort_order, 2)
 
     def test_tree_item_admin_save_model(self):
+        main_tree = Tree.objects.get(alias='main')
+        tree_item = TreeItem.objects.filter(tree__alias='main')[0]
+
         admin = TreeItemAdmin(TreeItem, site)
-        tree_item = TreeItem.objects.get(pk=1)
-        admin.tree = Tree.objects.get(pk=1)
+        admin.tree = main_tree
         admin.save_model(MockRequest(), tree_item, None, change=True)
         self.assertIs(tree_item.tree, admin.tree)
 
@@ -646,7 +798,7 @@ class TestAdmin(unittest.TestCase):
         self.assertIn('tree_id', urls[1]._regex)
 
 
-class TestForms(unittest.TestCase):
+class TestForms(SitetreeTest):
 
     def test_basic(self):
         form = TreeItemForm(tree='main', tree_item='root')
@@ -657,10 +809,17 @@ class TestForms(unittest.TestCase):
         self.assertEqual(form.fields['tree_item'].choices[1][1], 'root')
 
 
-class TestManagementCommands(unittest.TestCase):
+class TestManagementCommands(SitetreeTest):
 
     def setUp(self):
-        self.file_contents = '[{"pk": 2, "fields": {"alias": "/tree1/", "title": "tree one"}, "model": "sitetree.tree"}, {"pk": 3, "fields": {"alias": "/tree2/", "title": "tree two"}, "model": "sitetree.tree"}, {"pk": 7, "fields": {"access_restricted": false, "inmenu": true, "title": "tree item one", "hidden": false, "description": "", "alias": null, "url": "/tree1/item1/", "access_loggedin": false, "urlaspattern": false, "access_perm_type": 1, "tree": 2, "hint": "", "inbreadcrumbs": true, "access_permissions": [], "sort_order": 7, "access_guest": false, "parent": null, "insitetree": true}, "model": "sitetree.treeitem"}]'
+        self.file_contents = (
+            '[{"pk": 2, "fields": {"alias": "/tree1/", "title": "tree one"}, "model": "sitetree.tree"}, '
+            '{"pk": 3, "fields": {"alias": "/tree2/", "title": "tree two"}, "model": "sitetree.tree"}, '
+            '{"pk": 7, "fields": {"access_restricted": false, "inmenu": true, "title": "tree item one",'
+            ' "hidden": false, "description": "", "alias": null, "url": "/tree1/item1/", "access_loggedin": false,'
+            ' "urlaspattern": false, "access_perm_type": 1, "tree": 2, "hint": "", "inbreadcrumbs": true,'
+            ' "access_permissions": [], "sort_order": 7, "access_guest": false, "parent": null, "insitetree": true},'
+            ' "model": "sitetree.treeitem"}]')
 
     def test_sitetreedump(self):
         stdout = sys.stdout
@@ -672,7 +831,7 @@ class TestManagementCommands(unittest.TestCase):
         sys.stdout = stdout
 
         self.assertEqual(output[0]['model'], 'sitetree.tree')
-        self.assertEqual(output[1]['model'], 'sitetree.treeitem')
+        self.assertEqual(output[5]['model'], 'sitetree.treeitem')
 
     def test_sitetreeload(self):
         try:
