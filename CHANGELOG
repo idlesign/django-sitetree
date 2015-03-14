@@ -2,8 +2,13 @@ django-sitetree changelog
 =========================
 
 
-v1.3.0
+Unreleased
 ----------
+* Fixed extra spaces issue in breadcrumbs (closes #150).
+
+
+v1.3.0
+------
 + Implemented `django-smuggler` thirdparty support.
 + Implemented `i18n_patterns` compatibility (closes #148).
 * Fixed menu alias clash with context variable (closes #117).
