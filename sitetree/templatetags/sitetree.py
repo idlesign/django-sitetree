@@ -31,7 +31,8 @@ def sitetree_tree(parser, token):
         tree_alias = parser.compile_filter(tokens[2])
         return sitetree_treeNode(tree_alias, use_template)
     else:
-        raise template.TemplateSyntaxError("%r tag requires two arguments. E.g. {%% sitetree_tree from \"mytree\" %%}." % tokens[0])
+        raise template.TemplateSyntaxError(
+            '%r tag requires two arguments. E.g. {%% sitetree_tree from "mytree" %%}.' % tokens[0])
 
 
 @register.tag
@@ -52,12 +53,15 @@ def sitetree_children(parser, token):
     use_template = detect_clause(parser, 'template', tokens)
     tokens_num = len(tokens)
 
-    if tokens_num == 5 and tokens[1] == 'of' and tokens[3] == 'for' and tokens[4] in ('menu', 'sitetree') and use_template is not None:
+    clauses_in_places = tokens[1] == 'of' and tokens[3] == 'for' and tokens[4] in ('menu', 'sitetree')
+    if tokens_num == 5 and clauses_in_places and use_template is not None:
         tree_item = tokens[2]
         navigation_type = tokens[4]
         return sitetree_childrenNode(tree_item, navigation_type, use_template)
     else:
-        raise template.TemplateSyntaxError("%r tag requires six arguments. E.g. {%% sitetree_children of someitem for menu template \"sitetree/mychildren.html\" %%}." % tokens[0])
+        raise template.TemplateSyntaxError(
+            '%r tag requires six arguments. '
+            'E.g. {%% sitetree_children of someitem for menu template "sitetree/mychildren.html" %%}.' % tokens[0])
 
 
 @register.tag
@@ -83,7 +87,8 @@ def sitetree_breadcrumbs(parser, token):
         tree_alias = parser.compile_filter(tokens[2])
         return sitetree_breadcrumbsNode(tree_alias, use_template)
     else:
-        raise template.TemplateSyntaxError("%r tag requires two arguments. E.g. {%% sitetree_breadcrumbs from \"mytree\" %%}." % tokens[0])
+        raise template.TemplateSyntaxError(
+            '%r tag requires two arguments. E.g. {%% sitetree_breadcrumbs from "mytree" %%}.' % tokens[0])
 
 
 @register.tag
@@ -114,7 +119,9 @@ def sitetree_menu(parser, token):
         tree_branches = parser.compile_filter(tokens[4])
         return sitetree_menuNode(tree_alias, tree_branches, use_template)
     else:
-        raise template.TemplateSyntaxError("%r tag requires four arguments. E.g. {%% sitetree_menu from \"mytree\" include \"trunk,1,level3\" %%}." % tokens[0])
+        raise template.TemplateSyntaxError(
+            '%r tag requires four arguments. '
+            'E.g. {%% sitetree_menu from "mytree" include "trunk,1,level3" %%}.' % tokens[0])
 
 
 @register.tag
@@ -134,7 +141,7 @@ def sitetree_url(parser, token):
         sitetree_item = parser.compile_filter(tokens[2])
         return sitetree_urlNode(sitetree_item, as_var)
     else:
-        raise template.TemplateSyntaxError("%r tag should look like {%% sitetree_url for someitem %%}." % tokens[0])
+        raise template.TemplateSyntaxError('%r tag should look like {%% sitetree_url for someitem %%}.' % tokens[0])
 
 
 @register.tag
@@ -146,7 +153,8 @@ def sitetree_page_title(parser, token):
         tree_alias = parser.compile_filter(tokens[2])
         return sitetree_page_titleNode(tree_alias)
     else:
-        raise template.TemplateSyntaxError("%r tag requires two arguments. E.g. {%% sitetree_page_title from \"mytree\" %%}." % tokens[0])
+        raise template.TemplateSyntaxError(
+            '%r tag requires two arguments. E.g. {%% sitetree_page_title from "mytree" %%}.' % tokens[0])
 
 
 @register.tag
@@ -158,7 +166,8 @@ def sitetree_page_description(parser, token):
         tree_alias = parser.compile_filter(tokens[2])
         return sitetree_page_descriptionNode(tree_alias)
     else:
-        raise template.TemplateSyntaxError("%r tag requires two arguments. E.g. {%% sitetree_page_description from \"mytree\" %%}." % tokens[0])
+        raise template.TemplateSyntaxError(
+            '%r tag requires two arguments. E.g. {%% sitetree_page_description from "mytree" %%}.' % tokens[0])
 
 
 @register.tag
@@ -170,7 +179,8 @@ def sitetree_page_hint(parser, token):
         tree_alias = parser.compile_filter(tokens[2])
         return sitetree_page_hintNode(tree_alias)
     else:
-        raise template.TemplateSyntaxError("%r tag requires two arguments. E.g. {%% sitetree_page_hint from \"mytree\" %%}." % tokens[0])
+        raise template.TemplateSyntaxError(
+            '%r tag requires two arguments. E.g. {%% sitetree_page_hint from "mytree" %%}.' % tokens[0])
 
 
 class sitetree_treeNode(template.Node):

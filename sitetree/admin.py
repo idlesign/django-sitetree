@@ -157,7 +157,9 @@ class TreeItemAdmin(admin.ModelAdmin):
             self._stack_known_urls(resolver.reverse_dict)
             self.known_url_rules = sorted(self.known_url_rules)
 
-        form.known_url_names_hint = _('You are seeing this warning because "URL as Pattern" option is active and pattern entered above seems to be invalid. Currently registered URL pattern names and parameters: ')
+        form.known_url_names_hint = _(
+            'You are seeing this warning because "URL as Pattern" option is active and pattern entered above '
+            'seems to be invalid. Currently registered URL pattern names and parameters: ')
         form.known_url_names = self.known_url_names
         form.known_url_rules = self.known_url_rules
         return form
@@ -236,7 +238,8 @@ class TreeItemAdmin(admin.ModelAdmin):
             # No, you're not allowed to make item parent of itself
             if obj.parent is not None and obj.parent.id == obj.id:
                 obj.parent = self.previous_parent
-                messages.warning(request, _("Item's parent left unchanged. Item couldn't be parent to itself."), '', True)
+                messages.warning(
+                    request, _("Item's parent left unchanged. Item couldn't be parent to itself."), '', True)
         obj.tree = self.tree
         obj.save()
 

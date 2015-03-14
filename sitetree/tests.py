@@ -12,9 +12,8 @@ except ImportError:
     import mock
 
 from django.conf import settings
-from django.utils import unittest
 from django.utils.translation import activate
-from django.template.base import TemplateDoesNotExist, Template, TemplateSyntaxError
+from django.template.base import Template, TemplateSyntaxError
 from django.template.context import Context
 from django.test.utils import override_settings
 from django.test import TestCase
@@ -25,7 +24,6 @@ from django.core.exceptions import ImproperlyConfigured
 from django.conf.urls import patterns, url
 
 from sitetree.models import Tree, TreeItem
-from sitetree.management.commands.sitetree_resync_apps import Command as ResyncCommand
 from sitetree.forms import TreeItemForm
 from sitetree.admin import TreeAdmin, TreeItemAdmin, redirects_handler
 from sitetree.utils import (
@@ -36,7 +34,8 @@ from sitetree.sitetreeapp import (
 )
 
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     url(r'articles/', lambda r: None, name='articles_list'),
     url(r'articles/(\d+)/', lambda r: None, name='articles_detailed'),
     url(r'articles/(?P<id>\d+)_(?P<slug>[\w-]+)/', lambda r: None, name='url'),
@@ -106,12 +105,13 @@ class SitetreeTest(TestCase):
         t1_root_child1.save()
         cls.tree_ttags_root_child1 = t1_root_child1
 
-        t1_root_child2 = TreeItem(title='child2', tree=t1, parent=t1_root, url='articles_list', urlaspattern=True, description='items_descr')
+        t1_root_child2 = TreeItem(title='child2', tree=t1, parent=t1_root, url='articles_list', urlaspattern=True,
+                                  description='items_descr')
         t1_root_child2.save()
         cls.t1_root_child2 = t1_root_child2
 
         t1_root_child2_sub1 = TreeItem(title='subchild1', tree=t1, parent=t1_root_child2,
-            url='articles_detailed art_id', urlaspattern=True)
+                                       url='articles_detailed art_id', urlaspattern=True)
         t1_root_child2_sub1.save()
         cls.t1_root_child2_sub1 = t1_root_child2_sub1
 
@@ -119,11 +119,13 @@ class SitetreeTest(TestCase):
         t1_root_child2_sub2.save()
         cls.t1_root_child2_sub2 = t1_root_child2_sub2
 
-        t1_root_child3 = TreeItem(title='child_with_var_str', tree=t1, parent=t1_root, url='somevar_str', urlaspattern=True)
+        t1_root_child3 = TreeItem(title='child_with_var_str', tree=t1, parent=t1_root, url='somevar_str',
+                                  urlaspattern=True)
         t1_root_child3.save()
         cls.t1_root_child3 = t1_root_child3
 
-        t1_root_child4 = TreeItem(title='child_with_var_list', tree=t1, parent=t1_root, url='somevar_list', urlaspattern=True)
+        t1_root_child4 = TreeItem(title='child_with_var_list', tree=t1, parent=t1_root, url='somevar_list',
+                                  urlaspattern=True)
         t1_root_child4.save()
 
         t2 = Tree(alias='tree2')
@@ -545,7 +547,7 @@ class TemplateTagsTest(SitetreeTest):
         self.assertEqual(result, '/child1')
 
         tpl = '{% load sitetree %}{% sitetree_url for put_var as res_var %}'
-        result = render_string(tpl, context)
+        render_string(tpl, context)
         self.assertEqual(context.get('res_var'), '/child1')
 
 
@@ -639,7 +641,6 @@ class DynamicTreeTest(SitetreeTest):
         self.assertEqual(sitetree_items[4].title, 'dynamic_main_root_2')
         children = self.sitetree.get_children('main', self.tree_main_root)
         self.assertEqual(len(children), 2)
-
 
         tree_alias, sitetree_items = self.sitetree.get_sitetree('dynamic')
         self.assertEqual(len(sitetree_items), 3)

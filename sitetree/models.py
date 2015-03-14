@@ -29,10 +29,14 @@ class CharFieldNullable(models.CharField):
 @python_2_unicode_compatible
 class TreeBase(models.Model):
 
-    title = models.CharField(_('Title'), max_length=100, help_text=_('Site tree title for presentational purposes.'), blank=True)
-    alias = models.CharField(_('Alias'), max_length=80, help_text=_('Short name to address site tree from templates.<br /><b>Note:</b> change with care.'), unique=True, db_index=True)
+    title = models.CharField(
+        _('Title'), max_length=100, help_text=_('Site tree title for presentational purposes.'), blank=True)
+    alias = models.CharField(
+        _('Alias'), max_length=80,
+        help_text=_('Short name to address site tree from templates.<br /><b>Note:</b> change with care.'),
+        unique=True, db_index=True)
 
-    class Meta:
+    class Meta(object):
         abstract = True
         verbose_name = _('Site Tree')
         verbose_name_plural = _('Site Trees')
@@ -55,26 +59,70 @@ class TreeItemBase(models.Model):
         (PERM_TYPE_ALL, _('All'))
     )
 
-    title = models.CharField(_('Title'), max_length=100, help_text=_('Site tree item title. Can contain template variables E.g.: {{ mytitle }}.'))
-    hint = models.CharField(_('Hint'), max_length=200, help_text=_('Some additional information about this item that is used as a hint.'), blank=True, default='')
-    url = models.CharField(_('URL'), max_length=200, help_text=_('Exact URL or URL pattern (see "Additional settings") for this item.'), db_index=True)
-    urlaspattern = models.BooleanField(_('URL as Pattern'), help_text=_('Whether the given URL should be treated as a pattern.<br /><b>Note:</b> Refer to Django "URL dispatcher" documentation (e.g. "Naming URL patterns" part).'), db_index=True, default=False)
-    tree = models.ForeignKey(MODEL_TREE, related_name='%(class)s_tree', verbose_name=_('Site Tree'), help_text=_('Site tree this item belongs to.'), db_index=True)
-    hidden = models.BooleanField(_('Hidden'), help_text=_('Whether to show this item in navigation.'), db_index=True, default=False)
-    alias = CharFieldNullable(_('Alias'), max_length=80, help_text=_('Short name to address site tree item from a template.<br /><b>Reserved aliases:</b> "%s".' % '", "'.join(TREE_ITEMS_ALIASES)), db_index=True, blank=True, null=True)
-    description = models.TextField(_('Description'), help_text=_('Additional comments on this item.'), blank=True, default='')
-    inmenu = models.BooleanField(_('Show in menu'), help_text=_('Whether to show this item in a menu.'), db_index=True, default=True)
-    inbreadcrumbs = models.BooleanField(_('Show in breadcrumb path'), help_text=_('Whether to show this item in a breadcrumb path.'), db_index=True, default=True)
-    insitetree = models.BooleanField(_('Show in site tree'), help_text=_('Whether to show this item in a site tree.'), db_index=True, default=True)
-    access_loggedin = models.BooleanField(_('Logged in only'), help_text=_('Check it to grant access to this item to authenticated users only.'), db_index=True, default=False)
-    access_guest = models.BooleanField(_('Guests only'), help_text=_('Check it to grant access to this item to guests only.'), db_index=True, default=False)
-    access_restricted = models.BooleanField(_('Restrict access to permissions'), help_text=_('Check it to restrict user access to this item, using Django permissions system.'), db_index=True, default=False)
-    access_permissions = models.ManyToManyField(Permission, verbose_name=_('Permissions granting access'), blank=True)
-    access_perm_type = models.IntegerField(_('Permissions interpretation'), help_text=_('<b>Any</b> &mdash; user should have any of chosen permissions. <b>All</b> &mdash; user should have all chosen permissions.'), choices=PERM_TYPE_CHOICES, default=PERM_TYPE_ANY)
+    title = models.CharField(
+        _('Title'), max_length=100,
+        help_text=_('Site tree item title. Can contain template variables E.g.: {{ mytitle }}.'))
+    hint = models.CharField(
+        _('Hint'), max_length=200,
+        help_text=_('Some additional information about this item that is used as a hint.'), blank=True, default='')
+    url = models.CharField(
+        _('URL'), max_length=200,
+        help_text=_('Exact URL or URL pattern (see "Additional settings") for this item.'), db_index=True)
+    urlaspattern = models.BooleanField(
+        _('URL as Pattern'),
+        help_text=_('Whether the given URL should be treated as a pattern.<br />'
+                    '<b>Note:</b> Refer to Django "URL dispatcher" documentation (e.g. "Naming URL patterns" part).'),
+        db_index=True, default=False)
+    tree = models.ForeignKey(
+        MODEL_TREE, related_name='%(class)s_tree', verbose_name=_('Site Tree'),
+        help_text=_('Site tree this item belongs to.'), db_index=True)
+    hidden = models.BooleanField(
+        _('Hidden'), help_text=_('Whether to show this item in navigation.'), db_index=True, default=False)
+    alias = CharFieldNullable(
+        _('Alias'), max_length=80,
+        help_text=_(
+            'Short name to address site tree item from a template.<br />'
+            '<b>Reserved aliases:</b> "%s".' % '", "'.join(TREE_ITEMS_ALIASES)
+        ),
+        db_index=True, blank=True, null=True)
+    description = models.TextField(
+        _('Description'),
+        help_text=_('Additional comments on this item.'), blank=True, default='')
+    inmenu = models.BooleanField(
+        _('Show in menu'),
+        help_text=_('Whether to show this item in a menu.'), db_index=True, default=True)
+    inbreadcrumbs = models.BooleanField(
+        _('Show in breadcrumb path'),
+        help_text=_('Whether to show this item in a breadcrumb path.'), db_index=True, default=True)
+    insitetree = models.BooleanField(
+        _('Show in site tree'),
+        help_text=_('Whether to show this item in a site tree.'), db_index=True, default=True)
+    access_loggedin = models.BooleanField(
+        _('Logged in only'),
+        help_text=_('Check it to grant access to this item to authenticated users only.'),
+        db_index=True, default=False)
+    access_guest = models.BooleanField(
+        _('Guests only'),
+        help_text=_('Check it to grant access to this item to guests only.'), db_index=True, default=False)
+    access_restricted = models.BooleanField(
+        _('Restrict access to permissions'),
+        help_text=_('Check it to restrict user access to this item, using Django permissions system.'),
+        db_index=True, default=False)
+    access_permissions = models.ManyToManyField(
+        Permission, verbose_name=_('Permissions granting access'), blank=True)
+    access_perm_type = models.IntegerField(
+        _('Permissions interpretation'),
+        help_text=_('<b>Any</b> &mdash; user should have any of chosen permissions. '
+                    '<b>All</b> &mdash; user should have all chosen permissions.'),
+        choices=PERM_TYPE_CHOICES, default=PERM_TYPE_ANY)
     # These two are for 'adjacency list' model.
     # This is the current approach of tree representation for sitetree.
-    parent = models.ForeignKey('self', related_name='%(class)s_parent', verbose_name=_('Parent'), help_text=_('Parent site tree item.'), db_index=True, null=True, blank=True)
-    sort_order = models.IntegerField(_('Sort order'), help_text=_('Item position among other site tree items under the same parent.'), db_index=True, default=0)
+    parent = models.ForeignKey(
+        'self', related_name='%(class)s_parent', verbose_name=_('Parent'),
+        help_text=_('Parent site tree item.'), db_index=True, null=True, blank=True)
+    sort_order = models.IntegerField(
+        _('Sort order'),
+        help_text=_('Item position among other site tree items under the same parent.'), db_index=True, default=0)
 
     def save(self, force_insert=False, force_update=False, **kwargs):
         """We override parent save method to set item's sort order to its' primary
@@ -86,7 +134,7 @@ class TreeItemBase(models.Model):
             self.sort_order = self.id
             self.save()
 
-    class Meta:
+    class Meta(object):
         abstract = True
         verbose_name = _('Site Tree Item')
         verbose_name_plural = _('Site Tree Items')
