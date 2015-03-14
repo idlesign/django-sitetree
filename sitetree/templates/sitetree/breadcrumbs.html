@@ -4,9 +4,7 @@
 <ul>
 	{% for item in sitetree_items %}
 		{% if not forloop.last %}
-			<li>
-				<a href="{% sitetree_url for item %}" {% if item.hint %}title="{{ item.hint }}"{% endif %}>{{ item.title_resolved }}</a>
-			</li>
+			<li><a href="{% sitetree_url for item %}" {% if item.hint %}title="{{ item.hint }}"{% endif %}>{{ item.title_resolved }}</a></li>
 			<li>&gt;</li>
 		{% else %}
 			<li>{{ item.title_resolved }}</li>
