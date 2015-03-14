@@ -53,8 +53,10 @@ def sitetree_children(parser, token):
     use_template = detect_clause(parser, 'template', tokens)
     tokens_num = len(tokens)
 
-    clauses_in_places = tokens[1] == 'of' and tokens[3] == 'for' and tokens[4] in ('menu', 'sitetree')
-    if tokens_num == 5 and clauses_in_places and use_template is not None:
+    clauses_in_places = (
+        tokens_num == 5 and tokens[1] == 'of' and tokens[3] == 'for' and tokens[4] in ('menu', 'sitetree')
+    )
+    if clauses_in_places and use_template is not None:
         tree_item = tokens[2]
         navigation_type = tokens[4]
         return sitetree_childrenNode(tree_item, navigation_type, use_template)
