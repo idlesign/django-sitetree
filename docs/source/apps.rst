@@ -9,7 +9,7 @@ Defining a sitetree
 
 Let's suppose you have `books` application and want do define a sitetree for it.
 
-* First create `sitetree.py` in the directory of `books` app.
+* First create `sitetrees.py` in the directory of `books` app.
 
 * Then define a sitetree with the help of `tree` and `item` functions from `sitetree.utils` module
   and assign it to `sitetrees` module attribute
