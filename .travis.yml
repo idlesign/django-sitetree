@@ -7,13 +7,13 @@ python:
   - 2.6
 
 env:
+  - DJANGO="Django>=1.8,<1.9"
   - DJANGO="Django>=1.7,<1.8"
   - DJANGO="Django>=1.6,<1.7"
   - DJANGO="Django>=1.4,<1.5"
   
 install:
   - pip install -U coverage coveralls $DJANGO
-  - python -c 'from __future__ import print_function; import django; print("Django %s" % django.get_version())'
   
 script: coverage run -a --source=sitetree sitetree/runtests.py
 
@@ -25,6 +25,8 @@ matrix:
    - python: 3.3
      env: DJANGO="Django>=1.4,<1.5"
    - python: 2.6
+     env: DJANGO="Django>=1.8,<1.9"
+   - python: 2.6
      env: DJANGO="Django>=1.7,<1.8"
    - python: 2.6
      env: DJANGO="Django>=1.6,<1.7"
@@ -32,6 +34,8 @@ matrix:
   include:
    - python: 3.4
      env: DJANGO="Django>=1.7,<1.8"
+   - python: 3.4
+     env: DJANGO="Django>=1.8,<1.9"
 
 after_success:
   coveralls
