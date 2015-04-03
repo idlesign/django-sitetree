@@ -74,6 +74,8 @@ def get_mock_context(app=None, path=None, user_authorized=False, tree_item=None,
         },
         current_app=app
     )
+    ctx.template = mock.MagicMock()
+    ctx.template.engine.string_if_invalid = ''
     return ctx
 
 

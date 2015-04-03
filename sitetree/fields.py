@@ -1,4 +1,5 @@
 from django import template
+from django.template.base import Parser, Token, TOKEN_BLOCK
 from django.forms import ChoiceField
 from django.utils.safestring import mark_safe
 
@@ -33,9 +34,11 @@ class TreeItemChoiceField(ChoiceField):
     def _build_choices(self):
         """Build choices list runtime using 'sitetree_tree' tag"""
         tree_token = u'sitetree_tree from "%s" template "%s"' % (self.tree, self.template)
-        choices_str = sitetree_tree(template.Parser(None),
-                                    template.Token(token_type=template.TOKEN_BLOCK,
-                                                   contents=tree_token)).render(template.Context(current_app='admin'))
+
+        choices_str = sitetree_tree(
+            Parser(None), Token(token_type=TOKEN_BLOCK, contents=tree_token)
+        ).render(template.Context(current_app='admin'))
+
         tree_choices = [('', self.root_title)]
         for line in choices_str.splitlines():
             if line.strip():

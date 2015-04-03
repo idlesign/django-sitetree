@@ -50,10 +50,17 @@ class Command(BaseCommand):
 
         self.style = no_style()
 
-        if django.get_version() < '1.7':
+        django_version = django.get_version()
+        django_version_less_17 = django_version < '1.7'
+        django_version_less_18 = django_version < '1.8'
+
+        if django_version_less_17:
             transaction.commit_unless_managed(using=using)
-        transaction.enter_transaction_management(using=using)
-        if django.get_version() < '1.7':
+
+        if django_version_less_18:
+            transaction.enter_transaction_management(using=using)
+
+        if django_version_less_17:
             transaction.managed(True, using=using)
 
         loaded_object_count = 0
@@ -156,8 +163,11 @@ class Command(BaseCommand):
             except Exception:
                 import traceback
                 fixture.close()
-                transaction.rollback(using=using)
-                transaction.leave_transaction_management(using=using)
+
+                if django_version_less_18:
+                    transaction.rollback(using=using)
+                    transaction.leave_transaction_management(using=using)
+
                 self.stderr.write(
                     self.style.ERROR('Fixture `%s` import error: %s\n' % (
                         fixture_file, ''.join(traceback.format_exception(
@@ -176,7 +186,8 @@ class Command(BaseCommand):
                 for line in sequence_sql:
                     cursor.execute(line)
 
-        transaction.commit(using=using)
-        transaction.leave_transaction_management(using=using)
+        if django_version_less_18:
+            transaction.commit(using=using)
+            transaction.leave_transaction_management(using=using)
 
         connection.close()

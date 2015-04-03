@@ -8,7 +8,6 @@ from threading import local
 
 from django.conf import settings
 from django import VERSION
-from django import template
 from django.core.cache import cache
 from django.db.models import signals
 from django.utils import six
@@ -16,11 +15,16 @@ from django.utils.http import urlquote
 from django.utils.translation import get_language
 from django.utils.encoding import python_2_unicode_compatible
 from django.template import Context
+from django.template.loader import get_template
+from django.template.base import (
+    FilterExpression, Lexer, Parser, Token, Variable, VariableDoesNotExist, TOKEN_BLOCK, UNKNOWN_SOURCE, TOKEN_TEXT,
+    TOKEN_VAR, VARIABLE_TAG_START)
 from django.template.defaulttags import url as url_tag
 
 from .utils import get_tree_model, get_tree_item_model, import_app_sitetree_module, generate_id_for
-from .settings import ALIAS_TRUNK, ALIAS_THIS_CHILDREN, ALIAS_THIS_SIBLINGS, ALIAS_THIS_PARENT_SIBLINGS,\
-    ALIAS_THIS_ANCESTOR_CHILDREN, UNRESOLVED_ITEM_MARKER
+from .settings import (
+    ALIAS_TRUNK, ALIAS_THIS_CHILDREN, ALIAS_THIS_SIBLINGS, ALIAS_THIS_PARENT_SIBLINGS, ALIAS_THIS_ANCESTOR_CHILDREN,
+    UNRESOLVED_ITEM_MARKER)
 
 
 MODEL_TREE_CLASS = get_tree_model()
@@ -239,15 +243,15 @@ class LazyTitle(object):
         self.title = title
 
     def __str__(self):
-        my_lexer = template.Lexer(self.title, template.UNKNOWN_SOURCE)
+        my_lexer = Lexer(self.title, UNKNOWN_SOURCE)
         my_tokens = my_lexer.tokenize()
 
         # Deliberately strip off template tokens that are not text or variable.
         for my_token in my_tokens:
-            if my_token.token_type not in (template.TOKEN_TEXT, template.TOKEN_VAR):
+            if my_token.token_type not in (TOKEN_TEXT, TOKEN_VAR):
                 my_tokens.remove(my_token)
 
-        my_parser = template.Parser(my_tokens)
+        my_parser = Parser(my_tokens)
         return my_parser.parse().render(SiteTree.get_global_context())
 
     def __eq__(self, other):
@@ -429,7 +433,7 @@ class SiteTree(object):
                                                item.access_permissions.select_related()])
             # Contextual properties.
             item.url_resolved = self.url(item)
-            if template.VARIABLE_TAG_START in item.title:
+            if VARIABLE_TAG_START in item.title:
                 item.title_resolved = LazyTitle(item.title)
             else:
                 item.title_resolved = item.title
@@ -564,8 +568,8 @@ class SiteTree(object):
                 # Form token to pass to Django 'url' tag.
                 url_token = u'url %s as item.url_resolved' % url_pattern
                 url_tag(
-                    template.Parser(None),
-                    template.Token(token_type=template.TOKEN_BLOCK, contents=url_token)
+                    Parser(None),
+                    Token(token_type=TOKEN_BLOCK, contents=url_token)
                 ).render(context)
 
                 # We make an anchor link from an unresolved URL as a reminder.
@@ -752,7 +756,7 @@ class SiteTree(object):
         tree_items = self.apply_hook(tree_items, '%s.children' % navigation_type)
         tree_items = self.update_has_children(tree_alias, tree_items, navigation_type)
 
-        my_template = template.loader.get_template(use_template)
+        my_template = get_template(use_template)
         context.update({'sitetree_items': tree_items})
         return my_template.render(context)
 
@@ -822,14 +826,14 @@ class SiteTree(object):
         if context is None:
             context = self._global_context
 
-        if isinstance(varname, template.FilterExpression):
+        if isinstance(varname, FilterExpression):
             varname = varname.resolve(context)
         else:
             varname = varname.strip()
 
             try:
-                varname = template.Variable(varname).resolve(context)
-            except template.VariableDoesNotExist:
+                varname = Variable(varname).resolve(context)
+            except VariableDoesNotExist:
                 varname = varname
 
         return varname

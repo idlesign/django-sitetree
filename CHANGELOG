@@ -4,6 +4,7 @@ django-sitetree changelog
 
 Unreleased
 ----------
++ Introduced Django 1.8 support (see #152).
 * Fixed extra spaces issue in breadcrumbs (closes #150).
 
 

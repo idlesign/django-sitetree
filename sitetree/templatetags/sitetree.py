@@ -1,4 +1,6 @@
 from django import template
+from django.template.loader import get_template
+from django.template.base import FilterExpression
 
 from ..sitetreeapp import get_sitetree
 
@@ -301,10 +303,10 @@ def render(context, tree_items, use_template):
     context.push()
     context['sitetree_items'] = tree_items
 
-    if isinstance(use_template, template.FilterExpression):
+    if isinstance(use_template, FilterExpression):
         use_template = use_template.resolve(context)
 
-    content = template.loader.get_template(use_template).render(context)
+    content = get_template(use_template).render(context)
     context.pop()
 
     return content
