@@ -2,7 +2,8 @@ Getting started
 ===============
 
 1. Add the **sitetree** application to INSTALLED_APPS in your settings file (usually 'settings.py').
-2. Check that *django.core.context_processors.request* is enabled in TEMPLATE_CONTEXT_PROCESSORS in your settings file.
+2. Check that *django.core.context_processors.request* is added to TEMPLATE_CONTEXT_PROCESSORS in your settings file.
+   For Django 1.8+: *django.template.context_processors.request* should be defined in ``TEMPLATES/OPTIONS/context_processors``.
 3. Check that *django.contrib.auth.context_processors.auth* is enabled in TEMPLATE_CONTEXT_PROCESSORS too.
 4. Run ``./manage.py syncdb`` to install sitetree tables into database (``./manage.py migrate`` for Django 1.7+).
 
