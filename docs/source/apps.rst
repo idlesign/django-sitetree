@@ -35,6 +35,11 @@ Let's suppose you have `books` application and want do define a sitetree for it.
 
 Please see `tree` and `item` signatures for possible options.
 
+.. note::
+
+    If you added extra fields to the Tree and TreeItem models,
+    then you can specify their values when instantiating `item` see :ref:`custom-model-sitetree`
+
 
 Export sitetree to DB
 ---------------------
