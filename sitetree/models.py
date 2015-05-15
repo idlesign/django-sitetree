@@ -63,10 +63,10 @@ class TreeItemBase(models.Model):
         _('Title'), max_length=100,
         help_text=_('Site tree item title. Can contain template variables E.g.: {{ mytitle }}.'))
     hint = models.CharField(
-        _('Hint'), max_length=200,
+        _('Hint'), max_length=191,
         help_text=_('Some additional information about this item that is used as a hint.'), blank=True, default='')
     url = models.CharField(
-        _('URL'), max_length=200,
+        _('URL'), max_length=191,
         help_text=_('Exact URL or URL pattern (see "Additional settings") for this item.'), db_index=True)
     urlaspattern = models.BooleanField(
         _('URL as Pattern'),
