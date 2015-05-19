@@ -59,7 +59,8 @@ Optionally you can structure app-defined sitetrees into existing or new trees ru
 
 Basically one should compose a dynamic tree with `compose_dynamic_tree()` and register it with `register_dynamic_trees()`.
 
-Let's suppose the following code is in `setting.py` of your project
+Let's suppose the following code is in `setting.py` (for Django < 1.7; or for Djagno >= 1.7 somewhere where app registry
+is already created, e.g. `urls.py`) of your project.
 
 
 .. code-block:: python
