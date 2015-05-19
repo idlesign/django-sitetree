@@ -582,6 +582,10 @@ class SiteTree(object):
 
             self.update_cache_entry_value('urls', cache_key, {url_pattern: (resolved_url, sitetree_item)})
 
+        # Append optional url_params
+        if sitetree_item.url_params:
+            resolved_url = u'%s?%s' % (resolved_url, sitetree_item.url_params)
+
         return resolved_url
 
     def init_tree(self, tree_alias, context):
