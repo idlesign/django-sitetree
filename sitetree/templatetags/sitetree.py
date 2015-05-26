@@ -118,6 +118,7 @@ def sitetree_menu(parser, token):
     """
     tokens = token.split_contents()
     use_template = detect_clause(parser, 'template', tokens)
+    context_var = detect_clause(parser, 'as', tokens)
     menu_name = detect_clause(parser, 'name', tokens)
     include_parent = detect_flag(parser, 'include_parent', tokens)
     tokens_num = len(tokens)
@@ -125,7 +126,7 @@ def sitetree_menu(parser, token):
     if tokens_num == 5 and tokens[3] == 'include':
         tree_alias = parser.compile_filter(tokens[2])
         tree_branches = parser.compile_filter(tokens[4])
-        return sitetree_menuNode(tree_alias, tree_branches, use_template, menu_name, include_parent)
+        return sitetree_menuNode(tree_alias, tree_branches, use_template, context_var, menu_name, include_parent)
     else:
         raise template.TemplateSyntaxError(
             '%r tag requires four arguments. '
@@ -235,15 +236,19 @@ class sitetree_breadcrumbsNode(template.Node):
 class sitetree_menuNode(template.Node):
     """Renders specified site tree menu items."""
 
-    def __init__(self, tree_alias, tree_branches, use_template, menu_name, include_parent):
+    def __init__(self, tree_alias, tree_branches, use_template, context_var, menu_name, include_parent):
         self.use_template = use_template
         self.tree_alias = tree_alias
         self.tree_branches = tree_branches
         self.menu_name = menu_name
         self.include_parent = include_parent
+        self.context_var = context_var
 
     def render(self, context):
         tree_items = sitetree.menu(self.tree_alias, self.tree_branches, context, self.menu_name, self.include_parent)
+        if self.context_var:
+            context[self.context_var] = tree_items
+            return u''
         return render(context, tree_items, self.use_template or 'sitetree/menu.html')
 
 
