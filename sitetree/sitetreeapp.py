@@ -9,10 +9,11 @@ from threading import local
 from django.conf import settings
 from django import VERSION
 from django.core.cache import cache
+from django.core.urlresolvers import get_resolver, LocaleRegexURLResolver
 from django.db.models import signals
 from django.utils import six
 from django.utils.http import urlquote
-from django.utils.translation import get_language
+from django.utils.translation import get_language, get_language_from_path
 from django.utils.encoding import python_2_unicode_compatible
 from django.template import Context
 from django.template.loader import get_template
@@ -47,6 +48,8 @@ _IDX_ORPHAN_TREES = 'orphans'
 _IDX_TPL = '%s|:|%s'
 # SiteTree app-wise object.
 _SITETREE = None
+#
+_IS_LANGUAGE_PREFIX_PATTERNS_USED = None
 
 _THREAD_LOCAL = local()
 _THREAD_LANG = 'sitetree_lang'
@@ -487,6 +490,15 @@ class SiteTree(object):
                     urls_cache[url_item][1].is_current = False
                     if urls_cache[url_item][0] == current_url:
                         current_item = urls_cache[url_item][1]
+                # if not found, we should try url without language prefix
+                if current_item is None and self.is_language_prefix_patterns_used():
+                    language_from_path = get_language_from_path(current_url)
+                    if language_from_path:
+                        current_url = current_url.replace('/%s' % language_from_path, '', 1)
+                        for url_item in urls_cache:
+                            urls_cache[url_item][1].is_current = False
+                            if urls_cache[url_item][0] == current_url:
+                                current_item = urls_cache[url_item][1]
 
         if current_item is not None:
             current_item.is_current = True
@@ -864,6 +876,17 @@ class SiteTree(object):
                 varname = varname
 
         return varname
+        
+    def is_language_prefix_patterns_used(self):
+        global _IS_LANGUAGE_PREFIX_PATTERNS_USED
+        if _IS_LANGUAGE_PREFIX_PATTERNS_USED is not None:
+            return _IS_LANGUAGE_PREFIX_PATTERNS_USED
+        _IS_LANGUAGE_PREFIX_PATTERNS_USED = False
+        for url_pattern in get_resolver(None).url_patterns:
+            if isinstance(url_pattern, LocaleRegexURLResolver):
+                _IS_LANGUAGE_PREFIX_PATTERNS_USED = True
+                break
+        return _IS_LANGUAGE_PREFIX_PATTERNS_USED
 
 
 class SiteTreeError(Exception):
