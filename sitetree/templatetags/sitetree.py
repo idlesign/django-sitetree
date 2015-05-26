@@ -52,8 +52,11 @@ def sitetree_children(parser, token):
 
     """
     tokens = token.split_contents()
+    context_var = None
+    if tokens[-2] == 'as':
+        context_var = tokens[-1]
+        tokens = tokens[:-2]
     use_template = detect_clause(parser, 'template', tokens)
-    context_var = detect_clause(parser, 'as', tokens)
     menu_name = detect_clause(parser, 'name', tokens)
     tokens_num = len(tokens)
 
@@ -117,8 +120,11 @@ def sitetree_menu(parser, token):
 
     """
     tokens = token.split_contents()
+    context_var = None
+    if tokens[-2] == 'as':
+        context_var = tokens[-1]
+        tokens = tokens[:-2]
     use_template = detect_clause(parser, 'template', tokens)
-    context_var = detect_clause(parser, 'as', tokens)
     menu_name = detect_clause(parser, 'name', tokens)
     include_parent = detect_flag(parser, 'include_parent', tokens)
     tokens_num = len(tokens)
