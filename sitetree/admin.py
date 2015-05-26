@@ -84,7 +84,7 @@ class TreeItemAdmin(admin.ModelAdmin):
     exclude = ('tree', 'sort_order')
     fieldsets = (
         (_('Basic settings'), {
-            'fields': ('parent', 'title', 'url',)
+            'fields': ('parent', 'title', 'url', 'softroot_for')
         }),
         (_('Access settings'), {
             'classes': ('collapse',),
@@ -92,7 +92,7 @@ class TreeItemAdmin(admin.ModelAdmin):
         }),
         (_('Display settings'), {
             'classes': ('collapse',),
-            'fields': ('hidden', 'inmenu', 'inbreadcrumbs', 'insitetree')
+            'fields': ('hidden', 'inmenu', 'inbreadcrumbs', 'insitetree', 'hide_from',)
         }),
         (_('Additional settings'), {
             'classes': ('collapse',),

@@ -123,6 +123,10 @@ class TreeItemBase(models.Model):
     sort_order = models.IntegerField(
         _('Sort order'),
         help_text=_('Item position among other site tree items under the same parent.'), db_index=True, default=0)
+    softroot_for = models.CharField(
+        _('Soft root for menu'), max_length=200, blank=True, default='')
+    hide_from = models.CharField(
+        _('Hide from menu'), max_length=200, blank=True, default='')
 
     def save(self, force_insert=False, force_update=False, **kwargs):
         """We override parent save method to set item's sort order to its' primary
@@ -133,6 +137,12 @@ class TreeItemBase(models.Model):
         if self.sort_order == 0:
             self.sort_order = self.id
             self.save()
+            
+    def softroot_for_list(self):
+        return map(unicode.strip, self.softroot_for.replace(';', ',').split(','))
+        
+    def hide_from_list(self):
+        return map(unicode.strip, self.hide_from.replace(';', ',').split(','))
 
     class Meta(object):
         abstract = True
