@@ -49,7 +49,8 @@ _IDX_TPL = '%s|:|%s'
 # SiteTree app-wise object.
 _SITETREE = None
 #
-_IS_LANGUAGE_PREFIX_PATTERNS_USED = None
+_LOCALE_URL_PATTERNS = None
+
 
 _THREAD_LOCAL = local()
 _THREAD_LANG = 'sitetree_lang'
@@ -491,7 +492,7 @@ class SiteTree(object):
                     if urls_cache[url_item][0] == current_url:
                         current_item = urls_cache[url_item][1]
                 # if not found, we should try url without language prefix
-                if current_item is None and self.is_language_prefix_patterns_used():
+                if current_item is None and self.is_locale_patterns_used():
                     language_from_path = get_language_from_path(current_url)
                     if language_from_path:
                         current_url = current_url.replace('/%s' % language_from_path, '', 1)
@@ -593,6 +594,12 @@ class SiteTree(object):
                 resolved_url = url_pattern
 
             self.update_cache_entry_value('urls', cache_key, {url_pattern: (resolved_url, sitetree_item)})
+            
+        if self.is_locale_patterns_used():
+            language_from_path = get_language_from_path(resolved_url)
+            if not language_from_path:
+                if self.translation_enabled_for_path(resolved_url):
+                    resolved_url = '/%s%s' % (self.lang_get(), resolved_url)
 
         return resolved_url
 
@@ -877,17 +884,26 @@ class SiteTree(object):
 
         return varname
         
-    def is_language_prefix_patterns_used(self):
-        global _IS_LANGUAGE_PREFIX_PATTERNS_USED
-        if _IS_LANGUAGE_PREFIX_PATTERNS_USED is not None:
-            return _IS_LANGUAGE_PREFIX_PATTERNS_USED
-        _IS_LANGUAGE_PREFIX_PATTERNS_USED = False
-        for url_pattern in get_resolver(None).url_patterns:
-            if isinstance(url_pattern, LocaleRegexURLResolver):
-                _IS_LANGUAGE_PREFIX_PATTERNS_USED = True
-                break
-        return _IS_LANGUAGE_PREFIX_PATTERNS_USED
-
+    def get_locale_url_patterns(self):
+        global _LOCALE_URL_PATTERNS
+        if _LOCALE_URL_PATTERNS is None:
+            _LOCALE_URL_PATTERNS = []
+            for url_pattern in get_resolver(None).url_patterns:
+                if isinstance(url_pattern, LocaleRegexURLResolver):
+                    _LOCALE_URL_PATTERNS.extend(url_pattern.url_patterns)
+        return _LOCALE_URL_PATTERNS
+        
+    def is_locale_patterns_used(self):
+        return len(self.get_locale_url_patterns()) > 0
+        
+    def translation_enabled_for_path(self, path):
+        if path.startswith('/'):
+            path = path[1:]
+        for url_pattern in self.get_locale_url_patterns():
+            match = url_pattern.regex.search(path)
+            if match:
+                return True
+        return False
 
 class SiteTreeError(Exception):
     """Exception class for sitetree application."""
