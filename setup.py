@@ -9,14 +9,19 @@ f.close()
 setup(
     name='django-sitetree',
     version='.'.join(map(str, VERSION)),
+    url='http://github.com/idlesign/django-sitetree',
+
     description='This reusable Django app introduces site tree, menu and breadcrumbs navigation elements',
     long_description=readme,
-    author="Igor 'idle sign' Starikov",
+    license='BSD 3-Clause License',
+
+    author='Igor `idle sign` Starikov',
     author_email='idlesign@yandex.ru',
-    url='http://github.com/idlesign/django-sitetree',
+
     packages=['sitetree'],
     include_package_data=True,
     zip_safe=False,
+
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
