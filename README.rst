@@ -2,20 +2,23 @@ django-sitetree
 ===============
 http://github.com/idlesign/django-sitetree
 
-.. image:: https://badge.fury.io/py/django-sitetree.png
-    :target: http://badge.fury.io/py/django-sitetree
+.. image:: https://img.shields.io/pypi/v/django-sitetree.svg
+    :target: https://pypi.python.org/pypi/django-sitetree
 
-.. image:: https://pypip.in/d/django-sitetree/badge.png
-    :target: https://crate.io/packages/django-sitetree
-        
-.. image:: https://coveralls.io/repos/idlesign/django-sitetree/badge.png 
+.. image:: https://img.shields.io/pypi/dm/django-sitetree.svg
+    :target: https://pypi.python.org/pypi/django-sitetree
+
+.. image:: https://img.shields.io/pypi/l/django-sitetree.svg
+    :target: https://pypi.python.org/pypi/django-sitetree
+
+.. image:: https://img.shields.io/coveralls/idlesign/django-sitetree/master.svg
     :target: https://coveralls.io/r/idlesign/django-sitetree
 
-.. image:: https://travis-ci.org/idlesign/django-sitetree.svg?branch=master
+.. image:: https://img.shields.io/travis/idlesign/django-sitetree/master.svg
     :target: https://travis-ci.org/idlesign/django-sitetree
 
-.. image:: https://landscape.io/github/idlesign/django-sitetree/master/landscape.svg?style=plastic
-   :target: https://landscape.io/github/idlesign/django-sitetree/master
+.. image:: https://img.shields.io/codeclimate/github/idlesign/django-sitetree.svg
+   :target: https://codeclimate.com/github/idlesign/django-sitetree
 
 
 What's that
