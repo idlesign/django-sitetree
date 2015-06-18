@@ -9,10 +9,11 @@ from threading import local
 from django.conf import settings
 from django import VERSION
 from django.core.cache import cache
+from django.core.urlresolvers import get_resolver, LocaleRegexURLResolver
 from django.db.models import signals
 from django.utils import six
 from django.utils.http import urlquote
-from django.utils.translation import get_language
+from django.utils.translation import get_language, get_language_from_path
 from django.utils.encoding import python_2_unicode_compatible
 from django.template import Context
 from django.template.loader import get_template
@@ -23,7 +24,7 @@ from django.template.defaulttags import url as url_tag
 
 from .utils import get_tree_model, get_tree_item_model, import_app_sitetree_module, generate_id_for
 from .settings import (
-    ALIAS_TRUNK, ALIAS_THIS_CHILDREN, ALIAS_THIS_SIBLINGS, ALIAS_THIS_PARENT_SIBLINGS, ALIAS_THIS_ANCESTOR_CHILDREN,
+    ALIAS_TRUNK, ALIAS_THIS_CHILDREN, ALIAS_THIS_SIBLINGS, ALIAS_THIS_PARENT_SIBLINGS, ALIAS_THIS_ANCESTOR_CHILDREN, ALIAS_THIS_SOFTROOT,
     UNRESOLVED_ITEM_MARKER)
 
 
@@ -47,6 +48,9 @@ _IDX_ORPHAN_TREES = 'orphans'
 _IDX_TPL = '%s|:|%s'
 # SiteTree app-wise object.
 _SITETREE = None
+#
+_LOCALE_URL_PATTERNS = None
+
 
 _THREAD_LOCAL = local()
 _THREAD_LANG = 'sitetree_lang'
@@ -487,6 +491,15 @@ class SiteTree(object):
                     urls_cache[url_item][1].is_current = False
                     if urls_cache[url_item][0] == current_url:
                         current_item = urls_cache[url_item][1]
+                # if not found, we should try url without language prefix
+                if current_item is None and self.is_locale_patterns_used():
+                    language_from_path = get_language_from_path(current_url)
+                    if language_from_path:
+                        current_url = current_url.replace('/%s' % language_from_path, '', 1)
+                        for url_item in urls_cache:
+                            urls_cache[url_item][1].is_current = False
+                            if urls_cache[url_item][0] == current_url:
+                                current_item = urls_cache[url_item][1]
 
         if current_item is not None:
             current_item.is_current = True
@@ -581,6 +594,12 @@ class SiteTree(object):
                 resolved_url = url_pattern
 
             self.update_cache_entry_value('urls', cache_key, {url_pattern: (resolved_url, sitetree_item)})
+            
+        if self.is_locale_patterns_used():
+            language_from_path = get_language_from_path(resolved_url)
+            if not language_from_path:
+                if self.translation_enabled_for_path(resolved_url):
+                    resolved_url = '/%s%s' % (self.lang_get(), resolved_url)
 
         return resolved_url
 
@@ -630,13 +649,15 @@ class SiteTree(object):
         else:
             return current_item
 
-    def menu(self, tree_alias, tree_branches, context):
+    def menu(self, tree_alias, tree_branches, context, menu_name=None, include_parent=None):
         """Builds and returns menu structure for 'sitetree_menu' tag."""
         tree_alias, sitetree_items = self.init_tree(tree_alias, context)
         # No items in tree, fail silently.
         if not sitetree_items:
             return ''
         tree_branches = self.resolve_var(tree_branches)
+        if menu_name:
+            menu_name = self.resolve_var(menu_name)
 
         parent_isnull = False
         parent_ids = []
@@ -644,7 +665,7 @@ class SiteTree(object):
 
         current_item = self.get_tree_current_item(tree_alias)
         self.tree_climber(tree_alias, current_item)
-
+        
         # Support item addressing both through identifiers and aliases.
         for branch_id in tree_branches.split(','):
             branch_id = branch_id.strip()
@@ -662,27 +683,44 @@ class SiteTree(object):
             elif branch_id == ALIAS_THIS_PARENT_SIBLINGS and current_item is not None:
                 branch_id = self.get_ancestor_level(current_item, deep=2).id
                 parent_ids.append(branch_id)
+            elif branch_id == ALIAS_THIS_SOFTROOT and current_item is not None:
+                softroot = self.get_softroot_item(tree_alias, current_item, menu_name)
+                if softroot is None:
+                    parent_isnull = True
+                else:
+                    branch_id = softroot.id
+                    parent_ids.append(branch_id)
             elif branch_id.isdigit():
                 parent_ids.append(int(branch_id))
             else:
                 parent_aliases.append(branch_id)
-
+                
         menu_items = []
         for item in sitetree_items:
-            if not item.hidden and item.inmenu and self.check_access(item, context):
-                if item.parent is None:
-                    if parent_isnull:
-                        menu_items.append(item)
-                else:
-                    if item.parent.id in parent_ids or item.parent.alias in parent_aliases:
-                        menu_items.append(item)
+            if include_parent and item.id in parent_ids or item.alias in parent_aliases:
+                menu_items.append(item)
+            elif item.parent is None:
+                if parent_isnull:
+                    menu_items.append(item)
+            else:
+                if item.parent.id in parent_ids or item.parent.alias in parent_aliases:
+                    menu_items.append(item)
 
         # Parse titles for variables.
-        menu_items = self.apply_hook(menu_items, 'menu')
-        menu_items = self.update_has_children(tree_alias, menu_items, 'menu')
+        menu_items = self.filter_items(menu_items, 'menu', menu_name)
+        menu_items = self.apply_hook(menu_items, 'menu', menu_name)
+        menu_items = self.update_has_children(tree_alias, menu_items, 'menu', menu_name)
+        
+        # clear has_children for parent items
+        if include_parent:
+            for item in menu_items:
+                if item.id in parent_ids or item.alias in parent_aliases:
+                    item.has_children = False
+                    setattr(item, 'is_parent', True)
+        
         return menu_items
 
-    def apply_hook(self, items, sender):
+    def apply_hook(self, items, sender, menu_name=None):
         """Applies item processing hook, registered with ``register_item_hook()``
         to items supplied, and returns processed list.
         Returns initial items list if no hook is registered.
@@ -740,25 +778,24 @@ class SiteTree(object):
         tree_items = self.update_has_children(tree_alias, tree_items, 'sitetree')
         return tree_items
 
-    def children(self, parent_item, navigation_type, use_template, context):
+    def children(self, parent_item, navigation_type, context, menu_name=None):
         """Builds and returns site tree item children structure
         for 'sitetree_children' tag.
-
         """
         # Resolve parent item and current tree alias.
         parent_item = self.resolve_var(parent_item, context)
+        if menu_name:
+            menu_name = self.resolve_var(menu_name, context)
         tree_alias, tree_items = self.get_sitetree(parent_item.tree.alias)
         # Mark path to current item.
         self.tree_climber(tree_alias, self.get_tree_current_item(tree_alias))
 
         tree_items = self.get_children(tree_alias, parent_item)
-        tree_items = self.filter_items(tree_items, navigation_type)
-        tree_items = self.apply_hook(tree_items, '%s.children' % navigation_type)
-        tree_items = self.update_has_children(tree_alias, tree_items, navigation_type)
+        tree_items = self.filter_items(tree_items, navigation_type, menu_name)
+        tree_items = self.apply_hook(tree_items, '%s.children' % navigation_type, menu_name)
+        tree_items = self.update_has_children(tree_alias, tree_items, navigation_type, menu_name)
 
-        my_template = get_template(use_template)
-        context.update({'sitetree_items': tree_items})
-        return my_template.render(context)
+        return tree_items
 
     def get_children(self, tree_alias, item):
         if not self.current_app_is_admin():
@@ -766,18 +803,18 @@ class SiteTree(object):
             tree_alias = self.resolve_tree_i18n_alias(tree_alias)
         return self.get_cache_entry('parents', tree_alias)[item]
 
-    def update_has_children(self, tree_alias, tree_items, navigation_type):
+    def update_has_children(self, tree_alias, tree_items, navigation_type, menu_name=None):
         """Updates 'has_children' attribute for tree items."""
         items = []
         for tree_item in tree_items:
             children = self.get_children(tree_alias, tree_item)
-            children = self.filter_items(children, navigation_type)
+            children = self.filter_items(children, navigation_type, menu_name)
             children = self.apply_hook(children, '%s.has_children' % navigation_type)
             tree_item.has_children = len(children) > 0
             items.append(tree_item)
         return items
 
-    def filter_items(self, items, navigation_type=None):
+    def filter_items(self, items, navigation_type=None, menu_name=None):
         """Filters site tree item's children if hidden and by navigation type.
         NB: We do not apply any filters to sitetree in admin app.
         """
@@ -786,7 +823,8 @@ class SiteTree(object):
             for item in items:
                 no_access = not self.check_access(item, self._global_context)
                 hidden_for_nav_type = navigation_type is not None and not getattr(item, 'in' + navigation_type, False)
-                if item.hidden or no_access or hidden_for_nav_type:
+                hidden_for_menu_name = menu_name in item.hide_from_list()
+                if item.hidden or no_access or hidden_for_nav_type or hidden_for_menu_name:
                     items_out.remove(item)
         return items_out
 
@@ -801,6 +839,14 @@ class SiteTree(object):
             return start_from
 
         return parent
+        
+    def get_softroot_item(self, tree_alias, item, menu_name):
+        """Climbs up the site tree to find soft root item for chosen one, or None."""
+        if menu_name in item.softroot_for_list():
+            return item
+        if not hasattr(item, 'parent') or item.parent is None:
+            return None
+        return self.get_softroot_item(tree_alias, self.get_item_by_id(tree_alias, item.parent.id), menu_name)
 
     def tree_climber(self, tree_alias, start_from):
         """Climbs up the site tree to mark items of current branch."""
@@ -837,7 +883,27 @@ class SiteTree(object):
                 varname = varname
 
         return varname
-
+        
+    def get_locale_url_patterns(self):
+        global _LOCALE_URL_PATTERNS
+        if _LOCALE_URL_PATTERNS is None:
+            _LOCALE_URL_PATTERNS = []
+            for url_pattern in get_resolver(None).url_patterns:
+                if isinstance(url_pattern, LocaleRegexURLResolver):
+                    _LOCALE_URL_PATTERNS.extend(url_pattern.url_patterns)
+        return _LOCALE_URL_PATTERNS
+        
+    def is_locale_patterns_used(self):
+        return len(self.get_locale_url_patterns()) > 0
+        
+    def translation_enabled_for_path(self, path):
+        if path.startswith('/'):
+            path = path[1:]
+        for url_pattern in self.get_locale_url_patterns():
+            match = url_pattern.regex.search(path)
+            if match:
+                return True
+        return False
 
 class SiteTreeError(Exception):
     """Exception class for sitetree application."""

@@ -52,16 +52,21 @@ def sitetree_children(parser, token):
 
     """
     tokens = token.split_contents()
+    context_var = None
+    if tokens[-2] == 'as':
+        context_var = tokens[-1]
+        tokens = tokens[:-2]
     use_template = detect_clause(parser, 'template', tokens)
+    menu_name = detect_clause(parser, 'name', tokens)
     tokens_num = len(tokens)
 
     clauses_in_places = (
         tokens_num == 5 and tokens[1] == 'of' and tokens[3] == 'for' and tokens[4] in ('menu', 'sitetree')
     )
-    if clauses_in_places and use_template is not None:
+    if clauses_in_places and any([use_template, context_var]):
         tree_item = tokens[2]
         navigation_type = tokens[4]
-        return sitetree_childrenNode(tree_item, navigation_type, use_template)
+        return sitetree_childrenNode(tree_item, navigation_type, use_template, context_var, menu_name)
     else:
         raise template.TemplateSyntaxError(
             '%r tag requires six arguments. '
@@ -115,13 +120,19 @@ def sitetree_menu(parser, token):
 
     """
     tokens = token.split_contents()
+    context_var = None
+    if tokens[-2] == 'as':
+        context_var = tokens[-1]
+        tokens = tokens[:-2]
     use_template = detect_clause(parser, 'template', tokens)
+    menu_name = detect_clause(parser, 'name', tokens)
+    include_parent = detect_flag(parser, 'include_parent', tokens)
     tokens_num = len(tokens)
 
     if tokens_num == 5 and tokens[3] == 'include':
         tree_alias = parser.compile_filter(tokens[2])
         tree_branches = parser.compile_filter(tokens[4])
-        return sitetree_menuNode(tree_alias, tree_branches, use_template)
+        return sitetree_menuNode(tree_alias, tree_branches, use_template, context_var, menu_name, include_parent)
     else:
         raise template.TemplateSyntaxError(
             '%r tag requires four arguments. '
@@ -202,14 +213,19 @@ class sitetree_treeNode(template.Node):
 class sitetree_childrenNode(template.Node):
     """Renders tree items under specified parent site tree item."""
 
-    def __init__(self, tree_item, navigation_type, use_template):
+    def __init__(self, tree_item, navigation_type, use_template, context_var, menu_name):
         self.use_template = use_template
         self.tree_item = tree_item
         self.navigation_type = navigation_type
+        self.context_var = context_var
+        self.menu_name = menu_name
 
     def render(self, context):
-        return sitetree.children(self.tree_item, self.navigation_type, self.use_template.resolve(context), context)
-
+        tree_items = sitetree.children(self.tree_item, self.navigation_type, context, self.menu_name)
+        if self.context_var:
+            context[self.context_var] = tree_items
+            return u''
+        return render(context, tree_items, self.use_template or 'sitetree/children.html')
 
 class sitetree_breadcrumbsNode(template.Node):
     """Renders breadcrumb trail items from specified site tree."""
@@ -226,13 +242,19 @@ class sitetree_breadcrumbsNode(template.Node):
 class sitetree_menuNode(template.Node):
     """Renders specified site tree menu items."""
 
-    def __init__(self, tree_alias, tree_branches, use_template):
+    def __init__(self, tree_alias, tree_branches, use_template, context_var, menu_name, include_parent):
         self.use_template = use_template
         self.tree_alias = tree_alias
         self.tree_branches = tree_branches
+        self.menu_name = menu_name
+        self.include_parent = include_parent
+        self.context_var = context_var
 
     def render(self, context):
-        tree_items = sitetree.menu(self.tree_alias, self.tree_branches, context)
+        tree_items = sitetree.menu(self.tree_alias, self.tree_branches, context, self.menu_name, self.include_parent)
+        if self.context_var:
+            context[self.context_var] = tree_items
+            return u''
         return render(context, tree_items, self.use_template or 'sitetree/menu.html')
 
 
@@ -293,6 +315,17 @@ def detect_clause(parser, clause_name, tokens):
     else:
         clause_value = None
     return clause_value
+    
+def detect_flag(parser, flag_name, tokens):
+    """Helper function detects a certain flag in tag tokens list.
+    Returns true or false.
+
+    """
+    if flag_name in tokens:
+        t_index = tokens.index(flag_name)
+        del tokens[t_index]
+        return True
+    return False
 
 
 def render(context, tree_items, use_template):
