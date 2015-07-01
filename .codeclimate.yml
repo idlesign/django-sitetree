@@ -1,0 +1,11 @@
+languages:
+  JavaScript: true
+  Python: true
+
+exclude_paths:
+- "sitetree/runtests.py"
+- "sitetree/tests.py"
+- "sitetree/tests/*"
+- "sitetree/migrations/*"
+- "sitetree/south_migrations/*"
+- "docs/*"
