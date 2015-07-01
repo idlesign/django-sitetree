@@ -8,7 +8,7 @@ APP_MODULE_NAME = getattr(settings, 'SITETREE_APP_MODULE_NAME', 'sitetrees')
 
 UNRESOLVED_ITEM_MARKER = getattr(settings, 'SITETREE_UNRESOLVED_ITEM_MARKER', u'#unresolved')
 
-IGNORE_ERRORS = getattr(settings, 'SITETREE_IGNORE_ERRORS', False)
+RAISE_ITEMS_ERRORS_ON_DEBUG = getattr(settings, 'RAISE_ITEMS_ERRORS_ON_DEBUG', True)
 
 # Reserved tree items aliases.
 ALIAS_TRUNK = 'trunk'

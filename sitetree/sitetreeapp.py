@@ -24,7 +24,7 @@ from django.template.defaulttags import url as url_tag
 from .utils import get_tree_model, get_tree_item_model, import_app_sitetree_module, generate_id_for
 from .settings import (
     ALIAS_TRUNK, ALIAS_THIS_CHILDREN, ALIAS_THIS_SIBLINGS, ALIAS_THIS_PARENT_SIBLINGS, ALIAS_THIS_ANCESTOR_CHILDREN,
-    UNRESOLVED_ITEM_MARKER, IGNORE_ERRORS)
+    UNRESOLVED_ITEM_MARKER, RAISE_ITEMS_ERRORS_ON_DEBUG)
 
 
 MODEL_TREE_CLASS = get_tree_model()
@@ -613,7 +613,7 @@ class SiteTree(object):
         current_item = self.get_tree_current_item(tree_alias)
         # Current item is unresolved, fail silently.
         if current_item is None:
-            if settings.DEBUG and not IGNORE_ERRORS:
+            if settings.DEBUG and RAISE_ITEMS_ERRORS_ON_DEBUG:
                 raise SiteTreeError(
                     'Unable to resolve current sitetree item to get a `%s` for current page. Check whether '
                     'there is an appropriate sitetree item defined for current URL.' % attr_name)
