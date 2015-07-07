@@ -550,7 +550,7 @@ class SiteTree(object):
 
             url_pattern = u'%s %s' % (view_path, ' '.join(all_arguments))
         else:
-            url_pattern = str(sitetree_item.url)
+            url_pattern = str(sitetree_item.url.encode('utf-8'))
 
         # i18n_patterns compatibility organized using compound cache key.
         cache_key = '%s%s' % (sitetree_item.tree.alias, self.lang_get())
