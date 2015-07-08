@@ -383,7 +383,10 @@ class SiteTree(object):
 
     def current_app_is_admin(self):
         """Returns boolean whether current application is Admin contrib."""
-        return self._global_context.get('request', self._global_context).current_app == 'admin'
+        current_app = self._global_context.current_app
+        if hasattr(self._global_context.get('request', None), 'current_app'):
+            current_app = self._global_context.get('request', None).current_app
+        return current_app == 'admin'
 
     def get_sitetree(self, alias):
         """Gets site tree items from the given site tree.
