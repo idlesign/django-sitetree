@@ -2,6 +2,11 @@ django-sitetree changelog
 =========================
 
 
+Unreleased
+----------
+* Fixed permissions check for dynamic tree items (see #165).
+
+
 v1.4.0
 ------
 + Introduced Django 1.8 support (see #152).
