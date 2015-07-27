@@ -87,7 +87,9 @@ def item(title, url, children=None, url_as_pattern=True, hint='', alias='', desc
                 try:
                     app, codename = perm.split('.')
                 except ValueError:
-                    raise ValueError('Wrong permission string format: supplied - `%s`; expected - `<app_name>.<permission_name>`.' % perm)
+                    raise ValueError(
+                        'Wrong permission string format: supplied - `%s`; '
+                        'expected - `<app_name>.<permission_name>`.' % perm)
 
                 try:
                     perm = Permission.objects.get(codename=codename, content_type__app_label=app)

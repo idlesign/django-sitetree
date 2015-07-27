@@ -10,6 +10,11 @@ Unreleased
 * Fixed disappearing tree items for guests in Admin contrib (Django 1.8) (see #164).
 
 
+Unreleased
+----------
+* Fixed permissions check for dynamic tree items (see #165).
+
+
 v1.4.0
 ------
 + Introduced Django 1.8 support (see #152).
