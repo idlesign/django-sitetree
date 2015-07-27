@@ -1,6 +1,10 @@
 django-sitetree changelog
 =========================
 
+Unreleased
+----------
+* Fixed disappearing tree items for guests in Admin contrib (Django 1.8) (see #164).
+
 
 v1.4.0
 ------
