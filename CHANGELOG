@@ -4,6 +4,8 @@ django-sitetree changelog
 Unreleased
 ----------
 + Added Norwegian translation.
++ Added SITETREE_RAISE_ITEMS_ERRORS_ON_DEBUG setting (see #157).
++ Exposed SITETREE_CACHE_TIMEOUT setting.
 
 
 v1.4.0
