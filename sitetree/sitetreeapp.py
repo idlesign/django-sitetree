@@ -268,8 +268,21 @@ class Cache(object):
         # Listen to the changes in item permissions table.
         signals.m2m_changed.connect(cache_empty, sender=MODEL_TREE_ITEM_CLASS.access_permissions)
 
+    @classmethod
+    def reset(cls):
+        """Instructs sitetree to drop and recreate cache.
+
+        Could be used to show up tree changes made in a different process.
+
+        """
+        cache.get('sitetrees_reset', True)
+
     def init(self):
         """Initializes local cache from Django cache."""
+
+        # Drop cache flag set by .reset() method.
+        cache.get('sitetrees_reset') and self.empty()
+
         cache_ = cache.get('sitetrees')
         if cache_ is None:
             # Init cache dictionary with predefined entries.
@@ -284,6 +297,7 @@ class Cache(object):
         """Empties cached sitetree data."""
         self.cache = None
         cache.delete('sitetrees')
+        cache.delete('sitetrees_reset')
 
     def get_entry(self, entry_name, key):
         """Returns cache entry parameter value by its name."""
