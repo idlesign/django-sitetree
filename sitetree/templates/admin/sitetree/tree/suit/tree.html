@@ -1,0 +1,34 @@
+{% load i18n sitetree %}
+{% load static %}
+
+{% get_static_prefix as STATIC_URL %}
+
+
+{% for item in sitetree_items %}
+	<tr>
+		<td class="align-center"><img src="{{ STATIC_URL }}admin/img/icon-{{ item.hidden|yesno:"yes,no" }}.gif" alt="{{ item.hidden }}" /></td>
+		<td class="align-center"><img src="{{ STATIC_URL }}admin/img/icon-{{ item.inmenu|yesno:"yes,no" }}.gif" alt="{{ item.inmenu }}" /></td>
+		<td class="align-center"><img src="{{ STATIC_URL }}admin/img/icon-{{ item.inbreadcrumbs|yesno:"yes,no" }}.gif" alt="{{ item.inbreadcrumbs }}" /></td>
+		<td class="align-center"><img src="{{ STATIC_URL }}admin/img/icon-{{ item.insitetree|yesno:"yes,no" }}.gif" alt="{{ item.insitetree }}" /></td>
+		<td class="align-center"><img src="{{ STATIC_URL }}admin/img/icon-{{ item.access_restricted|yesno:"yes,no" }}.gif" alt="{{ item.access_restricted }}" /></td>
+        <td class="align-center"><img src="{{ STATIC_URL }}admin/img/icon-{{ item.access_loggedin|yesno:"yes,no" }}.gif" alt="{{ item.access_loggedin }}" /></td>
+        <td class="align-center"><img src="{{ STATIC_URL }}admin/img/icon-{{ item.access_guest|yesno:"yes,no" }}.gif" alt="{{ item.access_guest }}" /></td>
+		<td>
+            {% for d in item.depth_range %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% endfor %}
+            {% if item.parent %}|&#8212;{% endif %}
+            {% if item.is_dynamic %}{{ item.title }}{% else %}<a href="item_{{ item.id }}/">{{ item.title }}</a>{% endif %}
+        </td>
+		<td>{{ item.url }}</td>
+		<td>
+            <div class="inline-sortable">
+                <a data-dir="up" class="sortable sortable-up" href="item_{{ item.id }}/move_up/">
+                    <i class="icon-arrow-up icon-alpha5"></i></a>
+                <a data-dir="down" class="sortable sortable-down" href="item_{{ item.id }}/move_down/">
+                    <i class="icon-arrow-down icon-alpha5"></i></a>
+            </div>
+		</td>
+	</tr>
+	{% if item.has_children %}
+		{% sitetree_children of item for sitetree template "admin/sitetree/tree/suit/tree.html" %}
+	{% endif %}
+{% endfor %}

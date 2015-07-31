@@ -14,6 +14,7 @@ from .utils import get_tree_model, get_tree_item_model, get_app_n_model
 
 
 SMUGGLER_INSTALLED = 'smuggler' in django_settings.INSTALLED_APPS
+SUIT_INSTALLED = 'suit' in django_settings.INSTALLED_APPS
 
 MODEL_TREE_CLASS = get_tree_model()
 MODEL_TREE_ITEM_CLASS = get_tree_item_model()
@@ -276,6 +277,9 @@ class TreeAdmin(admin.ModelAdmin):
 
         if SMUGGLER_INSTALLED:
             self.change_list_template = 'admin/sitetree/tree/change_list_.html'
+            
+        if SUIT_INSTALLED:
+            self.change_form_template = 'admin/sitetree/tree/suit/change_form.html'
 
         super(TreeAdmin, self).__init__(*args, **kwargs)
         self.tree_admin = _ITEM_ADMIN()(MODEL_TREE_ITEM_CLASS, admin.site)
