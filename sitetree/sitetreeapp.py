@@ -719,7 +719,10 @@ class SiteTree(object):
     def check_access(self, item, context):
         """Checks whether a current user has an access to a certain item."""
 
-        authenticated = self._global_context['request'].user.is_authenticated()
+        try:
+            authenticated = self._global_context['request'].user.is_authenticated()
+        except KeyError:
+            return False
 
         if item.access_loggedin and not authenticated:
             return False
