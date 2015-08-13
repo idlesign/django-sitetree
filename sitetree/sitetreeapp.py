@@ -595,6 +595,8 @@ class SiteTree(object):
 
             self.update_cache_entry_value('urls', cache_key, {url_pattern: (resolved_url, sitetree_item)})
             
+        
+            
         if self.is_locale_patterns_used():
             language_from_path = get_language_from_path(resolved_url)
             if not language_from_path:

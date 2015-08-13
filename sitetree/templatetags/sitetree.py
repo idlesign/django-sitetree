@@ -146,10 +146,9 @@ def sitetree_url(parser, token):
 
     """
     tokens = token.contents.split()
-    tokens_num = len(tokens)
     as_var = False
 
-    if tokens_num >= 3 and tokens[1] == 'for':
+    if len(tokens) >= 3 and tokens[1] == 'for':
         if tokens[-2] == 'as':
             as_var = tokens[-1]
             tokens = tokens[:-2]
@@ -163,10 +162,14 @@ def sitetree_url(parser, token):
 def sitetree_page_title(parser, token):
     """Renders a title for current page, resolved against sitetree item representing current URL."""
     tokens = token.split_contents()
+    as_var = False
 
-    if len(tokens) == 3:
+    if len(tokens) >= 3 and tokens[1] == 'from':
+        if tokens[-2] == 'as':
+            as_var = tokens[-1]
+            tokens = tokens[:-2]
         tree_alias = parser.compile_filter(tokens[2])
-        return sitetree_page_titleNode(tree_alias)
+        return sitetree_page_titleNode(tree_alias, as_var)
     else:
         raise template.TemplateSyntaxError(
             '%r tag requires two arguments. E.g. {%% sitetree_page_title from "mytree" %%}.' % tokens[0])
@@ -276,12 +279,16 @@ class sitetree_urlNode(template.Node):
 class sitetree_page_titleNode(template.Node):
     """Renders a page title from the specified site tree."""
 
-    def __init__(self, tree_alias):
+    def __init__(self, tree_alias, as_var):
         self.tree_alias = tree_alias
+        self.as_var = as_var
 
     def render(self, context):
-        return sitetree.get_current_page_title(self.tree_alias, context)
-
+        page_title = sitetree.get_current_page_title(self.tree_alias, context)
+        if self.as_var:
+            context[self.as_var] = page_title
+            return ''
+        return page_title
 
 class sitetree_page_descriptionNode(template.Node):
     """Renders a page description from the specified site tree."""
