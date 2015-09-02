@@ -7,6 +7,7 @@ Unreleased
 + Added SITETREE_RAISE_ITEMS_ERRORS_ON_DEBUG setting (see #157).
 + Exposed SITETREE_CACHE_TIMEOUT setting.
 * Fixed cache problems when using sitetree_resync_apps  (see #135, #166).
+* Fixed disappearing tree items for guests in Admin contrib (Django 1.8) (see #164).
 
 
 v1.4.0
