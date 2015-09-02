@@ -457,8 +457,13 @@ class SiteTree(object):
 
                 # Resolve item permissions.
                 if item.access_restricted:
-                    item.perms = set([u'%s.%s' % (perm.content_type.app_label, perm.codename) for perm in
-                                               item.access_permissions.select_related()])
+                    permissions_src = (
+                        item.permissions if getattr(item, 'is_dynamic', False)
+                        else item.access_permissions.select_related())
+
+                    item.perms = set(
+                        ['%s.%s' % (perm.content_type.app_label, perm.codename) for perm in permissions_src])
+
             # Contextual properties.
             item.url_resolved = self.url(item)
             if VARIABLE_TAG_START in item.title:
