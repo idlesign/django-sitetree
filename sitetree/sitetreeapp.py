@@ -723,7 +723,10 @@ class SiteTree(object):
         """
         if _ITEMS_PROCESSOR is None:
             return items
-        return _ITEMS_PROCESSOR(tree_items=items, tree_sender=sender)
+        try:
+            return _ITEMS_PROCESSOR(tree_items=items, tree_sender=sender, global_context=self._global_context)
+        except TypeError:
+            return _ITEMS_PROCESSOR(tree_items=items, tree_sender=sender)
 
     def check_access(self, item, context):
         """Checks whether a current user has an access to a certain item."""
