@@ -8,6 +8,7 @@ Unreleased
 + Exposed SITETREE_CACHE_TIMEOUT setting.
 * Fixed cache problems when using sitetree_resync_apps  (see #135, #166).
 * Fixed disappearing tree items for guests in Admin contrib (Django 1.8) (see #164).
+* Fix deprecation warning in Django 1.8 (see #178).
 
 
 Unreleased
