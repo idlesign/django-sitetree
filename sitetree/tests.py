@@ -606,7 +606,6 @@ class DynamicTreeTest(SitetreeTest):
         trees = (
             compose_dynamic_tree((
                 tree('dynamic_main_root', items=(
-                    # Testing kwargs parameter for item(). Needs a full proper test
                     item('dynamic_main_root_1', 'dynamic_main_root_1_url', url_as_pattern=False, sort_order=2),
                     item('dynamic_main_root_2', 'dynamic_main_root_2_url', url_as_pattern=False, sort_order=1),
                 )),
@@ -642,6 +641,8 @@ class DynamicTreeTest(SitetreeTest):
         self.assertEqual(len(sitetree_items), 5)
         self.assertEqual(sitetree_items[3].title, 'dynamic_main_root_1')
         self.assertEqual(sitetree_items[4].title, 'dynamic_main_root_2')
+        self.assertEqual(sitetree_items[3].sort_order, 2)
+        self.assertEqual(sitetree_items[4].sort_order, 1)
         children = self.sitetree.get_children('main', self.tree_main_root)
         self.assertEqual(len(children), 2)
 
