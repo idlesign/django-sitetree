@@ -4,3 +4,4 @@
 .idea
 .tox
 django_sitetree.egg-info
+docs/build

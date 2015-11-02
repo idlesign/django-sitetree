@@ -31,7 +31,7 @@ and `TreeItemBase` classes respectively:
 
     class MyTreeItem(TreeItemBase):
         """And that's a tree item model with additional `css_class` field."""
-        css_class = models.IntegerField('Tree item CSS class', default=50)
+        css_class = models.CharField('Tree item CSS class', max_length=50)
 
 
 
@@ -57,7 +57,40 @@ to instruct Django to use them for your project instead of built-in ones:
     See :ref:`Overriding SiteTree Admin representation <admin-ext>` for more information.
 
 
+.. _custom-model-sitetree:
 
+Sitetree definition with custom models
+--------------------------------------
+
+Given the example model given above, you can now use the extra fields when defining a sitetree programmatically:
+
+.. code-block:: python
+
+    from sitetree.utils import tree, item
+
+    # Be sure you defined `sitetrees` in your module.
+    sitetrees = (
+      # Define a tree with `tree` function.
+      tree('books', items=[
+          # Then define items and their children with `item` function.
+          item('Books', 'books-listing', children=[
+              item('Book named "{{ book.title }}"',
+                   'books-details',
+                   in_menu=False,
+                   in_sitetree=False,
+                   css_class='book-detail'),
+              item('Add a book',
+                   'books-add',
+                   css_class='book-add'),
+              item('Edit "{{ book.title }}"',
+                   'books-edit',
+                   in_menu=False,
+                   in_sitetree=False,
+                   css_class='book-edit')
+          ])
+      ]),
+      # ... You can define more than one tree for your app.
+    )
 
 .. _models_referencing:
 

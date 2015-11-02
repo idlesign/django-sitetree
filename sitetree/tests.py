@@ -606,8 +606,9 @@ class DynamicTreeTest(SitetreeTest):
         trees = (
             compose_dynamic_tree((
                 tree('dynamic_main_root', items=(
-                    item('dynamic_main_root_1', 'dynamic_main_root_1_url', url_as_pattern=False),
-                    item('dynamic_main_root_2', 'dynamic_main_root_2_url', url_as_pattern=False),
+                    # Testing kwargs parameter for item(). Needs a full proper test
+                    item('dynamic_main_root_1', 'dynamic_main_root_1_url', url_as_pattern=False, sort_order=2),
+                    item('dynamic_main_root_2', 'dynamic_main_root_2_url', url_as_pattern=False, sort_order=1),
                 )),
             ), target_tree_alias='main'),
             compose_dynamic_tree((
