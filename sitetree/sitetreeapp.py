@@ -184,7 +184,9 @@ def register_dynamic_trees(trees, *args, **kwargs):
 
     reset_cache = kwargs.get('reset_cache', False)
     if reset_cache:
-        get_sitetree().cache_empty()
+        cache = get_sitetree().cache
+        cache.empty()
+        cache.reset()
 
 
 def get_dynamic_trees():
@@ -874,4 +876,3 @@ class SiteTree(object):
 
 class SiteTreeError(Exception):
     """Exception class for sitetree application."""
-    pass
