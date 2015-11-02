@@ -30,7 +30,8 @@ from sitetree.utils import (
     tree, item, get_app_n_model, import_app_sitetree_module, import_project_sitetree_modules, get_model_class
 )
 from sitetree.sitetreeapp import (
-    SiteTree, SiteTreeError, register_items_hook, register_i18n_trees, register_dynamic_trees, compose_dynamic_tree
+    SiteTree, SiteTreeError, register_items_hook, register_i18n_trees, register_dynamic_trees, compose_dynamic_tree,
+    get_dynamic_trees
 )
 
 
@@ -58,11 +59,15 @@ class MockRequest(object):
 
 class MockUser(object):
 
-    def __init__(self, authorized):
+    def __init__(self, authorized, permissions=None):
         self.authorized = authorized
+        self.permissions = permissions or ['auth.add_group', 'perm2']
 
     def is_authenticated(self):
         return self.authorized
+
+    def get_all_permissions(self):
+        return self.permissions
 
 
 def get_mock_context(app=None, path=None, user_authorized=False, tree_item=None, put_var=None):
@@ -81,6 +86,12 @@ def get_mock_context(app=None, path=None, user_authorized=False, tree_item=None,
 
 def render_string(string, context=None, context_put_var=None, context_path=None):
     return Template(string).render(Context(context or get_mock_context(path=context_path, put_var=context_put_var)))
+
+
+def get_permission_and_name():
+    perm = Permission.objects.all()[0]
+    perm_name = '%s.%s' % (perm.content_type.app_label, perm.codename)
+    return perm, perm_name
 
 
 class SitetreeTest(TestCase):
@@ -596,11 +607,29 @@ class TreeTest(SitetreeTest):
 
 class DynamicTreeTest(SitetreeTest):
 
-    def test_basic_old(self):
-        self.basic_test()
+    def test_basic_old_and_new(self):
 
-    def test_basic_new(self):
+        # Assert no dynamic attached.
+        tree_alias, sitetree_items = self.sitetree.get_sitetree('main')
+        self.assertEqual(len(sitetree_items), 1)
+
+        # Assert cache hit.
+        tree_alias, sitetree_items = self.sitetree.get_sitetree('main')
+        self.assertEqual(len(sitetree_items), 1)
+
+        # Empty cache before dynamic items added.
+        self.sitetree.cache.empty()
+
+        self.assertEqual(len(get_dynamic_trees().keys()), 0)
+
+        self.basic_test()  # old-style
+
+        self.assertEqual(len(get_dynamic_trees().keys()), 3)
+
         self.basic_test(new_style=True)
+        self.basic_test(new_style=True, reset_cache=True)
+
+        self.assertEqual(len(get_dynamic_trees().keys()), 3)
 
     def basic_test(self, new_style=False, reset_cache=False):
         trees = (
@@ -612,8 +641,10 @@ class DynamicTreeTest(SitetreeTest):
             ), target_tree_alias='main'),
             compose_dynamic_tree((
                 tree('dynamic_main_sub', items=(
-                    item('dynamic_main_sub_1', 'dynamic_main_sub_1_url', url_as_pattern=False),
-                    item('dynamic_main_sub_2', 'dynamic_main_sub_2_url', url_as_pattern=False),
+                    item('dynamic_main_sub_1', 'dynamic_main_sub_1_url',
+                         url_as_pattern=False, access_by_perms=['auth.add_group', 'auth.change_group']),
+                    item('dynamic_main_sub_2', 'dynamic_main_sub_2_url',
+                         url_as_pattern=False, access_by_perms=['auth.add_group'], perms_mode_all=False),
                 )),
             ), target_tree_alias='main', parent_tree_item_alias='for_dynamic'),
             compose_dynamic_tree((
@@ -635,21 +666,41 @@ class DynamicTreeTest(SitetreeTest):
         else:
             register_dynamic_trees(trees, **kwargs)
 
-        self.sitetree._global_context = get_mock_context(path='/the_same_url/')
+        mock_context = get_mock_context(path='/the_same_url/')
+        self.sitetree._global_context = mock_context
         tree_alias, sitetree_items = self.sitetree.get_sitetree('main')
 
-        self.assertEqual(len(sitetree_items), 5)
-        self.assertEqual(sitetree_items[3].title, 'dynamic_main_root_1')
-        self.assertEqual(sitetree_items[4].title, 'dynamic_main_root_2')
-        self.assertEqual(sitetree_items[3].sort_order, 2)
-        self.assertEqual(sitetree_items[4].sort_order, 1)
-        children = self.sitetree.get_children('main', self.tree_main_root)
-        self.assertEqual(len(children), 2)
+        if reset_cache:
+            self.assertEqual(len(sitetree_items), 13)
+            children = self.sitetree.get_children('main', self.tree_main_root)
+            self.assertEqual(len(children), 6)
+            tree_alias, sitetree_items = self.sitetree.get_sitetree('dynamic')
+            self.assertEqual(len(sitetree_items), 9)
+            children = self.sitetree.get_children('dynamic', sitetree_items[0])
+            self.assertEqual(len(children), 1)
 
-        tree_alias, sitetree_items = self.sitetree.get_sitetree('dynamic')
-        self.assertEqual(len(sitetree_items), 3)
-        children = self.sitetree.get_children('dynamic', sitetree_items[0])
-        self.assertEqual(len(children), 1)
+        else:
+
+            mock_user = MockUser(True)
+            self.assertFalse(self.sitetree.check_access(sitetree_items[1], {'user': mock_user}))
+            self.assertTrue(self.sitetree.check_access(sitetree_items[2], {'user': mock_user}))
+            self.assertFalse(self.sitetree.check_access(sitetree_items[2], {
+                'user': MockUser(True, permissions=['dummy.dummy'])}))
+
+            self.assertEqual(len(sitetree_items), 5)
+            self.assertEqual(sitetree_items[1].perms, set(['auth.add_group', 'auth.change_group']))
+            self.assertEqual(sitetree_items[3].title, 'dynamic_main_root_1')
+            self.assertEqual(sitetree_items[4].title, 'dynamic_main_root_2')
+            self.assertEqual(sitetree_items[3].sort_order, 2)
+            self.assertEqual(sitetree_items[4].sort_order, 1)
+            self.assertIsNone(getattr(sitetree_items[3], 'perms', None))
+            children = self.sitetree.get_children('main', self.tree_main_root)
+            self.assertEqual(len(children), 2)
+
+            tree_alias, sitetree_items = self.sitetree.get_sitetree('dynamic')
+            self.assertEqual(len(sitetree_items), 3)
+            children = self.sitetree.get_children('dynamic', sitetree_items[0])
+            self.assertEqual(len(children), 1)
 
 
 class UtilsItemTest(SitetreeTest):
@@ -689,14 +740,13 @@ class UtilsItemTest(SitetreeTest):
         self.assertRaises(ImproperlyConfigured, get_app_n_model, 'ALIAS_TRUNK')
 
     def test_valid_string_permissions(self):
-        perm = Permission.objects.all()[0]
-        perm_name = '%s.%s' % (perm.content_type.app_label, perm.codename)
+        perm, perm_name = get_permission_and_name()
 
         i1 = item('root', 'url', access_by_perms=perm_name)
         self.assertEqual(i1.permissions, [perm])
 
     def test_perm_obj_permissions(self):
-        perm = Permission.objects.all()[0]
+        perm, __ = get_permission_and_name()
 
         i1 = item('root', 'url', access_by_perms=perm)
         self.assertEqual(i1.permissions, [perm])
