@@ -20,9 +20,6 @@ http://github.com/idlesign/django-sitetree
 .. image:: https://landscape.io/github/idlesign/django-sitetree/master/landscape.svg?style=flat
    :target: https://landscape.io/github/idlesign/django-sitetree/master
 
-.. image:: https://img.shields.io/codeclimate/github/idlesign/django-sitetree.svg
-   :target: https://codeclimate.com/github/idlesign/django-sitetree
-
 
 What's that
 -----------
