@@ -17,6 +17,9 @@ http://github.com/idlesign/django-sitetree
 .. image:: https://img.shields.io/travis/idlesign/django-sitetree/master.svg
     :target: https://travis-ci.org/idlesign/django-sitetree
 
+.. image:: https://landscape.io/github/idlesign/django-sitetree/master/landscape.svg?style=plastic
+   :target: https://landscape.io/github/idlesign/django-sitetree/master
+
 .. image:: https://img.shields.io/codeclimate/github/idlesign/django-sitetree.svg
    :target: https://codeclimate.com/github/idlesign/django-sitetree
 
