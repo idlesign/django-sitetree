@@ -446,7 +446,8 @@ class TemplateTagsTest(SitetreeTest):
 
         tree_ttags_root = TreeItem(
             title='root', tree=tree_ttags, url='/',
-            insitetree=True, inbreadcrumbs=True, inmenu=True
+            insitetree=True, inbreadcrumbs=True, inmenu=True,
+            hint='roothint', description='rootdescr'
         )
         tree_ttags_root.save()
         cls.tree_ttags_root = tree_ttags_root
@@ -526,6 +527,11 @@ class TemplateTagsTest(SitetreeTest):
         result = render_string(tpl, context_path='/child1')
         self.assertEqual(result, 'sometitle')
 
+        context = get_mock_context()
+        tpl = '{% load sitetree %}{% sitetree_page_title from "ttags" as somev %}'
+        render_string(tpl,  context=context)
+        self.assertEqual(context.get('somev'), 'root')
+
     def test_sitetree_page_hint(self):
         tpl = '{% load sitetree %}{% sitetree_page_hint %}'
         self.assertRaises(TemplateSyntaxError, render_string, tpl)
@@ -538,6 +544,11 @@ class TemplateTagsTest(SitetreeTest):
         result = render_string(tpl, context_path='/child1')
         self.assertEqual(result, 'somehint')
 
+        context = get_mock_context()
+        tpl = '{% load sitetree %}{% sitetree_page_hint from "ttags" as somev %}'
+        render_string(tpl,  context=context)
+        self.assertEqual(context.get('somev'), 'roothint')
+
     def test_sitetree_page_description(self):
         tpl = '{% load sitetree %}{% sitetree_page_description %}'
         self.assertRaises(TemplateSyntaxError, render_string, tpl)
@@ -549,6 +560,11 @@ class TemplateTagsTest(SitetreeTest):
         tpl = '{% load sitetree %}{% sitetree_page_description from "ttags" %}'
         result = render_string(tpl, context_path='/child1')
         self.assertEqual(result, 'somedescr')
+
+        context = get_mock_context()
+        tpl = '{% load sitetree %}{% sitetree_page_description from "ttags" as somev %}'
+        render_string(tpl,  context=context)
+        self.assertEqual(context.get('somev'), 'rootdescr')
 
     def test_sitetree_url(self):
         tpl = '{% load sitetree %}{% sitetree_url %}'

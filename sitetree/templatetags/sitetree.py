@@ -134,57 +134,25 @@ def sitetree_url(parser, token):
     The difference is that after 'for' it should get TreeItem object.
 
     """
-    tokens = token.contents.split()
-    tokens_num = len(tokens)
-    as_var = False
-
-    if tokens_num >= 3 and tokens[1] == 'for':
-        if tokens[-2] == 'as':
-            as_var = tokens[-1]
-            tokens = tokens[:-2]
-        sitetree_item = parser.compile_filter(tokens[2])
-        return sitetree_urlNode(sitetree_item, as_var)
-    else:
-        raise template.TemplateSyntaxError('%r tag should look like {%% sitetree_url for someitem %%}.' % tokens[0])
+    return sitetree_urlNode.for_tag(parser, token, 'for', 'sitetree_url for someitem')
 
 
 @register.tag
 def sitetree_page_title(parser, token):
     """Renders a title for current page, resolved against sitetree item representing current URL."""
-    tokens = token.split_contents()
-
-    if len(tokens) == 3:
-        tree_alias = parser.compile_filter(tokens[2])
-        return sitetree_page_titleNode(tree_alias)
-    else:
-        raise template.TemplateSyntaxError(
-            '%r tag requires two arguments. E.g. {%% sitetree_page_title from "mytree" %%}.' % tokens[0])
+    return sitetree_page_titleNode.for_tag(parser, token, 'from', 'sitetree_page_title from "mytree"')
 
 
 @register.tag
 def sitetree_page_description(parser, token):
     """Renders a description for the current page, resolved against sitetree item representing current URL."""
-    tokens = token.split_contents()
-
-    if len(tokens) == 3:
-        tree_alias = parser.compile_filter(tokens[2])
-        return sitetree_page_descriptionNode(tree_alias)
-    else:
-        raise template.TemplateSyntaxError(
-            '%r tag requires two arguments. E.g. {%% sitetree_page_description from "mytree" %%}.' % tokens[0])
+    return sitetree_page_descriptionNode.for_tag(parser, token, 'from', 'sitetree_page_description from "mytree"')
 
 
 @register.tag
 def sitetree_page_hint(parser, token):
     """Renders a hint for the current page, resolved against sitetree item representing current URL."""
-    tokens = token.split_contents()
-
-    if len(tokens) == 3:
-        tree_alias = parser.compile_filter(tokens[2])
-        return sitetree_page_hintNode(tree_alias)
-    else:
-        raise template.TemplateSyntaxError(
-            '%r tag requires two arguments. E.g. {%% sitetree_page_hint from "mytree" %%}.' % tokens[0])
+    return sitetree_page_hintNode.for_tag(parser, token, 'from', 'sitetree_page_hint from "mytree"')
 
 
 class sitetree_treeNode(template.Node):
@@ -236,49 +204,78 @@ class sitetree_menuNode(template.Node):
         return render(context, tree_items, self.use_template or 'sitetree/menu.html')
 
 
-class sitetree_urlNode(template.Node):
-    """Resolves and renders specified url."""
+class SimpleNode(template.Node):
+    """Simple node with `as` clause support."""
 
-    def __init__(self, sitetree_item, as_var):
-        self.sitetree_item = sitetree_item
+    @classmethod
+    def for_tag(cls, parser, token, preposition, error_hint):
+        """Node constructor to be used in tags."""
+        tokens = token.split_contents()
+
+        if len(tokens) >= 3 and tokens[1] == preposition:
+            as_var = cls.get_as_var(tokens)
+            tree_alias = parser.compile_filter(tokens[2])
+            return cls(tree_alias, as_var)
+
+        raise template.TemplateSyntaxError(
+            '%r tag requires at least two arguments. E.g. {%% %s %%}.' % (tokens[0], error_hint))
+
+    @classmethod
+    def get_as_var(cls, tokens):
+        """Returns context variable from `as` template tag clause if any.
+
+         Modifies tokens inplace.
+
+        :param tokens:
+        :rtype: None|str
+        """
+        as_var = None
+        if tokens[-2] == 'as':
+            as_var = tokens[-1]
+            tokens[-2:] = []
+        return as_var
+
+    def __init__(self, item, as_var):
+        self.item = item
         self.as_var = as_var
 
+    def get_value(self, context):
+        """Should return a computed value to be used in render()."""
+
     def render(self, context):
-        resolved_url = sitetree.url(self.sitetree_item, context)
+        result = self.get_value(context)
         if self.as_var:
-            context[self.as_var] = resolved_url
+            context[self.as_var] = result
             return ''
-        return resolved_url
+        return result
 
 
-class sitetree_page_titleNode(template.Node):
+class sitetree_urlNode(SimpleNode):
+    """Resolves and renders specified url."""
+
+    def get_value(self, context):
+        return sitetree.url(self.item, context)
+
+
+class sitetree_page_titleNode(SimpleNode):
     """Renders a page title from the specified site tree."""
 
-    def __init__(self, tree_alias):
-        self.tree_alias = tree_alias
-
-    def render(self, context):
-        return sitetree.get_current_page_title(self.tree_alias, context)
+    def get_value(self, context):
+        return sitetree.get_current_page_title(self.item, context)
 
 
-class sitetree_page_descriptionNode(template.Node):
+class sitetree_page_descriptionNode(SimpleNode):
     """Renders a page description from the specified site tree."""
 
-    def __init__(self, tree_alias):
-        self.tree_alias = tree_alias
-
-    def render(self, context):
-        return sitetree.get_current_page_attr('description', self.tree_alias, context)
+    def get_value(self, context):
+        return sitetree.get_current_page_attr('description', self.item, context)
 
 
-class sitetree_page_hintNode(template.Node):
+class sitetree_page_hintNode(SimpleNode):
     """Renders a page hint from the specified site tree."""
 
-    def __init__(self, tree_alias):
-        self.tree_alias = tree_alias
-
-    def render(self, context):
-        return sitetree.get_current_page_attr('hint', self.tree_alias, context)
+    def get_value(self, context):
+        return sitetree.get_current_page_attr('hint', self.item, context)
     
 
 def detect_clause(parser, clause_name, tokens):
