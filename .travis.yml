@@ -22,8 +22,18 @@ script: coverage run -a --source=sitetree sitetree/runtests.py
 matrix:
 
   exclude:
+   - python: 3.5
+     env: DJANGO="Django>=1.7,<1.8"
+   - python: 3.5
+     env: DJANGO="Django>=1.6,<1.7"
+   - python: 3.5
+     env: DJANGO="Django>=1.4,<1.5"
+
    - python: 3.3
      env: DJANGO="Django>=1.4,<1.5"
+
+   - python: 2.6
+     env: DJANGO="Django==1.9b1"
    - python: 2.6
      env: DJANGO="Django>=1.8.6,<1.9"
    - python: 2.6
@@ -31,15 +41,6 @@ matrix:
    - python: 2.6
      env: DJANGO="Django>=1.6,<1.7"
      
-  include:
-   - python: 3.5
-     env: DJANGO="Django>=1.8.6,<1.9"
-   - python: 3.5
-     env: DJANGO="Django==1.9b1"
-   - python: 3.4
-     env: DJANGO="Django>=1.7,<1.8"
-   - python: 3.4
-     env: DJANGO="Django>=1.8.6,<1.9"
 
 after_success:
   coveralls
