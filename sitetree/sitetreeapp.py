@@ -5,6 +5,7 @@ import warnings
 from collections import defaultdict
 from copy import copy, deepcopy
 from threading import local
+from functools import partial
 
 from django.conf import settings
 from django import VERSION
@@ -25,6 +26,12 @@ from .utils import get_tree_model, get_tree_item_model, import_app_sitetree_modu
 from .settings import (
     ALIAS_TRUNK, ALIAS_THIS_CHILDREN, ALIAS_THIS_SIBLINGS, ALIAS_THIS_PARENT_SIBLINGS, ALIAS_THIS_ANCESTOR_CHILDREN,
     UNRESOLVED_ITEM_MARKER, RAISE_ITEMS_ERRORS_ON_DEBUG, CACHE_TIMEOUT)
+
+
+if VERSION >= (1, 9, 0):
+    get_lexer = partial(Lexer)
+else:
+    get_lexer = partial(Lexer, origin=UNKNOWN_SOURCE)
 
 
 MODEL_TREE_CLASS = get_tree_model()
@@ -241,7 +248,7 @@ class LazyTitle(object):
         self.title = title
 
     def __str__(self):
-        my_lexer = Lexer(self.title, UNKNOWN_SOURCE)
+        my_lexer = get_lexer(self.title)
         my_tokens = my_lexer.tokenize()
 
         # Deliberately strip off template tokens that are not text or variable.
