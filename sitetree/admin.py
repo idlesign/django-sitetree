@@ -1,4 +1,5 @@
 from django.conf import settings as django_settings
+from django import VERSION as django_version
 from django.core.urlresolvers import get_urlconf, get_resolver
 from django.utils.translation import ugettext_lazy as _
 from django.utils import six
@@ -6,7 +7,12 @@ from django.http import HttpResponseRedirect
 from django.contrib import admin
 from django.contrib.admin.sites import NotRegistered
 from django.contrib import messages
-from django.conf.urls import patterns, url
+from django.conf.urls import url
+
+DJANGO_POST_19 = django_version >= (1, 9, 0)
+
+if not DJANGO_POST_19:
+    from django.conf.urls import patterns as patterns_func
 
 from .settings import MODEL_TREE, MODEL_TREE_ITEM
 from .fields import TreeItemChoiceField
@@ -42,9 +48,9 @@ def get_tree_item_url_name(page, with_namespace=False):
 
 _TREE_URLS = {
     'app': get_app_n_model('MODEL_TREE')[0],
-    'change': get_tree_url_name('change', 'admin:'),
-    'changelist': get_tree_url_name('changelist', 'admin:'),
-    'treeitem_change': get_tree_item_url_name('change', 'admin:')
+    'change': get_tree_url_name('change', True),
+    'changelist': get_tree_url_name('changelist', True),
+    'treeitem_change': get_tree_item_url_name('change', True)
 }
 
 
@@ -125,6 +131,8 @@ class TreeItemAdmin(admin.ModelAdmin):
             return HttpResponseRedirect('../item_add/')
         elif '_save' in request.POST:
             return HttpResponseRedirect('../')
+        elif '_continue' in request.POST:
+            return response
         else:
             return HttpResponseRedirect('')
 
@@ -280,25 +288,42 @@ class TreeAdmin(admin.ModelAdmin):
         super(TreeAdmin, self).__init__(*args, **kwargs)
         self.tree_admin = _ITEM_ADMIN()(MODEL_TREE_ITEM_CLASS, admin.site)
 
+    def render_change_form(self, request, context, **kwargs):
+        context['icon_ext'] = '.svg' if DJANGO_POST_19 else '.gif'
+        context['django19'] = DJANGO_POST_19
+        return super(TreeAdmin, self).render_change_form(request, context, **kwargs)
+
     def get_urls(self):
         """Manages not only TreeAdmin URLs but also TreeItemAdmin URLs."""
         urls = super(TreeAdmin, self).get_urls()
-        sitetree_urls = patterns('',
-            # Trying to be nice and adopt url handling changes in Django 1.4, 1.5 Admin contrib.
+
+        prefix_change = 'change/' if DJANGO_POST_19 else ''
+
+        sitetree_urls = [
+            # Ignore urls.W002. Leading slash is in the right place.
             url(r'^/$', redirects_handler, name=get_tree_item_url_name('changelist')),
-            url(r'^((?P<tree_id>\d+)/)?item_add/$',
+
+            url(r'^((?P<tree_id>\d+)/)?%sitem_add/$' % prefix_change,
                 self.admin_site.admin_view(self.tree_admin.item_add), name=get_tree_item_url_name('add')),
-            url(r'^(?P<tree_id>\d+)/item_(?P<item_id>\d+)/$',
+
+            url(r'^(?P<tree_id>\d+)/%sitem_(?P<item_id>\d+)/$' % prefix_change,
                 self.admin_site.admin_view(self.tree_admin.item_edit), name=get_tree_item_url_name('change')),
-            url(r'^item_(?P<item_id>\d+)/$',
+
+            url(r'^%sitem_(?P<item_id>\d+)/$' % prefix_change,
                 self.admin_site.admin_view(self.tree_admin.item_edit), name=get_tree_item_url_name('change')),
-            url(r'^((?P<tree_id>\d+)/)?item_(?P<item_id>\d+)/delete/$',
+
+            url(r'^((?P<tree_id>\d+)/)?%sitem_(?P<item_id>\d+)/delete/$' % prefix_change,
                 self.admin_site.admin_view(self.tree_admin.item_delete), name=get_tree_item_url_name('delete')),
-            url(r'^((?P<tree_id>\d+)/)?item_(?P<item_id>\d+)/history/$',
+
+            url(r'^((?P<tree_id>\d+)/)?%sitem_(?P<item_id>\d+)/history/$' % prefix_change,
                 self.admin_site.admin_view(self.tree_admin.item_history), name=get_tree_item_url_name('history')),
-            url(r'^(?P<tree_id>\d+)/item_(?P<item_id>\d+)/move_(?P<direction>(up|down))/$',
+
+            url(r'^(?P<tree_id>\d+)/%sitem_(?P<item_id>\d+)/move_(?P<direction>(up|down))/$' % prefix_change,
                 self.admin_site.admin_view(self.tree_admin.item_move), name=get_tree_item_url_name('move')),
-        )
+        ]
+
+        if not DJANGO_POST_19:
+            sitetree_urls = patterns_func('', *sitetree_urls)
 
         if SMUGGLER_INSTALLED:
             sitetree_urls += (url(r'^dump_all/$', self.admin_site.admin_view(self.dump_view), name='sitetree_dump'),)
