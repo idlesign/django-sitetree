@@ -1,12 +1,16 @@
 django-sitetree changelog
 =========================
 
-Unreleased
-----------
+v1.5.0
+------
 + Added Norwegian translation.
 + Added SITETREE_RAISE_ITEMS_ERRORS_ON_DEBUG setting (see #157).
 + Exposed SITETREE_CACHE_TIMEOUT setting.
++ Added `as` clause support for `sitetree_page_title`, `sitetree_page_description` and `sitetree_page_hint` template tags.
 * Fixed cache problems when using sitetree_resync_apps  (see #135, #166).
+* Fixed disappearing tree items for guests in Admin contrib (Django 1.8) (see #164).
+* Fix deprecation warning in Django 1.8 (see #178).
+* Fixed permissions check for dynamic tree items (see #165).
 
 
 v1.4.0

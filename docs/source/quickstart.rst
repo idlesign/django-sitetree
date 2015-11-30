@@ -36,7 +36,7 @@ Making tree
 
 Taken from `StackOverflow <http://stackoverflow.com/questions/4766807/how-to-use-django-sitetree/4887916#4887916>`_.
 
-In this tutoral we create sitetree that could handle URI like */categoryname/entryname*.
+In this tutorial we create sitetree that could handle URI like */categoryname/entryname*.
 
 ------------
 
@@ -69,7 +69,7 @@ To create a tree:
     In 'Additional settings': check 'URL as Pattern' checkbox.
 
 8. Put '{% load sitetree %}' into yor template to have access to sitetree tags.
-9. Put '{% sitetree_menu from "maintree" %}' into your template to render menu.
+9. Put '{% sitetree_menu from "maintree" include "trunk" %}' into your template to render menu from tree trunk.
 10. Put '{% sitetree_breadcrumbs from "maintree" %}' into your template to render breadcrumbs.
 
 ------------

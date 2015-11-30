@@ -5,6 +5,7 @@ import warnings
 from collections import defaultdict
 from copy import copy, deepcopy
 from threading import local
+from functools import partial
 
 from django.conf import settings
 from django import VERSION
@@ -25,6 +26,12 @@ from .utils import get_tree_model, get_tree_item_model, import_app_sitetree_modu
 from .settings import (
     ALIAS_TRUNK, ALIAS_THIS_CHILDREN, ALIAS_THIS_SIBLINGS, ALIAS_THIS_PARENT_SIBLINGS, ALIAS_THIS_ANCESTOR_CHILDREN,
     UNRESOLVED_ITEM_MARKER, RAISE_ITEMS_ERRORS_ON_DEBUG, CACHE_TIMEOUT)
+
+
+if VERSION >= (1, 9, 0):
+    get_lexer = partial(Lexer)
+else:
+    get_lexer = partial(Lexer, origin=UNKNOWN_SOURCE)
 
 
 MODEL_TREE_CLASS = get_tree_model()
@@ -184,7 +191,9 @@ def register_dynamic_trees(trees, *args, **kwargs):
 
     reset_cache = kwargs.get('reset_cache', False)
     if reset_cache:
-        get_sitetree().cache_empty()
+        cache = get_sitetree().cache
+        cache.empty()
+        cache.reset()
 
 
 def get_dynamic_trees():
@@ -239,7 +248,7 @@ class LazyTitle(object):
         self.title = title
 
     def __str__(self):
-        my_lexer = Lexer(self.title, UNKNOWN_SOURCE)
+        my_lexer = get_lexer(self.title)
         my_tokens = my_lexer.tokenize()
 
         # Deliberately strip off template tokens that are not text or variable.
@@ -401,7 +410,11 @@ class SiteTree(object):
 
     def current_app_is_admin(self):
         """Returns boolean whether current application is Admin contrib."""
-        return self._global_context.current_app == 'admin'
+        current_app = (
+            getattr(self._global_context.get('request', None), 'current_app',
+                    self._global_context.current_app))
+
+        return current_app == 'admin'
 
     def get_sitetree(self, alias):
         """Gets site tree items from the given site tree.
@@ -453,8 +466,13 @@ class SiteTree(object):
 
                 # Resolve item permissions.
                 if item.access_restricted:
-                    item.perms = set([u'%s.%s' % (perm.content_type.app_label, perm.codename) for perm in
-                                               item.access_permissions.select_related()])
+                    permissions_src = (
+                        item.permissions if getattr(item, 'is_dynamic', False)
+                        else item.access_permissions.select_related())
+
+                    item.perms = set(
+                        ['%s.%s' % (perm.content_type.app_label, perm.codename) for perm in permissions_src])
+
             # Contextual properties.
             item.url_resolved = self.url(item)
             if VARIABLE_TAG_START in item.title:
@@ -871,4 +889,3 @@ class SiteTree(object):
 
 class SiteTreeError(Exception):
     """Exception class for sitetree application."""
-    pass

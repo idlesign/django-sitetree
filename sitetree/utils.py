@@ -1,8 +1,12 @@
 from django.contrib.auth.models import Permission
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import six
-from django.utils.importlib import import_module
 from django.utils.module_loading import module_has_submodule
+
+try:
+    from importlib import import_module
+except ImportError:  # Python < 2.7
+    from django.utils.importlib import import_module
 
 try:
     from django.apps import apps
@@ -45,7 +49,7 @@ def tree(alias, title='', items=None):
 def item(title, url, children=None, url_as_pattern=True, hint='', alias='', description='',
          in_menu=True, in_breadcrumbs=True, in_sitetree=True,
          access_loggedin=False, access_guest=False,
-         access_by_perms=None, perms_mode_all=True):
+         access_by_perms=None, perms_mode_all=True, **kwargs):
     """Dynamically creates and returns a sitetree item object.
 
     :param str title:
@@ -69,7 +73,7 @@ def item(title, url, children=None, url_as_pattern=True, hint='', alias='', desc
     item_obj = get_tree_item_model()(title=title, url=url, urlaspattern=url_as_pattern,
                                    hint=hint, alias=alias, description=description, inmenu=in_menu,
                                    insitetree=in_sitetree, inbreadcrumbs=in_breadcrumbs,
-                                   access_loggedin=access_loggedin, access_guest=access_guest)
+                                   access_loggedin=access_loggedin, access_guest=access_guest, **kwargs)
 
     item_obj.id = generate_id_for(item_obj)
     item_obj.is_dynamic = True
@@ -87,7 +91,9 @@ def item(title, url, children=None, url_as_pattern=True, hint='', alias='', desc
                 try:
                     app, codename = perm.split('.')
                 except ValueError:
-                    raise ValueError('Wrong permission string format: supplied - `%s`; expected - `<app_name>.<permission_name>`.' % perm)
+                    raise ValueError(
+                        'Wrong permission string format: supplied - `%s`; '
+                        'expected - `<app_name>.<permission_name>`.' % perm)
 
                 try:
                     perm = Permission.objects.get(codename=codename, content_type__app_label=app)
