@@ -24,7 +24,7 @@ from django.template.defaulttags import url as url_tag
 from .utils import get_tree_model, get_tree_item_model, import_app_sitetree_module, generate_id_for
 from .settings import (
     ALIAS_TRUNK, ALIAS_THIS_CHILDREN, ALIAS_THIS_SIBLINGS, ALIAS_THIS_PARENT_SIBLINGS, ALIAS_THIS_ANCESTOR_CHILDREN,
-    UNRESOLVED_ITEM_MARKER, RAISE_ITEMS_ERRORS_ON_DEBUG, CACHE_TIMEOUT)
+    UNRESOLVED_ITEM_MARKER, RAISE_ITEMS_ERRORS_ON_DEBUG, CACHE_TIMEOUT, IGNORE_ADMIN_APP)
 
 
 MODEL_TREE_CLASS = get_tree_model()
@@ -401,6 +401,8 @@ class SiteTree(object):
 
     def current_app_is_admin(self):
         """Returns boolean whether current application is Admin contrib."""
+        if IGNORE_ADMIN_APP:
+            return False
         current_app = (
             getattr(self._global_context.get('request', None), 'current_app',
                     self._global_context.current_app))
