@@ -47,23 +47,14 @@ _DYNAMIC_TREES = {}
 # Dictionary index in `_DYNAMIC_TREES` for orphaned trees list.
 _IDX_ORPHAN_TREES = 'orphans'
 # Dictinary index name template in `_DYNAMIC_TREES`.
-_IDX_TPL = '%s|:|%s'
-# SiteTree app-wise object.
-_SITETREE = None
+_IDX_TPL = '%s|:|%s' 
 
 _THREAD_LOCAL = local()
 _THREAD_LANG = 'sitetree_lang'
 
 
 def get_sitetree():
-    """Returns SiteTree [singleton] object, implementing utility methods.
-
-    :return: SiteTree
-    """
-    global _SITETREE
-    if _SITETREE is None:
-        _SITETREE = SiteTree()
-    return _SITETREE
+    return SiteTree() 
 
 
 def register_items_hook(callable):
