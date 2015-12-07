@@ -248,7 +248,7 @@ class LazyTitle(object):
                 my_tokens.remove(my_token)
 
         my_parser = Parser(my_tokens)
-        return my_parser.parse().render(SiteTree.get_global_context())
+        return my_parser.parse().render(self.get_context())
 
     def __eq__(self, other):
         return self.__str__() == other
@@ -316,24 +316,21 @@ class Cache(object):
 
 class SiteTree(object):
 
-    _global_context = Context()
+    context = None
 
     def __init__(self):
         self.cache = Cache()
 
-    @classmethod
-    def set_global_context(cls, context):
+    def set_context(self, context):
         """Saves context as global context if not already set or if changed.
         Almost all variables are resolved against global context.
 
         """
-        if not cls._global_context or id(context) != id(cls._global_context):
-            cls._global_context = context
+        if not self.context or id(context) != id(self.context):
+            self.context = context
 
-    @classmethod
-    def get_global_context(cls):
-        """Returns current sitetree global context."""
-        return cls._global_context
+    def get_context(self):
+        return self.context
 
     def resolve_tree_i18n_alias(self, alias):
         """Resolves internationalized tree alias.
@@ -402,8 +399,8 @@ class SiteTree(object):
     def current_app_is_admin(self):
         """Returns boolean whether current application is Admin contrib."""
         current_app = (
-            getattr(self._global_context.get('request', None), 'current_app',
-                    self._global_context.current_app))
+            getattr(self.get_context().get('request', None), 'current_app',
+                    self.get_context().current_app))
 
         return current_app == 'admin'
 
@@ -506,14 +503,14 @@ class SiteTree(object):
 
         current_item = None
 
-        if 'request' not in self._global_context:
+        if 'request' not in self.get_context():
             if settings.DEBUG:
                 raise SiteTreeError(
                     'Sitetree needs "django.core.context_processors.request" to be in TEMPLATE_CONTEXT_PROCESSORS '
                     'in your settings file. If it is, check that your view pushes request data into the template.')
         else:
             # urlquote is an attempt to support non-ascii in url.
-            current_url = urlquote(self._global_context['request'].path)
+            current_url = urlquote(self.get_context()['request'].path)
             urls_cache = self.cache.get_entry('urls', '%s%s' % (tree_alias, self.lang_get()))
             if urls_cache:
                 for url_item in urls_cache:
@@ -553,7 +550,7 @@ class SiteTree(object):
         """
 
         if context is None:
-            context = self._global_context
+            context = self.get_context()
 
         if not isinstance(sitetree_item, MODEL_TREE_ITEM_CLASS):
             sitetree_item = self.resolve_var(sitetree_item, context)
@@ -623,8 +620,8 @@ class SiteTree(object):
         On fail returns False.
 
         """
-        # Current context we will consider global.
-        self.set_global_context(context)
+        
+        self.set_context(context)
         # Initialize language to use it in current thread.
         self.lang_init()
         # Resolve tree_alias from the context.
@@ -728,7 +725,7 @@ class SiteTree(object):
     def check_access(self, item, context):
         """Checks whether a current user has an access to a certain item."""
 
-        authenticated = self._global_context['request'].user.is_authenticated()
+        authenticated = self.get_context()['request'].user.is_authenticated()
 
         if item.access_loggedin and not authenticated:
             return False
@@ -817,7 +814,7 @@ class SiteTree(object):
         items_out = copy(items)
         if not self.current_app_is_admin():
             for item in items:
-                no_access = not self.check_access(item, self._global_context)
+                no_access = not self.check_access(item, self.get_context())
                 hidden_for_nav_type = navigation_type is not None and not getattr(item, 'in' + navigation_type, False)
                 if item.hidden or no_access or hidden_for_nav_type:
                     items_out.remove(item)
@@ -845,19 +842,19 @@ class SiteTree(object):
     def breadcrumbs_climber(self, tree_alias, start_from):
         """Climbs up the site tree to build breadcrumb path."""
         if start_from.inbreadcrumbs and start_from.hidden == False and self.check_access(start_from,
-                                                                                         self._global_context):
+                                                                                         self.get_context()):
             self.cache_breadcrumbs.append(start_from)
         if hasattr(start_from, 'parent') and start_from.parent is not None:
             self.breadcrumbs_climber(tree_alias, self.get_item_by_id(tree_alias, start_from.parent.id))
 
     def resolve_var(self, varname, context=None):
         """Tries to resolve name as a variable in a given context.
-        If no context specified 'global_context' is considered
+        If no context specified 'self.context' is considered
         as context.
 
         """
         if context is None:
-            context = self._global_context
+            context = self.get_context()
 
         if isinstance(varname, FilterExpression):
             varname = varname.resolve(context)
