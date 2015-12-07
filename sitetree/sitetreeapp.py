@@ -25,7 +25,7 @@ from django.template.defaulttags import url as url_tag
 from .utils import get_tree_model, get_tree_item_model, import_app_sitetree_module, generate_id_for
 from .settings import (
     ALIAS_TRUNK, ALIAS_THIS_CHILDREN, ALIAS_THIS_SIBLINGS, ALIAS_THIS_PARENT_SIBLINGS, ALIAS_THIS_ANCESTOR_CHILDREN,
-    UNRESOLVED_ITEM_MARKER, RAISE_ITEMS_ERRORS_ON_DEBUG, CACHE_TIMEOUT)
+    UNRESOLVED_ITEM_MARKER, RAISE_ITEMS_ERRORS_ON_DEBUG, CACHE_TIMEOUT, IGNORE_ADMIN_APP)
 
 
 if VERSION >= (1, 9, 0):
@@ -410,6 +410,8 @@ class SiteTree(object):
 
     def current_app_is_admin(self):
         """Returns boolean whether current application is Admin contrib."""
+        if IGNORE_ADMIN_APP:
+            return False
         current_app = (
             getattr(self._global_context.get('request', None), 'current_app',
                     self._global_context.current_app))
@@ -732,7 +734,10 @@ class SiteTree(object):
         """
         if _ITEMS_PROCESSOR is None:
             return items
-        return _ITEMS_PROCESSOR(tree_items=items, tree_sender=sender)
+        try:
+            return _ITEMS_PROCESSOR(tree_items=items, tree_sender=sender, global_context=self._global_context)
+        except TypeError:
+            return _ITEMS_PROCESSOR(tree_items=items, tree_sender=sender)
 
     def check_access(self, item, context):
         """Checks whether a current user has an access to a certain item."""

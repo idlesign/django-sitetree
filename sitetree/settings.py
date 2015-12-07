@@ -14,6 +14,8 @@ RAISE_ITEMS_ERRORS_ON_DEBUG = getattr(settings, 'SITETREE_RAISE_ITEMS_ERRORS_ON_
 # Cache is only invalidated on sitetree or sitetree item change.
 CACHE_TIMEOUT = getattr(settings, 'SITETREE_CACHE_TIMEOUT', 31536000)
 
+IGNORE_ADMIN_APP = getattr(settings, 'SITETREE_IGNORE_ADMIN_APP', False)
+
 # Reserved tree items aliases.
 ALIAS_TRUNK = 'trunk'
 ALIAS_THIS_CHILDREN = 'this-children'
