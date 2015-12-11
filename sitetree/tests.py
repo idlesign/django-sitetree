@@ -5,7 +5,7 @@ try:
     from StringIO import StringIO
 except ImportError:
     from io import StringIO
-    
+
 try:
     from unittest import mock
 except ImportError:
@@ -476,7 +476,7 @@ class TemplateTagsTest(SitetreeTest):
     def test_sitetree_children(self):
 
         context = get_mock_context(put_var=self.tree_ttags_root)
-        self.sitetree.set_global_context(context)
+        self.sitetree.set_context(context)
 
         tpl = '{% load sitetree %}{% sitetree_children %}'
         self.assertRaises(TemplateSyntaxError, render_string, tpl)
@@ -590,7 +590,7 @@ class TreeTest(SitetreeTest):
         self.assertEqual(self.t3_en.get_title(), 'tree3en_title')
 
     def test_children_filtering(self):
-        self.sitetree._global_context = get_mock_context(path='/')
+        self.sitetree.context = get_mock_context(path='/')
         self.sitetree.get_sitetree('tree3')
         children = self.sitetree.get_children('tree3', self.t3_root)
         filtered = self.sitetree.filter_items(children, 'menu')
@@ -602,7 +602,7 @@ class TreeTest(SitetreeTest):
 
     def test_register_i18n_trees(self):
         register_i18n_trees(['tree3'])
-        self.sitetree._global_context = get_mock_context(path='/the_same_url/')
+        self.sitetree.context = get_mock_context(path='/the_same_url/')
 
         activate('en')
         self.sitetree.get_sitetree('tree3')
@@ -626,6 +626,7 @@ class DynamicTreeTest(SitetreeTest):
     def test_basic_old_and_new(self):
 
         # Assert no dynamic attached.
+        self.sitetree.context = get_mock_context()
         tree_alias, sitetree_items = self.sitetree.get_sitetree('main')
         self.assertEqual(len(sitetree_items), 1)
 
@@ -683,7 +684,7 @@ class DynamicTreeTest(SitetreeTest):
             register_dynamic_trees(trees, **kwargs)
 
         mock_context = get_mock_context(path='/the_same_url/')
-        self.sitetree._global_context = mock_context
+        self.sitetree.context = mock_context
         tree_alias, sitetree_items = self.sitetree.get_sitetree('main')
 
         if reset_cache:

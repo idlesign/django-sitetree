@@ -47,14 +47,14 @@ _DYNAMIC_TREES = {}
 # Dictionary index in `_DYNAMIC_TREES` for orphaned trees list.
 _IDX_ORPHAN_TREES = 'orphans'
 # Dictinary index name template in `_DYNAMIC_TREES`.
-_IDX_TPL = '%s|:|%s' 
+_IDX_TPL = '%s|:|%s'
 
 _THREAD_LOCAL = local()
 _THREAD_LANG = 'sitetree_lang'
 
 
-def get_sitetree():
-    return SiteTree() 
+def get_sitetree(*args, **kwargs):
+    return SiteTree(*args, **kwargs)
 
 
 def register_items_hook(callable):
@@ -235,8 +235,9 @@ class LazyTitle(object):
     """Lazily resolves any variable found in a title of an item.
     Produces resolved title as unicode representation."""
 
-    def __init__(self, title):
+    def __init__(self, title, context):
         self.title = title
+        self.context = context
 
     def __str__(self):
         my_lexer = get_lexer(self.title)
@@ -248,7 +249,7 @@ class LazyTitle(object):
                 my_tokens.remove(my_token)
 
         my_parser = Parser(my_tokens)
-        return my_parser.parse().render(self.get_context())
+        return my_parser.parse().render(self.context)
 
     def __eq__(self, other):
         return self.__str__() == other
@@ -301,11 +302,12 @@ class Cache(object):
 
     def get_entry(self, entry_name, key):
         """Returns cache entry parameter value by its name."""
-        return self.cache[entry_name].get(key, False)
+        if self.cache:
+            return self.cache.get(entry_name,{}).get(key, False)
 
     def update_entry_value(self, entry_name, key, value):
         """Updates cache entry parameter with new data."""
-        if key not in self.cache[entry_name]:
+        if key not in self.cache.get(entry_name,{}):
             self.cache[entry_name][key] = {}
         self.cache[entry_name][key].update(value)
 
@@ -464,7 +466,7 @@ class SiteTree(object):
             # Contextual properties.
             item.url_resolved = self.url(item)
             if VARIABLE_TAG_START in item.title:
-                item.title_resolved = LazyTitle(item.title)
+                item.title_resolved = LazyTitle(item.title, self.get_context())
             else:
                 item.title_resolved = item.title
             item.is_current = False
@@ -555,6 +557,11 @@ class SiteTree(object):
         if not isinstance(sitetree_item, MODEL_TREE_ITEM_CLASS):
             sitetree_item = self.resolve_var(sitetree_item, context)
 
+        if context is None:
+            self.init_tree(sitetree_item.tree.alias, context)
+        if self.cache.cache is None:
+            self.cache.init()
+
         # Resolve only if item's URL is marked as pattern.
         if sitetree_item.urlaspattern:
             url = sitetree_item.url
@@ -620,7 +627,6 @@ class SiteTree(object):
         On fail returns False.
 
         """
-        
         self.set_context(context)
         # Initialize language to use it in current thread.
         self.lang_init()
@@ -663,6 +669,7 @@ class SiteTree(object):
     def menu(self, tree_alias, tree_branches, context):
         """Builds and returns menu structure for 'sitetree_menu' tag."""
         tree_alias, sitetree_items = self.init_tree(tree_alias, context)
+
         # No items in tree, fail silently.
         if not sitetree_items:
             return ''
@@ -777,6 +784,8 @@ class SiteTree(object):
         """
         # Resolve parent item and current tree alias.
         parent_item = self.resolve_var(parent_item, context)
+        if not self.context:
+            self.init_tree(parent_item.tree.alias, context)
         tree_alias, tree_items = self.get_sitetree(parent_item.tree.alias)
         # Mark path to current item.
         self.tree_climber(tree_alias, self.get_tree_current_item(tree_alias))
