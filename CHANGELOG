@@ -1,6 +1,12 @@
 django-sitetree changelog
 =========================
 
+
+v1.5.1
+------
+* Django 1.9 compatibility improvements.
+
+
 v1.5.0
 ------
 + Added Norwegian translation.
