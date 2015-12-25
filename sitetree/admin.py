@@ -151,6 +151,7 @@ class TreeItemAdmin(admin.ModelAdmin):
         form = super(TreeItemAdmin, self).get_form(request, obj, **kwargs)
         my_choice_field.label = form.base_fields['parent'].label
         my_choice_field.help_text = form.base_fields['parent'].help_text
+        my_choice_field.widget = form.base_fields['parent'].widget
         # Replace 'parent' TreeItem field with new appropriate one
         form.base_fields['parent'] = my_choice_field
 
