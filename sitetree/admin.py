@@ -107,6 +107,7 @@ class TreeItemAdmin(admin.ModelAdmin):
     )
     filter_horizontal = ('access_permissions',)
     change_form_template = 'admin/sitetree/treeitem/change_form.html'
+    delete_confirmation_template = 'admin/sitetree/treeitem/delete_confirmation.html'
 
     def response_add(self, request, obj, post_url_continue=None, **kwargs):
         """Redirects to the appropriate items' 'continue' page on item add.
