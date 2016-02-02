@@ -284,7 +284,7 @@ class Cache(object):
         Could be used to show up tree changes made in a different process.
 
         """
-        cache.get('sitetrees_reset', True)
+        cache.set('sitetrees_reset', True)
 
     def init(self):
         """Initializes local cache from Django cache."""

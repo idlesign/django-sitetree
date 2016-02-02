@@ -2,6 +2,11 @@ django-sitetree changelog
 =========================
 
 
+Unreleased
+----------
+* Cache.reset() misbehavior fixed (closes #191).
+
+
 v1.5.1
 ------
 * Django 1.9 compatibility improvements.
