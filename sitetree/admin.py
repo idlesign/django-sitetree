@@ -90,7 +90,7 @@ class TreeItemAdmin(admin.ModelAdmin):
     exclude = ('tree', 'sort_order')
     fieldsets = (
         (_('Basic settings'), {
-            'fields': ('parent', 'title', 'url',)
+            'fields': ('parent', 'title', 'url', 'external',)
         }),
         (_('Access settings'), {
             'classes': ('collapse',),

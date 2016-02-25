@@ -5,6 +5,6 @@
             {% sitetree_children of item for menu template "sitetree/menu_semantic_dropdown.html" %}
         </div>
     {% else %}
-        <a href="{% sitetree_url for item %}" class="{% if item.is_current or item.in_current_branch %}active{% endif %} item">{{ item.title_resolved }}</a>
+        <a {% if item.external %}target="_blank" {% endif %} href="{% sitetree_url for item %}" class="{% if item.is_current or item.in_current_branch %}active{% endif %} item">{{ item.title_resolved }}</a>
     {% endif %}
 {% endfor %}

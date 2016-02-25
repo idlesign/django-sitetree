@@ -22,6 +22,7 @@
 		<td class="align-center"><img src="{{ STATIC_URL }}admin/img/icon-{{ item.access_restricted|yesno:"yes,no" }}{{ icon_ext }}" alt="{{ item.access_restricted }}" /></td>
         <td class="align-center"><img src="{{ STATIC_URL }}admin/img/icon-{{ item.access_loggedin|yesno:"yes,no" }}{{ icon_ext }}" alt="{{ item.access_loggedin }}" /></td>
         <td class="align-center"><img src="{{ STATIC_URL }}admin/img/icon-{{ item.access_guest|yesno:"yes,no" }}{{ icon_ext }}" alt="{{ item.access_guest }}" /></td>
+        <td class="align-center"><img src="{{ STATIC_URL }}admin/img/icon-{{ item.external|yesno:"yes,no" }}{{ icon_ext }}" alt="{{ item.access_guest }}" /></td>
 		<td>
             {% for d in item.depth_range %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% endfor %}
             {% if item.parent %}|&#8212;{% endif %}
