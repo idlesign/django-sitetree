@@ -1,6 +1,12 @@
 django-sitetree changelog
 =========================
 
+
+Unreleased
+----------
+* Reduced number of cache calls (see #194).
+
+
 v1.5.0
 ------
 + Added Norwegian translation.

@@ -54,6 +54,7 @@ _SITETREE = None
 _THREAD_LOCAL = local()
 _THREAD_LANG = 'sitetree_lang'
 _THREAD_CONTEXT = 'sitetree_ctx'
+_THREAD_CACHE = 'sitetree_cache'
 
 
 def get_sitetree():
@@ -293,10 +294,15 @@ class Cache(object):
         # Drop cache flag set by .reset() method.
         cache.get('sitetrees_reset') and self.empty()
 
-        cache_ = cache.get('sitetrees')
+        cache_ = getattr(_THREAD_LOCAL, _THREAD_CACHE, None)
         if cache_ is None:
-            # Init cache dictionary with predefined entries.
-            cache_ = {'sitetrees': {}, 'urls': {}, 'parents': {}, 'items_by_ids': {}, 'tree_aliases': {}}
+
+            cache_ = cache.get(
+                # Init cache dictionary with predefined entries.
+                'sitetrees', {'sitetrees': {}, 'urls': {}, 'parents': {}, 'items_by_ids': {}, 'tree_aliases': {}})
+
+            setattr(_THREAD_LOCAL, _THREAD_CACHE, cache_)
+
         self.cache = cache_
 
     def save(self):
@@ -306,6 +312,7 @@ class Cache(object):
     def empty(self, **kwargs):
         """Empties cached sitetree data."""
         self.cache = None
+        setattr(_THREAD_LOCAL, _THREAD_CACHE, None)
         cache.delete('sitetrees')
         cache.delete('sitetrees_reset')
 
@@ -431,8 +438,6 @@ class SiteTree(object):
         cache = self.cache
         get_cache_entry = cache.get_entry
         set_cache_entry = cache.set_entry
-
-        cache.init()
 
         sitetree_needs_caching = False
         if not self.current_app_is_admin():
@@ -644,11 +649,16 @@ class SiteTree(object):
         self.lang_init()
         # Resolve tree_alias from the context.
         tree_alias = self.resolve_var(tree_alias)
+
+        self.cache.init()  # Warm up cache.
+
         # Get tree.
         tree_alias, sitetree_items = self.get_sitetree(tree_alias)
+
         # No items in tree, fail silently.
         if not sitetree_items:
             return False, False
+
         return tree_alias, sitetree_items
 
     def get_current_page_title(self, tree_alias, context):
