@@ -5,6 +5,7 @@ django-sitetree changelog
 Unreleased
 ----------
 * Cache.reset() misbehavior fixed (closes #191).
+* Fixed broken delete operation in admin for custom TreeItem (see #190).
 
 
 v1.5.1
