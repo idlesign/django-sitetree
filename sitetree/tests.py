@@ -5,7 +5,7 @@ try:
     from StringIO import StringIO
 except ImportError:
     from io import StringIO
-    
+
 try:
     from unittest import mock
 except ImportError:
@@ -287,6 +287,19 @@ class TreeItemModelTest(SitetreeTest):
         self.assertEqual(ti1.title, 'not_new_root_item')
         ti1.delete()
         self.assertIsNone(ti1.id)
+
+    def test_no_recursive_parents(self):
+        """Verify that treeitems cannot be their own parent."""
+        tree = Tree(alias="mytree")
+        tree.save()
+        tree_item = TreeItem(title="i'm my own grandpa", tree=tree)
+        # This item needs to be saved, otherwise it cannot be set
+        # as a parent.
+        tree_item.save()
+
+        tree_item.parent = tree_item
+        tree_item.save()
+        self.assertNotEqual(tree_item, tree_item.parent)
 
     def test_context_proc_required(self):
         context = Context()
