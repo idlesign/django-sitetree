@@ -134,8 +134,9 @@ class TreeItemBase(models.Model):
             self.parent = None
         
         # Set item's sort order to its primary key.
-        if self.sort_order == 0:
-            self.sort_order = self.id
+        id_ = self.id
+        if id_ and self.sort_order == 0:
+            self.sort_order = id_
         
         super(TreeItemBase, self).save(force_insert, force_update, **kwargs)
 
