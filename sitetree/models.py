@@ -128,16 +128,20 @@ class TreeItemBase(models.Model):
         """Ensure that item is not its own parent and set proper sort order.
 
         """
-        super(TreeItemBase, self).save(force_insert, force_update, **kwargs)
-
-        # Set item's sort order to its primary key.
-        if self.sort_order == 0:
-            self.sort_order = self.id
-
         # Ensure that item is not its own parent, since this breaks
         # the sitetree (and possibly the entire site).
         if self.parent == self:
             self.parent = None
+        
+        # Set item's sort order to its primary key.
+        if self.sort_order == 0:
+            self.sort_order = self.id
+        
+        super(TreeItemBase, self).save(force_insert, force_update, **kwargs)
+
+        # Set item's sort order to its primary key if not already set.
+        if self.sort_order == 0:
+            self.sort_order = self.id
             self.save()
 
     class Meta(object):
