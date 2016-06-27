@@ -48,22 +48,13 @@ _DYNAMIC_TREES = {}
 _IDX_ORPHAN_TREES = 'orphans'
 # Dictinary index name template in `_DYNAMIC_TREES`.
 _IDX_TPL = '%s|:|%s'
-# SiteTree app-wise object.
-_SITETREE = None
 
 _THREAD_LOCAL = local()
 _THREAD_LANG = 'sitetree_lang'
 
 
-def get_sitetree():
-    """Returns SiteTree [singleton] object, implementing utility methods.
-
-    :return: SiteTree
-    """
-    global _SITETREE
-    if _SITETREE is None:
-        _SITETREE = SiteTree()
-    return _SITETREE
+def get_sitetree(*args, **kwargs):
+    return SiteTree(*args, **kwargs)
 
 
 def register_items_hook(callable):
@@ -244,8 +235,9 @@ class LazyTitle(object):
     """Lazily resolves any variable found in a title of an item.
     Produces resolved title as unicode representation."""
 
-    def __init__(self, title):
+    def __init__(self, title, context):
         self.title = title
+        self.context = context
 
     def __str__(self):
         my_lexer = get_lexer(self.title)
@@ -257,7 +249,7 @@ class LazyTitle(object):
                 my_tokens.remove(my_token)
 
         my_parser = Parser(my_tokens)
-        return my_parser.parse().render(SiteTree.get_global_context())
+        return my_parser.parse().render(self.context)
 
     def __eq__(self, other):
         return self.__str__() == other
@@ -310,11 +302,12 @@ class Cache(object):
 
     def get_entry(self, entry_name, key):
         """Returns cache entry parameter value by its name."""
-        return self.cache[entry_name].get(key, False)
+        if self.cache:
+            return self.cache.get(entry_name,{}).get(key, False)
 
     def update_entry_value(self, entry_name, key, value):
         """Updates cache entry parameter with new data."""
-        if key not in self.cache[entry_name]:
+        if key not in self.cache.get(entry_name,{}):
             self.cache[entry_name][key] = {}
         self.cache[entry_name][key].update(value)
 
@@ -325,24 +318,21 @@ class Cache(object):
 
 class SiteTree(object):
 
-    _global_context = Context()
+    context = None
 
     def __init__(self):
         self.cache = Cache()
 
-    @classmethod
-    def set_global_context(cls, context):
+    def set_context(self, context):
         """Saves context as global context if not already set or if changed.
         Almost all variables are resolved against global context.
 
         """
-        if not cls._global_context or id(context) != id(cls._global_context):
-            cls._global_context = context
+        if not self.context or id(context) != id(self.context):
+            self.context = context
 
-    @classmethod
-    def get_global_context(cls):
-        """Returns current sitetree global context."""
-        return cls._global_context
+    def get_context(self):
+        return self.context
 
     def resolve_tree_i18n_alias(self, alias):
         """Resolves internationalized tree alias.
@@ -411,8 +401,8 @@ class SiteTree(object):
     def current_app_is_admin(self):
         """Returns boolean whether current application is Admin contrib."""
         current_app = (
-            getattr(self._global_context.get('request', None), 'current_app',
-                    self._global_context.current_app))
+            getattr(self.get_context().get('request', None), 'current_app',
+                    self.get_context().current_app))
 
         return current_app == 'admin'
 
@@ -476,7 +466,7 @@ class SiteTree(object):
             # Contextual properties.
             item.url_resolved = self.url(item)
             if VARIABLE_TAG_START in item.title:
-                item.title_resolved = LazyTitle(item.title)
+                item.title_resolved = LazyTitle(item.title, self.get_context())
             else:
                 item.title_resolved = item.title
             item.is_current = False
@@ -515,14 +505,14 @@ class SiteTree(object):
 
         current_item = None
 
-        if 'request' not in self._global_context:
+        if 'request' not in self.get_context():
             if settings.DEBUG:
                 raise SiteTreeError(
                     'Sitetree needs "django.core.context_processors.request" to be in TEMPLATE_CONTEXT_PROCESSORS '
                     'in your settings file. If it is, check that your view pushes request data into the template.')
         else:
             # urlquote is an attempt to support non-ascii in url.
-            current_url = urlquote(self._global_context['request'].path)
+            current_url = urlquote(self.get_context()['request'].path)
             urls_cache = self.cache.get_entry('urls', '%s%s' % (tree_alias, self.lang_get()))
             if urls_cache:
                 for url_item in urls_cache:
@@ -562,10 +552,15 @@ class SiteTree(object):
         """
 
         if context is None:
-            context = self._global_context
+            context = self.get_context()
 
         if not isinstance(sitetree_item, MODEL_TREE_ITEM_CLASS):
             sitetree_item = self.resolve_var(sitetree_item, context)
+
+        if context is None:
+            self.init_tree(sitetree_item.tree.alias, context)
+        if self.cache.cache is None:
+            self.cache.init()
 
         # Resolve only if item's URL is marked as pattern.
         if sitetree_item.urlaspattern:
@@ -632,8 +627,7 @@ class SiteTree(object):
         On fail returns False.
 
         """
-        # Current context we will consider global.
-        self.set_global_context(context)
+        self.set_context(context)
         # Initialize language to use it in current thread.
         self.lang_init()
         # Resolve tree_alias from the context.
@@ -675,6 +669,7 @@ class SiteTree(object):
     def menu(self, tree_alias, tree_branches, context):
         """Builds and returns menu structure for 'sitetree_menu' tag."""
         tree_alias, sitetree_items = self.init_tree(tree_alias, context)
+
         # No items in tree, fail silently.
         if not sitetree_items:
             return ''
@@ -737,7 +732,7 @@ class SiteTree(object):
     def check_access(self, item, context):
         """Checks whether a current user has an access to a certain item."""
 
-        authenticated = self._global_context['request'].user.is_authenticated()
+        authenticated = self.get_context()['request'].user.is_authenticated()
 
         if item.access_loggedin and not authenticated:
             return False
@@ -789,6 +784,8 @@ class SiteTree(object):
         """
         # Resolve parent item and current tree alias.
         parent_item = self.resolve_var(parent_item, context)
+        if not self.context:
+            self.init_tree(parent_item.tree.alias, context)
         tree_alias, tree_items = self.get_sitetree(parent_item.tree.alias)
         # Mark path to current item.
         self.tree_climber(tree_alias, self.get_tree_current_item(tree_alias))
@@ -826,7 +823,7 @@ class SiteTree(object):
         items_out = copy(items)
         if not self.current_app_is_admin():
             for item in items:
-                no_access = not self.check_access(item, self._global_context)
+                no_access = not self.check_access(item, self.get_context())
                 hidden_for_nav_type = navigation_type is not None and not getattr(item, 'in' + navigation_type, False)
                 if item.hidden or no_access or hidden_for_nav_type:
                     items_out.remove(item)
@@ -854,19 +851,19 @@ class SiteTree(object):
     def breadcrumbs_climber(self, tree_alias, start_from):
         """Climbs up the site tree to build breadcrumb path."""
         if start_from.inbreadcrumbs and start_from.hidden == False and self.check_access(start_from,
-                                                                                         self._global_context):
+                                                                                         self.get_context()):
             self.cache_breadcrumbs.append(start_from)
         if hasattr(start_from, 'parent') and start_from.parent is not None:
             self.breadcrumbs_climber(tree_alias, self.get_item_by_id(tree_alias, start_from.parent.id))
 
     def resolve_var(self, varname, context=None):
         """Tries to resolve name as a variable in a given context.
-        If no context specified 'global_context' is considered
+        If no context specified 'self.context' is considered
         as context.
 
         """
         if context is None:
-            context = self._global_context
+            context = self.get_context()
 
         if isinstance(varname, FilterExpression):
             varname = varname.resolve(context)
