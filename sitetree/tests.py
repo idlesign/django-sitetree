@@ -1,5 +1,9 @@
+from __future__ import division
 import sys
 from json import loads
+from time import sleep
+from threading import Thread
+from random import randint
 
 try:
     from StringIO import StringIO
@@ -31,8 +35,7 @@ from sitetree.utils import (
 )
 from sitetree.sitetreeapp import (
     SiteTree, SiteTreeError, register_items_hook, register_i18n_trees, register_dynamic_trees, compose_dynamic_tree,
-    get_dynamic_trees
-)
+    get_dynamic_trees, get_sitetree)
 
 
 urlpatterns = patterns(
@@ -102,7 +105,7 @@ class SitetreeTest(TestCase):
 
     @classmethod
     def init_trees(cls):
-        cls.sitetree = SiteTree()
+        cls.sitetree = get_sitetree()
 
         ###########################################################
 
@@ -231,6 +234,73 @@ class SitetreeTest(TestCase):
     def tearDownClass(cls):
         Tree.objects.all().delete()
         TreeItem.objects.all().delete()
+
+
+class SitetreeThread(Thread):
+
+    def __init__(self, test_suite, user_authorized):
+        super(SitetreeThread, self).__init__()
+        self.test_suite = test_suite
+        self.user_authorized = user_authorized
+
+    def run(self):
+        suite = self.test_suite
+
+        nap = randint(10, 100) / 1000
+        sleep(nap)
+
+        tpl = '{% load sitetree %}{% sitetree_tree from "thread_test_tree" %}'
+        result = render_string(tpl, context=get_mock_context(path='/', user_authorized=self.user_authorized))
+
+        if self.user_authorized:
+            suite.assertIn('thread_root_logged', result)
+            suite.assertIn('thread_root_all_sub_logged', result)
+            suite.assertNotIn('thread_root_guests', result)
+            suite.assertNotIn('thread_root_all_sub_guests', result)
+        else:
+            suite.assertNotIn('thread_root_logged', result)
+            suite.assertNotIn('thread_root_all_sub_logged', result)
+            suite.assertIn('thread_root_guests', result)
+            suite.assertIn('thread_root_all_sub_guests', result)
+
+
+class ThreadingTest(TestCase):
+
+    def test_context(self):
+
+        Tree.objects.all().delete()
+        TreeItem.objects.all().delete()
+
+        t = Tree(alias='thread_test_tree')
+        t.save()
+
+        item_root_1 = TreeItem(title='thread_root_all', tree=t, url='/')
+        item_root_1.save()
+
+        item_root_1_sub_1 = TreeItem(title='thread_root_all_sub_all', tree=t, parent=item_root_1, url='/sub_1')
+        item_root_1_sub_1.save()
+
+        item_root_1_sub_2 = TreeItem(
+            title='thread_root_all_sub_logged', tree=t, parent=item_root_1, url='/sub_2', access_loggedin=True)
+        item_root_1_sub_2.save()
+
+        item_root_1_sub_3 = TreeItem(
+            title='thread_root_all_sub_guests', tree=t, parent=item_root_1, url='/sub_2', access_guest=True)
+        item_root_1_sub_3.save()
+
+        item_root_2 = TreeItem(title='thread_root_logged', tree=t, url='/loggedin', access_loggedin=True)
+        item_root_2.save()
+
+        item_root_3 = TreeItem(title='thread_root_guests', tree=t, url='/guests', access_guest=True)
+        item_root_3.save()
+
+        get_sitetree().tree('thread_test_tree', get_mock_context(path='/'))
+
+        threads_count = 50
+        for idx in range(threads_count):
+            thread = SitetreeThread(self, user_authorized=idx % 2)
+            thread.start()
+            thread.join()
 
 
 class TreeModelTest(SitetreeTest):
