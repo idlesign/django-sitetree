@@ -12,15 +12,30 @@ def main():
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
     if not settings.configured:
-        settings.configure(
+
+        configure_kwargs = dict(
             INSTALLED_APPS=('django.contrib.auth', 'django.contrib.contenttypes', APP_NAME),
             DATABASES={'default': {'ENGINE': 'django.db.backends.sqlite3'}},
-            ROOT_URLCONF = 'sitetree.tests',
+            ROOT_URLCONF='sitetree.tests',
             MIDDLEWARE_CLASSES=global_settings.MIDDLEWARE_CLASSES,  # Prevents Django 1.7 warning.
-            TEMPLATE_CONTEXT_PROCESSORS=tuple(global_settings.TEMPLATE_CONTEXT_PROCESSORS) + (
+        )
+
+        try:
+            configure_kwargs['TEMPLATE_CONTEXT_PROCESSORS'] = tuple(global_settings.TEMPLATE_CONTEXT_PROCESSORS) + (
                 'django.core.context_processors.request',
             )
-        )
+
+        except AttributeError:
+
+            # Django 1.8+
+            configure_kwargs['TEMPLATES'] = [
+                {
+                    'BACKEND': 'django.template.backends.django.DjangoTemplates',
+                    'APP_DIRS': True,
+                },
+            ]
+
+        settings.configure(**configure_kwargs)
 
     try:  # Django 1.7 +
         from django import setup

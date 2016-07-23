@@ -11,6 +11,7 @@ try:
 except ImportError:
     import mock
 
+from django import VERSION
 from django.conf import settings
 from django.utils.translation import activate
 from django.template.base import Template, TemplateSyntaxError
@@ -21,7 +22,7 @@ from django.contrib.auth.models import Permission
 from django.contrib.admin.sites import site
 from django.core.management import call_command
 from django.core.exceptions import ImproperlyConfigured
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from sitetree.models import Tree, TreeItem
 from sitetree.forms import TreeItemForm
@@ -35,12 +36,16 @@ from sitetree.sitetreeapp import (
 )
 
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(r'articles/', lambda r: None, name='articles_list'),
     url(r'articles/(\d+)/', lambda r: None, name='articles_detailed'),
     url(r'articles/(?P<id>\d+)_(?P<slug>[\w-]+)/', lambda r: None, name='url'),
-)
+]
+
+if VERSION < (1, 10):
+    from django.conf.urls import patterns
+    urlpatterns.insert(0, '')
+    urlpatterns = patterns(*urlpatterns)
 
 
 class MockRequest(object):
@@ -70,17 +75,26 @@ class MockUser(object):
         return self.permissions
 
 
-def get_mock_context(app=None, path=None, user_authorized=False, tree_item=None, put_var=None):
+def get_mock_context(app='', path=None, user_authorized=False, tree_item=None, put_var=None):
+
     ctx = Context(
         {
             'request': MockRequest(path, user_authorized),
             't2_root2_title': 'my_real_title', 'art_id': 10, 'tree_item': tree_item,
             'somevar_str': 'articles_list', 'somevar_list': ['a', 'b'], 'put_var': put_var
-        },
-        current_app=app
+        }
     )
     ctx.template = mock.MagicMock()
     ctx.template.engine.string_if_invalid = ''
+
+    if VERSION >= (1, 10):
+        match = mock.MagicMock()
+        match.app_name = app
+        ctx.resolver_match = match
+
+    else:
+        ctx._current_app = app
+
     return ctx
 
 

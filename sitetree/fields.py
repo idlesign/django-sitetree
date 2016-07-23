@@ -1,3 +1,4 @@
+from django import VERSION
 from django import template
 from django.template.base import Parser, Token, TOKEN_BLOCK
 from django.forms import ChoiceField
@@ -24,10 +25,13 @@ class TreeItemChoiceField(ChoiceField):
     root_title = '---------'
 
     def __init__(self, tree, required=True, widget=None, label=None, initial=None, help_text=None, *args, **kwargs):
-        super(TreeItemChoiceField, self).__init__(required=required, widget=widget, label=label, initial=initial,
-                                                  help_text=help_text, *args, **kwargs)
+        super(TreeItemChoiceField, self).__init__(
+            required=required, widget=widget, label=label, initial=initial,
+            help_text=help_text, *args, **kwargs)
+
         if isinstance(tree, MODEL_TREE_CLASS):
             tree = tree.alias
+
         self.tree = tree
         self.choices = self._build_choices()
 
@@ -35,9 +39,15 @@ class TreeItemChoiceField(ChoiceField):
         """Build choices list runtime using 'sitetree_tree' tag"""
         tree_token = u'sitetree_tree from "%s" template "%s"' % (self.tree, self.template)
 
+        context_kwargs = {'current_app': 'admin'}
+        if VERSION >= (1, 8):
+            context = template.Context(context_kwargs)
+        else:
+            context = template.Context(**context_kwargs)
+
         choices_str = sitetree_tree(
             Parser(None), Token(token_type=TOKEN_BLOCK, contents=tree_token)
-        ).render(template.Context(current_app='admin'))
+        ).render(context)
 
         tree_choices = [('', self.root_title)]
         for line in choices_str.splitlines():

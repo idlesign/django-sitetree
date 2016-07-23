@@ -1,14 +1,21 @@
-from optparse import make_option
-
 from django.core.management.base import BaseCommand
 from django.db import DEFAULT_DB_ALIAS
 
 from sitetree.utils import get_tree_model, import_project_sitetree_modules
 from sitetree.settings import APP_MODULE_NAME
 from sitetree.sitetreeapp import Cache
+from sitetree.compat import CommandOption, options_getter
 
 
 MODEL_TREE_CLASS = get_tree_model()
+
+
+get_options = options_getter((
+    CommandOption(
+        '--database', action='store', dest='database', default=DEFAULT_DB_ALIAS,
+        help='Nominates a specific database to place trees and items into. Defaults to the "default" database.'
+    ),
+))
 
 
 class Command(BaseCommand):
@@ -18,12 +25,11 @@ class Command(BaseCommand):
 
     args = '[app_name app_name ...]'
 
-    option_list = BaseCommand.option_list + (
-        make_option(
-            '--database', action='store', dest='database', default=DEFAULT_DB_ALIAS,
-            help='Nominates a specific database to place trees and items into. Defaults to the "default" database.'
-        ),
-    )
+    option_list = get_options()
+
+    def add_arguments(self, parser):
+        parser.add_argument('args', metavar='app', nargs='+', help='Application names.')
+        get_options(parser.add_argument)
 
     def handle(self, *apps, **options):
         using = options.get('database', DEFAULT_DB_ALIAS)

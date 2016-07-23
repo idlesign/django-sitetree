@@ -1,8 +1,7 @@
 import sys
-from optparse import make_option
 from collections import defaultdict
 
-import django
+from django import VERSION
 from django.core import serializers
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management.color import no_style
@@ -10,25 +9,42 @@ from django.db import connections, router, transaction, DEFAULT_DB_ALIAS
 from django.core.exceptions import ObjectDoesNotExist
 
 from sitetree.utils import get_tree_model, get_tree_item_model
+from sitetree.compat import CommandOption, options_getter
 
 
 MODEL_TREE_CLASS = get_tree_model()
 MODEL_TREE_ITEM_CLASS = get_tree_item_model()
 
+VER_LESS_17 = VERSION < (1, 7)
+VER_LESS_18 = VERSION < (1, 8)
+
+
+get_options = options_getter((
+    CommandOption(
+        '--database', action='store', dest='database',
+        default=DEFAULT_DB_ALIAS, help='Nominates a specific database to load fixtures into. '
+                                       'Defaults to the "default" database.'),
+
+    CommandOption(
+        '--mode', action='store', dest='mode', default='append',
+        help='Mode to put data into DB. Variants: `replace`, `append`.'),
+
+    CommandOption(
+        '--items_into_tree', action='store', dest='into_tree', default=None,
+        help='Import only tree items data into tree with given alias.'),
+))
+
 
 class Command(BaseCommand):
 
-    option_list = BaseCommand.option_list + (
-        make_option('--database', action='store', dest='database',
-            default=DEFAULT_DB_ALIAS, help='Nominates a specific database to load fixtures into. '
-                    'Defaults to the "default" database.'),
-        make_option('--mode', action='store', dest='mode',
-            default='append', help='Mode to put data into DB. Variants: `replace`, `append`.'),
-        make_option('--items_into_tree', action='store', dest='into_tree',
-            default=None, help='Import only tree items data into tree with given alias.'),
-        )
+    option_list = get_options()
+
     help = 'Loads sitetrees from fixture in JSON format into database.'
     args = '[fixture_file fixture_file ...]'
+
+    def add_arguments(self, parser):
+        parser.add_argument('args', metavar='fixture', nargs='+', help='Fixture files.')
+        get_options(parser.add_argument)
 
     def handle(self, *fixture_files, **options):
 
@@ -50,17 +66,13 @@ class Command(BaseCommand):
 
         self.style = no_style()
 
-        django_version = django.get_version()
-        django_version_less_17 = django_version < '1.7'
-        django_version_less_18 = django_version < '1.8'
-
-        if django_version_less_17:
+        if VER_LESS_17:
             transaction.commit_unless_managed(using=using)
 
-        if django_version_less_18:
+        if VER_LESS_18:
             transaction.enter_transaction_management(using=using)
 
-        if django_version_less_17:
+        if VER_LESS_17:
             transaction.managed(True, using=using)
 
         loaded_object_count = 0
@@ -164,7 +176,7 @@ class Command(BaseCommand):
                 import traceback
                 fixture.close()
 
-                if django_version_less_18:
+                if VER_LESS_18:
                     transaction.rollback(using=using)
                     transaction.leave_transaction_management(using=using)
 
@@ -186,7 +198,7 @@ class Command(BaseCommand):
                 for line in sequence_sql:
                     cursor.execute(line)
 
-        if django_version_less_18:
+        if VER_LESS_18:
             transaction.commit(using=using)
             transaction.leave_transaction_management(using=using)
 

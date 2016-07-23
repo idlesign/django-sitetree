@@ -410,9 +410,16 @@ class SiteTree(object):
 
     def current_app_is_admin(self):
         """Returns boolean whether current application is Admin contrib."""
-        current_app = (
-            getattr(self._global_context.get('request', None), 'current_app',
-                    self._global_context.current_app))
+        global_context = self._global_context
+
+        current_app = getattr(
+            # Try from request.resolver_match.app_name
+            getattr(global_context.get('request', None), 'resolver_match', None), 'app_name',
+            # Try from global context obj.
+            getattr(global_context, 'current_app', None))
+
+        if current_app is None:  # Try from global context dict.
+            current_app = global_context.get('current_app', '')
 
         return current_app == 'admin'
 
