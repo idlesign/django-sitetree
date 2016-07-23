@@ -6,6 +6,7 @@ Unreleased
 ----------
 + Prevent TreeItems from being their own parents (see #200).
 + Added `toolbox` module as API single entry point.
++ Added `exceptions` module.
 * Django 1.10 compatibility improvements.
 * Cache.reset() misbehavior fixed (closes #191).
 * Fixed broken delete operation in admin for custom TreeItem (see #190).

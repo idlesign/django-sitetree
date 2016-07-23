@@ -26,6 +26,7 @@ from .utils import get_tree_model, get_tree_item_model, import_app_sitetree_modu
 from .settings import (
     ALIAS_TRUNK, ALIAS_THIS_CHILDREN, ALIAS_THIS_SIBLINGS, ALIAS_THIS_PARENT_SIBLINGS, ALIAS_THIS_ANCESTOR_CHILDREN,
     UNRESOLVED_ITEM_MARKER, RAISE_ITEMS_ERRORS_ON_DEBUG, CACHE_TIMEOUT)
+from .exceptions import SiteTreeError
 
 
 if VERSION >= (1, 9, 0):
@@ -886,7 +887,3 @@ class SiteTree(object):
                 varname = varname
 
         return varname
-
-
-class SiteTreeError(Exception):
-    """Exception class for sitetree application."""
