@@ -25,16 +25,11 @@ from django.core.exceptions import ImproperlyConfigured
 from django.conf.urls import url
 
 from sitetree.models import Tree, TreeItem
-from sitetree.forms import TreeItemForm
 from sitetree.admin import TreeAdmin, TreeItemAdmin, redirects_handler
-from sitetree.utils import (
-    tree, item, get_app_n_model, import_app_sitetree_module, import_project_sitetree_modules, get_model_class
-)
-from sitetree.sitetreeapp import (
-    SiteTree, SiteTreeError, register_items_hook, register_i18n_trees, register_dynamic_trees, compose_dynamic_tree,
-    get_dynamic_trees
-)
-
+from sitetree.utils import get_app_n_model, get_model_class
+from sitetree.sitetreeapp import SiteTree, SiteTreeError
+from sitetree.toolbox import TreeItemForm, tree, item, import_app_sitetree_module, import_project_sitetree_modules, \
+    register_items_hook, register_i18n_trees, register_dynamic_trees, compose_dynamic_tree, get_dynamic_trees
 
 urlpatterns = [
     url(r'articles/', lambda r: None, name='articles_list'),
