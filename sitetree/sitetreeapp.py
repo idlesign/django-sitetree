@@ -496,10 +496,11 @@ class SiteTree(object):
                     language_from_path = get_language_from_path(current_url)
                     if language_from_path:
                         current_url = current_url.replace('/%s' % language_from_path, '', 1)
-                        for url_item in urls_cache:
-                            urls_cache[url_item][1].is_current = False
-                            if urls_cache[url_item][0] == current_url:
-                                current_item = urls_cache[url_item][1]
+                        if self.translation_enabled_for_path(current_url):
+                            for url_item in urls_cache:
+                                urls_cache[url_item][1].is_current = False
+                                if urls_cache[url_item][0] == current_url:
+                                    current_item = urls_cache[url_item][1]
 
         if current_item is not None:
             current_item.is_current = True
@@ -595,13 +596,8 @@ class SiteTree(object):
 
             self.update_cache_entry_value('urls', cache_key, {url_pattern: (resolved_url, sitetree_item)})
             
-        
-            
-        if self.is_locale_patterns_used():
-            language_from_path = get_language_from_path(resolved_url)
-            if not language_from_path:
-                if self.translation_enabled_for_path(resolved_url):
-                    resolved_url = '/%s%s' % (self.lang_get(), resolved_url)
+        if self.is_locale_patterns_used() and self.translation_enabled_for_path(resolved_url):
+            resolved_url = '/%s%s' % (self.lang_get(), resolved_url)
 
         return resolved_url
 
@@ -719,7 +715,7 @@ class SiteTree(object):
                 if item.id in parent_ids or item.alias in parent_aliases:
                     item.has_children = False
                     setattr(item, 'is_parent', True)
-        
+
         return menu_items
 
     def apply_hook(self, items, sender, menu_name=None):
