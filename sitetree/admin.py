@@ -258,18 +258,18 @@ def redirects_handler(*args, **kwargs):
     introduced in Django 1.4 by url handling changes.
 
     """
-    referer = args[0].META['HTTP_REFERER']
+    path = args[0].path
     shift = '../'
 
-    if 'delete' in referer:
+    if 'delete' in path:
         # Weird enough 'delete' is not handled by TreeItemAdmin::response_change().
         shift += '../'
-    elif 'history' in referer:
+    elif 'history' in path:
         if 'item_id' not in kwargs:
             # Encountered request from history page to return to tree layout page.
             shift += '../'
 
-    return HttpResponseRedirect(referer + shift)
+    return HttpResponseRedirect(path + shift)
 
 
 class TreeAdmin(admin.ModelAdmin):
@@ -301,8 +301,7 @@ class TreeAdmin(admin.ModelAdmin):
         prefix_change = 'change/' if DJANGO_POST_19 else ''
 
         sitetree_urls = [
-            # Ignore urls.W002. Leading slash is in the right place.
-            url(r'^/$', redirects_handler, name=get_tree_item_url_name('changelist')),
+            url(r'^change/$', redirects_handler, name=get_tree_item_url_name('changelist')),
 
             url(r'^((?P<tree_id>\d+)/)?%sitem_add/$' % prefix_change,
                 self.admin_site.admin_view(self.tree_admin.item_add), name=get_tree_item_url_name('add')),
