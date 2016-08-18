@@ -613,7 +613,9 @@ class TreeTest(SitetreeTest):
         self.assertEqual(self.t3_en.get_title(), 'tree3en_title')
 
     def test_children_filtering(self):
-        self.sitetree._global_context = get_mock_context(path='/')
+        self.sitetree.cache.init()
+
+        self.sitetree.set_global_context(get_mock_context(path='/'))
         self.sitetree.get_sitetree('tree3')
         children = self.sitetree.get_children('tree3', self.t3_root)
         filtered = self.sitetree.filter_items(children, 'menu')
@@ -625,7 +627,7 @@ class TreeTest(SitetreeTest):
 
     def test_register_i18n_trees(self):
         register_i18n_trees(['tree3'])
-        self.sitetree._global_context = get_mock_context(path='/the_same_url/')
+        self.sitetree.set_global_context(get_mock_context(path='/the_same_url/'))
 
         activate('en')
         self.sitetree.get_sitetree('tree3')
@@ -647,6 +649,8 @@ class TreeTest(SitetreeTest):
 class DynamicTreeTest(SitetreeTest):
 
     def test_basic_old_and_new(self):
+
+        self.sitetree.cache.init()
 
         # Assert no dynamic attached.
         tree_alias, sitetree_items = self.sitetree.get_sitetree('main')
@@ -706,7 +710,8 @@ class DynamicTreeTest(SitetreeTest):
             register_dynamic_trees(trees, **kwargs)
 
         mock_context = get_mock_context(path='/the_same_url/')
-        self.sitetree._global_context = mock_context
+        self.sitetree.cache.init()
+        self.sitetree.set_global_context(mock_context)
         tree_alias, sitetree_items = self.sitetree.get_sitetree('main')
 
         if reset_cache:

@@ -10,6 +10,7 @@ Unreleased
 * Django 1.10 compatibility improvements.
 * Cache.reset() misbehavior fixed (closes #191).
 * Fixed broken delete operation in admin for custom TreeItem (see #190).
+* Reduced number of cache calls (see #194).
 
 
 v1.5.1
