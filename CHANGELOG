@@ -2,6 +2,11 @@ django-sitetree changelog
 =========================
 
 
+Unreleased
+----------
++ Added `ITEMS_FIELD_ROOT_ID` setting (see #205).
+
+
 v1.6.0
 ------
 + Prevent TreeItems from being their own parents (see #200).

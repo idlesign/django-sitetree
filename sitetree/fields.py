@@ -6,6 +6,7 @@ from django.utils.safestring import mark_safe
 
 from .templatetags.sitetree import sitetree_tree
 from .utils import get_tree_model, get_tree_item_model
+from .settings import ITEMS_FIELD_ROOT_ID
 
 
 MODEL_TREE_CLASS = get_tree_model()
@@ -49,14 +50,21 @@ class TreeItemChoiceField(ChoiceField):
             Parser(None), Token(token_type=TOKEN_BLOCK, contents=tree_token)
         ).render(context)
 
-        tree_choices = [('', self.root_title)]
+        tree_choices = [(ITEMS_FIELD_ROOT_ID, self.root_title)]
+
         for line in choices_str.splitlines():
             if line.strip():
                 splitted = line.split(':::')
                 tree_choices.append((splitted[0], mark_safe(splitted[1])))
+
         return tree_choices
 
     def clean(self, value):
         if not value:
             return None
-        return MODEL_TREE_ITEM_CLASS.objects.get(pk=value)
+
+        try:
+            return MODEL_TREE_ITEM_CLASS.objects.get(pk=value)
+
+        except MODEL_TREE_ITEM_CLASS.DoesNotExist:
+            return None
