@@ -182,9 +182,7 @@ class Command(BaseCommand):
 
                 self.stderr.write(
                     self.style.ERROR('Fixture `%s` import error: %s\n' % (
-                        fixture_file, ''.join(traceback.format_exception(
-                            sys.exc_type, sys.exc_value, sys.exc_traceback
-                        ))
+                        fixture_file, ''.join(traceback.format_exception(*sys.exc_info()))
                     ))
                 )
 

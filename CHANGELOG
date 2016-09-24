@@ -5,6 +5,7 @@ django-sitetree changelog
 Unreleased
 ----------
 + Added `ITEMS_FIELD_ROOT_ID` setting (see #205).
+* Improved `sitetreeload` command py3 compatibility (see #209).
 
 
 v1.6.0
