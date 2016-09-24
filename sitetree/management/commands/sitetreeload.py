@@ -137,6 +137,9 @@ class Command(BaseCommand):
 
                     parents_ahead = []
 
+                    # Parents go first: enough for simple cases.
+                    tree_items[orig_tree_id].sort(key=lambda item: item.id not in tree_item_parents.keys())
+
                     for tree_item in tree_items[orig_tree_id]:
                         parent_ahead = False
                         self.stdout.write('Importing item `%s` ...\n' % tree_item.title)

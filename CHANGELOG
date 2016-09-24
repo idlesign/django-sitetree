@@ -6,6 +6,7 @@ Unreleased
 ----------
 + Added `ITEMS_FIELD_ROOT_ID` setting (see #205).
 * Improved `sitetreeload` command py3 compatibility (see #209).
+* Fixed `sitetreeload` unable to load some twisted tree structures (see #209).
 
 
 v1.6.0
