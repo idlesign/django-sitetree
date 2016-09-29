@@ -89,12 +89,16 @@ def sitetree_breadcrumbs(parser, token):
 
     """
     tokens = token.split_contents()
+    context_var = None
+    if tokens[-2] == 'as':
+        context_var = tokens[-1]
+        tokens = tokens[:-2]
     use_template = detect_clause(parser, 'template', tokens)
     tokens_num = len(tokens)
 
     if tokens_num == 3:
         tree_alias = parser.compile_filter(tokens[2])
-        return sitetree_breadcrumbsNode(tree_alias, use_template)
+        return sitetree_breadcrumbsNode(tree_alias, use_template, context_var)
     else:
         raise template.TemplateSyntaxError(
             '%r tag requires two arguments. E.g. {%% sitetree_breadcrumbs from "mytree" %%}.' % tokens[0])
@@ -233,12 +237,16 @@ class sitetree_childrenNode(template.Node):
 class sitetree_breadcrumbsNode(template.Node):
     """Renders breadcrumb trail items from specified site tree."""
 
-    def __init__(self, tree_alias, use_template):
+    def __init__(self, tree_alias, use_template, context_var):
         self.use_template = use_template
         self.tree_alias = tree_alias
+        self.context_var = context_var
 
     def render(self, context):
         tree_items = sitetree.breadcrumbs(self.tree_alias, context)
+        if self.context_var:
+            context[self.context_var] = tree_items
+            return u''
         return render(context, tree_items, self.use_template or 'sitetree/breadcrumbs.html')
 
 
@@ -308,7 +316,7 @@ class sitetree_page_hintNode(template.Node):
 
     def render(self, context):
         return sitetree.get_current_page_attr('hint', self.tree_alias, context)
-    
+
 
 def detect_clause(parser, clause_name, tokens):
     """Helper function detects a certain clause in tag tokens list.
@@ -322,7 +330,7 @@ def detect_clause(parser, clause_name, tokens):
     else:
         clause_value = None
     return clause_value
-    
+
 def detect_flag(parser, flag_name, tokens):
     """Helper function detects a certain flag in tag tokens list.
     Returns true or false.
