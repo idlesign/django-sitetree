@@ -28,7 +28,7 @@ class Command(BaseCommand):
     option_list = get_options()
 
     def add_arguments(self, parser):
-        parser.add_argument('args', metavar='app', nargs='+', help='Application names.')
+        parser.add_argument('args', metavar='app', nargs='*', help='Application names.')
         get_options(parser.add_argument)
 
     def handle(self, *apps, **options):
