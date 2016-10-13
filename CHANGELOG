@@ -5,8 +5,10 @@ django-sitetree changelog
 Unreleased
 ----------
 + Added `ITEMS_FIELD_ROOT_ID` setting (see #205).
+* Reduced DB hits for trees with lots of permissions (see #213).
 * Improved `sitetreeload` command py3 compatibility (see #209).
 * Fixed `sitetreeload` unable to load some twisted tree structures (see #209).
+* Fixed `sitetree_resync_apps` run without args.
 
 
 v1.6.0
