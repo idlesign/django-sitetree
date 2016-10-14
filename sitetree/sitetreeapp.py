@@ -756,7 +756,10 @@ class SiteTree(object):
     def check_access(self, item, context):
         """Checks whether a current user has an access to a certain item."""
 
-        authenticated = self._global_context['request'].user.is_authenticated()
+        try:
+            authenticated = self._global_context['request'].user.is_authenticated()
+        except KeyError:
+            return False
 
         if item.access_loggedin and not authenticated:
             return False
@@ -766,12 +769,15 @@ class SiteTree(object):
 
         if item.access_restricted:
             user_perms = set(context['user'].get_all_permissions())
-            if item.access_perm_type == MODEL_TREE_ITEM_CLASS.PERM_TYPE_ALL:
-                if len(item.perms) != len(item.perms.intersection(user_perms)):
-                    return False
-            else:
-                if not len(item.perms.intersection(user_perms)):
-                    return False
+            try:
+                if item.access_perm_type == MODEL_TREE_ITEM_CLASS.PERM_TYPE_ALL:
+                    if len(item.perms) != len(item.perms.intersection(user_perms)):
+                        return False
+                else:
+                    if not len(item.perms.intersection(user_perms)):
+                        return False
+            except AttributeError:
+                return False
         return True
 
     def breadcrumbs(self, tree_alias, context):
