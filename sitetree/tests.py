@@ -1,17 +1,20 @@
+from __future__ import division
 import sys
 from json import loads
+from time import sleep
+from threading import Thread
+from random import randint
 
 try:
     from StringIO import StringIO
 except ImportError:
     from io import StringIO
-
+    
 try:
     from unittest import mock
 except ImportError:
     import mock
 
-from django import VERSION
 from django.conf import settings
 from django.utils.translation import activate
 from django.template.base import Template, TemplateSyntaxError
@@ -22,26 +25,25 @@ from django.contrib.auth.models import Permission
 from django.contrib.admin.sites import site
 from django.core.management import call_command
 from django.core.exceptions import ImproperlyConfigured
-from django.conf.urls import url
+from django.conf.urls import patterns, url
 
 from sitetree.models import Tree, TreeItem
+from sitetree.forms import TreeItemForm
 from sitetree.admin import TreeAdmin, TreeItemAdmin, redirects_handler
-from sitetree.utils import get_app_n_model, get_model_class
-from sitetree.sitetreeapp import SiteTree
-from sitetree.toolbox import TreeItemForm, tree, item, import_app_sitetree_module, import_project_sitetree_modules, \
-    register_items_hook, register_i18n_trees, register_dynamic_trees, compose_dynamic_tree, get_dynamic_trees
-from sitetree.exceptions import SiteTreeError
+from sitetree.utils import (
+    tree, item, get_app_n_model, import_app_sitetree_module, import_project_sitetree_modules, get_model_class
+)
+from sitetree.sitetreeapp import (
+    SiteTree, SiteTreeError, register_items_hook, register_i18n_trees, register_dynamic_trees, compose_dynamic_tree,
+    get_dynamic_trees, get_sitetree)
 
-urlpatterns = [
+
+urlpatterns = patterns(
+    '',
     url(r'articles/', lambda r: None, name='articles_list'),
     url(r'articles/(\d+)/', lambda r: None, name='articles_detailed'),
     url(r'articles/(?P<id>\d+)_(?P<slug>[\w-]+)/', lambda r: None, name='url'),
-]
-
-if VERSION < (1, 10):
-    from django.conf.urls import patterns
-    urlpatterns.insert(0, '')
-    urlpatterns = patterns(*urlpatterns)
+)
 
 
 class MockRequest(object):
@@ -71,26 +73,17 @@ class MockUser(object):
         return self.permissions
 
 
-def get_mock_context(app='', path=None, user_authorized=False, tree_item=None, put_var=None):
-
+def get_mock_context(app=None, path=None, user_authorized=False, tree_item=None, put_var=None):
     ctx = Context(
         {
             'request': MockRequest(path, user_authorized),
             't2_root2_title': 'my_real_title', 'art_id': 10, 'tree_item': tree_item,
             'somevar_str': 'articles_list', 'somevar_list': ['a', 'b'], 'put_var': put_var
-        }
+        },
+        current_app=app
     )
     ctx.template = mock.MagicMock()
     ctx.template.engine.string_if_invalid = ''
-
-    if VERSION >= (1, 10):
-        match = mock.MagicMock()
-        match.app_name = app
-        ctx.resolver_match = match
-
-    else:
-        ctx._current_app = app
-
     return ctx
 
 
@@ -112,7 +105,7 @@ class SitetreeTest(TestCase):
 
     @classmethod
     def init_trees(cls):
-        cls.sitetree = SiteTree()
+        cls.sitetree = get_sitetree()
 
         ###########################################################
 
@@ -243,6 +236,73 @@ class SitetreeTest(TestCase):
         TreeItem.objects.all().delete()
 
 
+class SitetreeThread(Thread):
+
+    def __init__(self, test_suite, user_authorized):
+        super(SitetreeThread, self).__init__()
+        self.test_suite = test_suite
+        self.user_authorized = user_authorized
+
+    def run(self):
+        suite = self.test_suite
+
+        nap = randint(10, 100) / 1000
+        sleep(nap)
+
+        tpl = '{% load sitetree %}{% sitetree_tree from "thread_test_tree" %}'
+        result = render_string(tpl, context=get_mock_context(path='/', user_authorized=self.user_authorized))
+
+        if self.user_authorized:
+            suite.assertIn('thread_root_logged', result)
+            suite.assertIn('thread_root_all_sub_logged', result)
+            suite.assertNotIn('thread_root_guests', result)
+            suite.assertNotIn('thread_root_all_sub_guests', result)
+        else:
+            suite.assertNotIn('thread_root_logged', result)
+            suite.assertNotIn('thread_root_all_sub_logged', result)
+            suite.assertIn('thread_root_guests', result)
+            suite.assertIn('thread_root_all_sub_guests', result)
+
+
+class ThreadingTest(TestCase):
+
+    def test_context(self):
+
+        Tree.objects.all().delete()
+        TreeItem.objects.all().delete()
+
+        t = Tree(alias='thread_test_tree')
+        t.save()
+
+        item_root_1 = TreeItem(title='thread_root_all', tree=t, url='/')
+        item_root_1.save()
+
+        item_root_1_sub_1 = TreeItem(title='thread_root_all_sub_all', tree=t, parent=item_root_1, url='/sub_1')
+        item_root_1_sub_1.save()
+
+        item_root_1_sub_2 = TreeItem(
+            title='thread_root_all_sub_logged', tree=t, parent=item_root_1, url='/sub_2', access_loggedin=True)
+        item_root_1_sub_2.save()
+
+        item_root_1_sub_3 = TreeItem(
+            title='thread_root_all_sub_guests', tree=t, parent=item_root_1, url='/sub_2', access_guest=True)
+        item_root_1_sub_3.save()
+
+        item_root_2 = TreeItem(title='thread_root_logged', tree=t, url='/loggedin', access_loggedin=True)
+        item_root_2.save()
+
+        item_root_3 = TreeItem(title='thread_root_guests', tree=t, url='/guests', access_guest=True)
+        item_root_3.save()
+
+        get_sitetree().tree('thread_test_tree', get_mock_context(path='/'))
+
+        threads_count = 50
+        for idx in range(threads_count):
+            thread = SitetreeThread(self, user_authorized=idx % 2)
+            thread.start()
+            thread.join()
+
+
 class TreeModelTest(SitetreeTest):
 
     def test_create_rename_delete(self):
@@ -297,19 +357,6 @@ class TreeItemModelTest(SitetreeTest):
         self.assertEqual(ti1.title, 'not_new_root_item')
         ti1.delete()
         self.assertIsNone(ti1.id)
-
-    def test_no_recursive_parents(self):
-        """Verify that treeitems cannot be their own parent."""
-        tree = Tree(alias="mytree")
-        tree.save()
-        tree_item = TreeItem(title="i'm my own grandpa", tree=tree)
-        # This item needs to be saved, otherwise it cannot be set
-        # as a parent.
-        tree_item.save()
-
-        tree_item.parent = tree_item
-        tree_item.save()
-        self.assertNotEqual(tree_item, tree_item.parent)
 
     def test_context_proc_required(self):
         context = Context()
@@ -613,8 +660,6 @@ class TreeTest(SitetreeTest):
         self.assertEqual(self.t3_en.get_title(), 'tree3en_title')
 
     def test_children_filtering(self):
-        self.sitetree.cache.init()
-
         self.sitetree.set_global_context(get_mock_context(path='/'))
         self.sitetree.get_sitetree('tree3')
         children = self.sitetree.get_children('tree3', self.t3_root)
@@ -649,8 +694,6 @@ class TreeTest(SitetreeTest):
 class DynamicTreeTest(SitetreeTest):
 
     def test_basic_old_and_new(self):
-
-        self.sitetree.cache.init()
 
         # Assert no dynamic attached.
         tree_alias, sitetree_items = self.sitetree.get_sitetree('main')
@@ -710,7 +753,6 @@ class DynamicTreeTest(SitetreeTest):
             register_dynamic_trees(trees, **kwargs)
 
         mock_context = get_mock_context(path='/the_same_url/')
-        self.sitetree.cache.init()
         self.sitetree.set_global_context(mock_context)
         tree_alias, sitetree_items = self.sitetree.get_sitetree('main')
 
