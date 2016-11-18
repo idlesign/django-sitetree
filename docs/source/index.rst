@@ -30,10 +30,9 @@ Requirements
 ------------
 
 1. Python 2.6+, 3.3+
-2. Django 1.4.2+
+2. Django 1.7+
 3. Auth Django contrib package
 4. Admin site Django contrib package (optional)
-5. South 1.0+ (for automatic DB migrations; not required for Django 1.7+)
 
 
 Table of Contents
