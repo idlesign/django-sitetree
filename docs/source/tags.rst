@@ -93,12 +93,16 @@ please use :ref:`tree hooks <tree-hooks>`.
       Bad
       Ugly
 
-  + **this-ancestor-children** - items under grandparent item (closest to root) for the item resolved as current for the current page.
+  + **this-parent-siblings** - items under parent item for the item resolved as current for the current page.
 
     Considering that we are now at `Public` renders::
 
       Web
       Postal
+
+  + **this-ancestor-children** - items under grandparent item (closest to root) for the item resolved as current for the current page.
+
+    Considering that we are now at `Public` renders all items under `Home` (which is closest to the root).
 
   Thus in the template tag example above `trunk` is reserved alias, and `topmenu` alias is given to an item through
   admin site.
