@@ -278,6 +278,7 @@ class Cache(object):
         signals.post_delete.connect(cache_empty, sender=MODEL_TREE_ITEM_CLASS)
         # Listen to the changes in item permissions table.
         signals.m2m_changed.connect(cache_empty, sender=MODEL_TREE_ITEM_CLASS.access_permissions)
+        self.init()
 
     @classmethod
     def reset(cls):
@@ -311,10 +312,10 @@ class Cache(object):
 
     def empty(self, **kwargs):
         """Empties cached sitetree data."""
-        self.cache = None
         setattr(_THREAD_LOCAL, _THREAD_CACHE, None)
         cache.delete('sitetrees')
         cache.delete('sitetrees_reset')
+        self.init()
 
     def get_entry(self, entry_name, key):
         """Returns cache entry parameter value by its name."""
@@ -651,8 +652,6 @@ class SiteTree(object):
         self.lang_init()
         # Resolve tree_alias from the context.
         tree_alias = self.resolve_var(tree_alias)
-
-        self.cache.init()  # Warm up cache.
 
         # Get tree.
         tree_alias, sitetree_items = self.get_sitetree(tree_alias)
