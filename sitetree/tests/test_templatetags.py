@@ -22,6 +22,7 @@ def common_tree(build_tree):
                 {'title': 'Users', 'url': '/users/', 'children': [
                     {'title': 'Moderators', 'url': '/users/moderators/'},
                     {'title': 'Ordinary', 'url': '/users/ordinary/'},
+                    {'title': 'Hidden', 'hidden': True, 'url': '/users/hidden/'},
                 ]},
                 {'title': 'Articles', 'url': '/articles/', 'children': [
                     {'title': 'About cats', 'url': '/articles/cats/', 'children': [
@@ -91,8 +92,10 @@ def test_sitetree_tree(render_template_tag, mock_template_context, common_tree):
 
     result = render_template_tag('sitetree', 'sitetree_tree from "mytree"', context)
 
-    assert 'href="/articles/cats/ugly/"' in result
-    assert 'href="/contacts/russia/postal/"' not in result  # insitetree False
+    assert '"/articles/cats/ugly/"' in result
+    assert '"/contacts/russia/postal/"' not in result  # insitetree False
+    assert '"/users/ordinary/"' in result
+    assert '"/users/hidden/"' not in result
 
 
 @pytest.mark.django_db
@@ -108,8 +111,9 @@ def test_sitetree_children(render_template_tag, mock_template_context, common_tr
     result = render_template_tag(
         'sitetree', 'sitetree_children of parent_item for sitetree template "sitetree/tree.html"', context)
 
-    assert '/moderators/"' in result
-    assert '/users/"' not in result
+    assert '"/users/moderators/"' in result
+    assert '"/users/"' not in result
+    assert '"/users/hidden/"' not in result
 
 
 @pytest.mark.django_db
@@ -237,6 +241,8 @@ def test_sitetree_menu(render_template_tag, mock_template_context, common_tree):
     assert '"/users/moderators/"' in result
     assert '"/articles/cats/ugly/"' in result
     assert '"/home/"' in result
+    assert '"/users/ordinary/"' in result
+    assert '"/users/hidden/"' not in result
 
     assert 'class="current_item current_branch">Web' in result
     assert 'class="current_branch">Contacts' in result
