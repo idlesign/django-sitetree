@@ -455,6 +455,7 @@ class SiteTree(object):
 
         if not sitetree:
             sitetree = MODEL_TREE_ITEM_CLASS.objects.select_related('parent', 'tree').\
+                   prefetch_related('access_permissions__content_type').\
                    filter(tree__alias__exact=alias).order_by('parent__sort_order', 'sort_order')
             sitetree = self.attach_dynamic_tree_items(alias, sitetree)
             set_cache_entry('sitetrees', alias, sitetree)
@@ -486,7 +487,7 @@ class SiteTree(object):
                 if item.access_restricted:
                     permissions_src = (
                         item.permissions if getattr(item, 'is_dynamic', False)
-                        else item.access_permissions.select_related())
+                        else item.access_permissions.all())
 
                     item.perms = set(
                         ['%s.%s' % (perm.content_type.app_label, perm.codename) for perm in permissions_src])
