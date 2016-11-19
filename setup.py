@@ -26,7 +26,7 @@ setup(
     zip_safe=False,
 
     setup_requires=[] + PYTEST_RUNNER,
-    tests_require=['pytest'],
+    tests_require=['pytest', 'pytest-django'],
 
     classifiers=[
         'Development Status :: 5 - Production/Stable',
