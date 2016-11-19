@@ -7,8 +7,6 @@ from sitetree.exceptions import SiteTreeError
 from sitetree.settings import ALIAS_THIS_ANCESTOR_CHILDREN, ALIAS_THIS_CHILDREN, ALIAS_THIS_PARENT_SIBLINGS, \
     ALIAS_THIS_SIBLINGS, ALIAS_TRUNK
 
-
-# todo permissions/restricted
 # todo i18
 # todo dynamic
 # todo processor
@@ -42,13 +40,64 @@ def common_tree(build_tree):
                         ]},
                         {'title': 'Postal', 'insitetree': False, 'url': '/contacts/russia/postal/'},
                     ]},
-                    {'title': 'Australia', 'urlaspattern': True, 'url': 'contacts_australia australia_var'},
+                    {'title': 'Australia', 'urlaspattern': True, 'url': 'contacts_australia australia_var',
+                     'children': [
+                         {'title': 'Alice Springs', 'access_loggedin': True, 'url': '/contacts/australia/alice/'},
+                         {'title': 'Darwin', 'access_guest': True, 'url': '/contacts/australia/darwin/'},
+                     ]},
                     {'title': 'China', 'urlaspattern': True, 'url': 'contacts_china china_var'},
                 ]},
             ]
         }]
     )
     return items
+
+
+@pytest.mark.django_db
+def test_restricted(render_template_tag, mock_template_context, common_tree):
+    context = mock_template_context()
+    result = render_template_tag('sitetree', 'sitetree_tree from "mytree"', context)
+
+    assert '"/contacts/australia/darwin/"' in result
+    assert '"/contacts/australia/alice/"' not in result
+
+    context = mock_template_context(user_data='some')
+    result = render_template_tag('sitetree', 'sitetree_tree from "mytree"', context)
+
+    assert '"/contacts/australia/darwin/"' not in result
+    assert '"/contacts/australia/alice/"' in result
+
+
+@pytest.mark.django_db
+def test_permissions(admin_user, build_tree, render_template_tag, mock_template_context):
+
+    from sitetree.models import TreeItem
+
+    build_tree(
+        {'alias': 'restricted_tree'},
+        [
+            {'title': 'Minjilang', 'access_restricted': True, 'url': '/contacts/australia/minjilang/'},
+            {'title': 'Broome', 'access_restricted': True, 'access_perm_type': TreeItem.PERM_TYPE_ANY,
+             'access_permissions': ['add_group', 'add_tree'], 'url': '/contacts/australia/broome/'},
+            {'title': 'Karratha', 'access_restricted': True, 'access_perm_type': TreeItem.PERM_TYPE_ALL,
+             'access_permissions': ['add_group', 'add_tree'], 'url': '/contacts/australia/karratha/'},
+        ],
+    )
+
+    context = mock_template_context(user_data=admin_user)
+    result = render_template_tag('sitetree', 'sitetree_tree from "restricted_tree"', context)
+
+    assert '"/contacts/australia/broome/"' in result
+    assert '"/contacts/australia/karratha/"' in result
+    assert '"/contacts/australia/minjilang/"' not in result
+
+    admin_user._perm_cache.remove('sitetree.add_tree')
+
+    result = render_template_tag('sitetree', 'sitetree_tree from "restricted_tree"', context)
+
+    assert '"/contacts/australia/broome/"' in result
+    assert '"/contacts/australia/karratha/"' not in result
+    assert '"/contacts/australia/minjilang/"' not in result
 
 
 @pytest.mark.django_db

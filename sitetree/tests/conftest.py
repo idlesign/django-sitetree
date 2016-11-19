@@ -67,9 +67,9 @@ class MockUser(object):
 
 class MockRequest(object):
 
-    def __init__(self, path='/', user_data=None, meta=None):
+    def __init__(self, path='/', user=None, meta=None):
         self.path = path
-        self.user = MockUser(user_data)
+        self.user = user
         self.META = meta
 
 
@@ -78,10 +78,16 @@ def mock_template_context():
 
     def get_context(context_dict=None, current_app='', request_path=None, user_data=None):
 
+        user = user_data if hasattr(user_data, '_meta') else MockUser(user_data)
+
         context_dict = context_dict or {}
-        context_dict.update({
-            'request': MockRequest(request_path, user_data),
-        })
+        context_updater = {
+            'request': MockRequest(request_path, user),
+        }
+        if user_data:
+            context_updater['user'] = user
+
+        context_dict.update(context_updater)
 
         context = Context(context_dict)
         context.template = mock.MagicMock()
@@ -117,6 +123,7 @@ def build_tree():
 
     """
     from sitetree.models import Tree, TreeItem
+    from django.contrib.auth.models import Permission
 
     def build(tree_dict, items):
 
@@ -124,10 +131,15 @@ def build_tree():
             for item_dict in items:
                 children = item_dict.pop('children', [])
 
+                access_permissions = item_dict.pop('access_permissions', [])
+
                 item = TreeItem(**item_dict)
                 item.tree = tree
                 item.parent = parent
                 item.save()
+
+                for permission in access_permissions:
+                    item.access_permissions.add(Permission.objects.get(codename=permission))
 
                 items_map['%s' % item.url] = item
 
