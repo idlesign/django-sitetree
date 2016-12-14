@@ -4,12 +4,12 @@ include LICENSE
 include CHANGELOG
 
 include docs/Makefile
-recursive-include docs .rst
-recursive-include docs .py
+recursive-include docs *.rst
+recursive-include docs *.py
 
 recursive-include sitetree/locale *
-recursive-include sitetree/migrations .py
-recursive-include sitetree/south_migrations .py
-recursive-include sitetree/templates .html
-recursive-include sitetree/templatetags .py
-recursive-include sitetree/management .py
+recursive-include sitetree/migrations *.py
+recursive-include sitetree/south_migrations *.py
+recursive-include sitetree/templates *.html
+recursive-include sitetree/templatetags *.py
+recursive-include sitetree/management *.py
