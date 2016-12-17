@@ -1,5 +1,3 @@
-sudo: false
-
 language: python
 
 python:
@@ -8,6 +6,27 @@ python:
   - 3.3
   - 2.7
 
-install: pip install tox-travis
+env:
+  - DJANGO="Django>=1.10,<1.11"
+  - DJANGO="Django>=1.9,<1.10"
+  - DJANGO="Django>=1.8.6,<1.9"
+  - DJANGO="Django>=1.7,<1.8"
 
-script: tox -e travis
+install:
+  - pip install -U coverage coveralls $DJANGO
+
+script: coverage run -a --source=sitetree setup.py test
+
+matrix:
+
+  exclude:
+   - python: 3.5
+     env: DJANGO="Django>=1.7,<1.8"
+
+   - python: 3.3
+     env: DJANGO="Django>=1.10,<1.11"
+   - python: 3.3
+     env: DJANGO="Django>=1.9,<1.10"
+
+after_success:
+  coveralls
