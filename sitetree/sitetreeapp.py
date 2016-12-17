@@ -208,38 +208,36 @@ def compose_dynamic_tree(src, target_tree_alias=None, parent_tree_item_alias=Non
     """Returns a structure describing a dynamic sitetree.utils
     The structure can be built from various sources,
 
-    Thus, if a string is passed to `src`, it'll be treated as the name of an app,
-    from where one want to import sitetrees definitions.
-
-    On the other hand, `src` can be an iterable of trees definitions
-    (see `sitetree.utils.tree()` and `item()` functions).
-
-
-    `target_tree_alias` - expects a static tree alias to attach items from dynamic trees to.
-    `parent_tree_item_alias` - expects a tree item alias from a static tree to attach items from dynamic trees to.
-    `include_trees` - expects a list of sitetree aliases to filter `src`.
-
-
+    :param str|iterable src: If a string is passed to `src`, it'll be treated as the name of an app,
+        from where one want to import sitetrees definitions. `src` can be an iterable
+        of tree definitions (see `sitetree.toolbox.tree()` and `item()` functions).
+    :param str|unicode target_tree_alias: Static tree alias to attach items from dynamic trees to.
+    :param str|unicode parent_tree_item_alias: Tree item alias from a static tree to attach items from dynamic trees to.
+    :param list include_trees: Sitetree aliases to filter `src`.
+    :rtype: dict
     """
-
     def result(sitetrees=src):
         if include_trees is not None:
             sitetrees = [tree for tree in sitetrees if tree.alias in include_trees]
-        return {'app': src, 'sitetrees': sitetrees, 'tree': target_tree_alias, 'parent_item': parent_tree_item_alias}
+
+        return {
+            'app': src,
+            'sitetrees': sitetrees,
+            'tree': target_tree_alias,
+            'parent_item': parent_tree_item_alias}
 
     if isinstance(src, six.string_types):
-        # Considered an application name.
+        # Considered to be an application name.
         try:
             module = import_app_sitetree_module(src)
-            if module is None:
-                return None
-            return result(getattr(module, 'sitetrees', None))
+            return None if module is None else result(getattr(module, 'sitetrees', None))
+
         except ImportError as e:
             if settings.DEBUG:
                 warnings.warn('Unable to register dynamic sitetree(s) for `%s` application: %s. ' % (src, e))
-    else:
-        return result()
-    return None
+            return None
+
+    return result()
 
 
 @python_2_unicode_compatible
