@@ -2,55 +2,61 @@
 from __future__ import unicode_literals
 import pytest
 from django.template.base import TemplateSyntaxError
+from django.utils.translation import activate, deactivate_all
 
 from sitetree.exceptions import SiteTreeError
 from sitetree.settings import ALIAS_THIS_ANCESTOR_CHILDREN, ALIAS_THIS_CHILDREN, ALIAS_THIS_PARENT_SIBLINGS, \
     ALIAS_THIS_SIBLINGS, ALIAS_TRUNK
 
-# todo i18
-# todo dynamic
-# todo processor
 
-@pytest.fixture
-def common_tree(build_tree):
-    items = build_tree(
-        {'alias': 'mytree'},
-        [{
-            'title': 'Home', 'url': '/home/', 'children': [
-                {'title': 'Users', 'url': '/users/', 'children': [
-                    {'title': 'Moderators', 'url': '/users/moderators/'},
-                    {'title': 'Ordinary', 'url': '/users/ordinary/'},
-                    {'title': 'Hidden', 'hidden': True, 'url': '/users/hidden/'},
-                ]},
-                {'title': 'Articles', 'url': '/articles/', 'children': [
-                    {'title': 'About cats', 'url': '/articles/cats/', 'children': [
-                        {'title': 'Good', 'url': '/articles/cats/good/'},
-                        {'title': 'Bad', 'url': '/articles/cats/bad/'},
-                        {'title': 'Ugly', 'url': '/articles/cats/ugly/'},
-                    ]},
-                    {'title': 'About dogs', 'url': '/articles/dogs/'},
-                    {'title': 'About mice', 'inmenu': False, 'url': '/articles/mice/'},
-                ]},
-                {'title': 'Contacts', 'inbreadcrumbs': False, 'url': '/contacts/', 'children': [
-                    {'title': 'Russia', 'url': '/contacts/russia/',
-                     'hint': 'The place', 'description': 'Russian Federation', 'children': [
-                        {'title': 'Web', 'alias': 'ruweb', 'url': '/contacts/russia/web/', 'children': [
-                            {'title': 'Public {{ subtitle }}', 'url': '/contacts/russia/web/public/'},
-                            {'title': 'Private', 'url': '/contacts/russia/web/private/'},
-                        ]},
-                        {'title': 'Postal', 'insitetree': False, 'url': '/contacts/russia/postal/'},
-                    ]},
-                    {'title': 'Australia', 'urlaspattern': True, 'url': 'contacts_australia australia_var',
-                     'children': [
-                         {'title': 'Alice Springs', 'access_loggedin': True, 'url': '/contacts/australia/alice/'},
-                         {'title': 'Darwin', 'access_guest': True, 'url': '/contacts/australia/darwin/'},
-                     ]},
-                    {'title': 'China', 'urlaspattern': True, 'url': 'contacts_china china_var'},
-                ]},
-            ]
-        }]
+@pytest.mark.django_db
+def test_items_hook(render_template_tag, mock_template_context, common_tree):
+
+    from sitetree.toolbox import register_items_hook
+
+    def my_processor(tree_items, tree_sender):
+        for item in tree_items:
+            item.hint = 'hooked_hint_%s' % item.title
+        return tree_items
+
+    register_items_hook(my_processor)
+    result = render_template_tag('sitetree', 'sitetree_tree from "mytree"', mock_template_context())
+
+    assert 'hooked_hint_Darwin' in result
+    assert 'hooked_hint_Australia' in result
+    assert 'hooked_hint_China' in result
+
+    register_items_hook(None)  # Reset.
+
+
+@pytest.mark.django_db
+def test_i18n(build_tree, render_template_tag, mock_template_context):
+
+    from sitetree.toolbox import register_i18n_trees
+
+    build_tree(
+        {'alias': 'i18tree'},
+        [{'title': 'My title', 'url': '/url_default/'}],
     )
-    return items
+    build_tree(
+        {'alias': 'i18tree_ru'},
+        [{'title': 'Заголовок', 'url': '/url_ru/'}],
+    )
+    register_i18n_trees(['i18tree'])
+
+    activate('en')
+    result = render_template_tag('sitetree', 'sitetree_tree from "i18tree"', mock_template_context())
+
+    assert '/url_default/' in result
+    assert 'My title' in result
+
+    activate('ru')
+    result = render_template_tag('sitetree', 'sitetree_tree from "i18tree"', mock_template_context())
+
+    assert '/url_ru/' in result
+    assert 'Заголовок' in result
+
+    deactivate_all()
 
 
 @pytest.mark.django_db

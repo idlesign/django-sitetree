@@ -170,3 +170,45 @@ def render_template_tag():
         string = '{%% load %s %%}{%% %s %%}' % (tag_library, tag_str)
         return Template(string).render(context)
     return render
+
+
+@pytest.fixture
+def common_tree(build_tree):
+    items = build_tree(
+        {'alias': 'mytree'},
+        [{
+            'title': 'Home', 'url': '/home/', 'children': [
+                {'title': 'Users', 'url': '/users/', 'children': [
+                    {'title': 'Moderators', 'url': '/users/moderators/'},
+                    {'title': 'Ordinary', 'url': '/users/ordinary/'},
+                    {'title': 'Hidden', 'hidden': True, 'url': '/users/hidden/'},
+                ]},
+                {'title': 'Articles', 'url': '/articles/', 'children': [
+                    {'title': 'About cats', 'url': '/articles/cats/', 'children': [
+                        {'title': 'Good', 'url': '/articles/cats/good/'},
+                        {'title': 'Bad', 'url': '/articles/cats/bad/'},
+                        {'title': 'Ugly', 'url': '/articles/cats/ugly/'},
+                    ]},
+                    {'title': 'About dogs', 'url': '/articles/dogs/'},
+                    {'title': 'About mice', 'inmenu': False, 'url': '/articles/mice/'},
+                ]},
+                {'title': 'Contacts', 'inbreadcrumbs': False, 'url': '/contacts/', 'children': [
+                    {'title': 'Russia', 'url': '/contacts/russia/',
+                     'hint': 'The place', 'description': 'Russian Federation', 'children': [
+                        {'title': 'Web', 'alias': 'ruweb', 'url': '/contacts/russia/web/', 'children': [
+                            {'title': 'Public {{ subtitle }}', 'url': '/contacts/russia/web/public/'},
+                            {'title': 'Private', 'url': '/contacts/russia/web/private/'},
+                        ]},
+                        {'title': 'Postal', 'insitetree': False, 'url': '/contacts/russia/postal/'},
+                    ]},
+                    {'title': 'Australia', 'urlaspattern': True, 'url': 'contacts_australia australia_var',
+                     'children': [
+                         {'title': 'Alice Springs', 'access_loggedin': True, 'url': '/contacts/australia/alice/'},
+                         {'title': 'Darwin', 'access_guest': True, 'url': '/contacts/australia/darwin/'},
+                     ]},
+                    {'title': 'China', 'urlaspattern': True, 'url': 'contacts_china china_var'},
+                ]},
+            ]
+        }]
+    )
+    return items
