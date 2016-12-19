@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+import time
 import warnings
 
 from collections import defaultdict
@@ -49,24 +50,24 @@ _DYNAMIC_TREES = {}
 _IDX_ORPHAN_TREES = 'orphans'
 # Dictinary index name template in `_DYNAMIC_TREES`.
 _IDX_TPL = '%s|:|%s'
-# SiteTree app-wise object.
-_SITETREE = None
 
 _THREAD_LOCAL = local()
 _THREAD_LANG = 'sitetree_lang'
 _THREAD_CACHE = 'sitetree_cache'
 _THREAD_CONTEXT = 'sitetree_ctx'
-
+_THREAD_SITETREE = 'sitetree_tree'
 
 def get_sitetree():
     """Returns SiteTree [singleton] object, implementing utility methods.
 
     :return: SiteTree
     """
-    global _SITETREE
-    if _SITETREE is None:
-        _SITETREE = SiteTree()
-    return _SITETREE
+    st = getattr(_THREAD_LOCAL, _THREAD_SITETREE, None)
+    if st is None:
+        st = SiteTree()
+        st.cache.init()
+        setattr(_THREAD_LOCAL, _THREAD_SITETREE, st)
+    return st
 
 
 def register_items_hook(callable):
@@ -269,6 +270,7 @@ class Cache(object):
 
     def __init__(self):
         self.cache = None
+        self.created_at = 0
 
         cache_empty = self.empty
         # Listen for signals from the models.
@@ -277,7 +279,6 @@ class Cache(object):
         signals.post_delete.connect(cache_empty, sender=MODEL_TREE_ITEM_CLASS)
         # Listen to the changes in item permissions table.
         signals.m2m_changed.connect(cache_empty, sender=MODEL_TREE_ITEM_CLASS.access_permissions)
-        self.init()
 
     @classmethod
     def reset(cls):
@@ -286,24 +287,22 @@ class Cache(object):
         Could be used to show up tree changes made in a different process.
 
         """
-        cache.set('sitetrees_reset', True)
+        cache.set('sitetrees_reset', int(time.time()))
 
     def init(self):
         """Initializes local cache from Django cache."""
 
         # Drop cache flag set by .reset() method.
-        cache.get('sitetrees_reset') and self.empty()
 
-        cache_ = getattr(_THREAD_LOCAL, _THREAD_CACHE, None)
-        if cache_ is None:
+        reset_time = cache.get('sitetrees_reset', 1)
+        if reset_time > self.created_at:
+            self.cache = None
 
-            cache_ = cache.get(
-                # Init cache dictionary with predefined entries.
-                'sitetrees', {'sitetrees': {}, 'urls': {}, 'parents': {}, 'items_by_ids': {}, 'tree_aliases': {}})
-
-            setattr(_THREAD_LOCAL, _THREAD_CACHE, cache_)
-
-        self.cache = cache_
+        if not self.cache:
+            self.created_at = int(time.time())
+            self.cache = cache.get(
+                    # Init cache dictionary with predefined entries.
+                    'sitetrees', {'sitetrees': {}, 'urls': {}, 'parents': {}, 'items_by_ids': {}, 'tree_aliases': {}})
 
     def save(self):
         """Saves sitetree data to Django cache."""
@@ -311,10 +310,8 @@ class Cache(object):
 
     def empty(self, **kwargs):
         """Empties cached sitetree data."""
-        setattr(_THREAD_LOCAL, _THREAD_CACHE, None)
         cache.delete('sitetrees')
-        cache.delete('sitetrees_reset')
-        self.init()
+        cache.set('sitetrees_reset', int(time.time()))
 
     def get_entry(self, entry_name, key):
         """Returns cache entry parameter value by its name."""
@@ -346,6 +343,7 @@ class SiteTree(object):
 
         if not global_context or id(context) != id(global_context):
             global_context = context
+            get_sitetree().cache.init()
             setattr(_THREAD_LOCAL, _THREAD_CONTEXT, context)
 
         return global_context
