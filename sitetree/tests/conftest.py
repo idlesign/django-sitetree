@@ -73,6 +73,19 @@ class MockRequest(object):
         self.META = meta
 
 
+def contribute_to_context(context, current_app=''):
+    context.template = mock.MagicMock()
+    context.template.engine.string_if_invalid = ''
+
+    if VERSION >= (1, 10):
+        match = mock.MagicMock()
+        match.app_name = current_app
+        context.resolver_match = match
+
+    else:
+        context._current_app = current_app
+
+
 @pytest.fixture
 def mock_template_context():
 
@@ -90,17 +103,7 @@ def mock_template_context():
         context_dict.update(context_updater)
 
         context = Context(context_dict)
-        context.template = mock.MagicMock()
-        context.template.engine.string_if_invalid = ''
-
-        if VERSION >= (1, 10):
-            match = mock.MagicMock()
-            match.app_name = current_app
-            context.resolver_match = match
-
-        else:
-            context._current_app = current_app
-
+        contribute_to_context(context, current_app)
         return context
 
     return get_context
@@ -167,6 +170,7 @@ def render_template_tag():
     def render(tag_library, tag_str, context=None):
         context = context or {}
         context = Context(context)
+        contribute_to_context(context)
         string = '{%% load %s %%}{%% %s %%}' % (tag_library, tag_str)
         return Template(string).render(context)
     return render
