@@ -65,8 +65,8 @@ def get_sitetree():
     st = getattr(_THREAD_LOCAL, _THREAD_SITETREE, None)
     if st is None:
         st = SiteTree()
+        st.cache.init()
         setattr(_THREAD_LOCAL, _THREAD_SITETREE, st)
-    st.cache.init()
     return st
 
 
@@ -345,6 +345,7 @@ class SiteTree(object):
 
         if not global_context or id(context) != id(global_context):
             global_context = context
+            get_sitetree().cache.init()
             setattr(_THREAD_LOCAL, _THREAD_CONTEXT, context)
 
         return global_context
