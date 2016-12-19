@@ -1,22 +1,9 @@
 #! -*- encoding: utf-8 -*-
 from __future__ import unicode_literals
-import re
 
 import pytest
 
-
-RE_TAG_VALUES = re.compile('>([^<]+)<')
-
-
-def strip_tags(src):
-
-    result = []
-    for match in RE_TAG_VALUES.findall(src):
-        match = match.strip()
-        if match:
-            result.append(match)
-
-    return '|'.join(result)
+from .common import strip_tags
 
 
 @pytest.mark.django_db
@@ -47,6 +34,9 @@ def test_dynamic_basic(render_template_tag, mock_template_context):
     assert 'dynamic1_1|dynamic1_2' in result
     assert 'dynamic2_1' not in result
 
+    from sitetree.sitetreeapp import _DYNAMIC_TREES
+    _DYNAMIC_TREES.clear()
+
 
 @pytest.mark.django_db
 def test_dynamic_attach(render_template_tag, mock_template_context, common_tree):
@@ -70,6 +60,9 @@ def test_dynamic_attach(render_template_tag, mock_template_context, common_tree)
     assert 'Web|dynamic2_1|dynamic2_2' in result
     assert 'China|dynamic1_1|dynamic1_2' in result
 
+    from sitetree.sitetreeapp import _DYNAMIC_TREES
+    _DYNAMIC_TREES.clear()
+
 
 @pytest.mark.django_db
 def test_dynamic_attach_from_module(render_template_tag, mock_template_context, settings):
@@ -86,3 +79,5 @@ def test_dynamic_attach_from_module(render_template_tag, mock_template_context, 
     with pytest.warns(UserWarning):
         compose_dynamic_tree('nonexistent')
 
+    from sitetree.sitetreeapp import _DYNAMIC_TREES
+    _DYNAMIC_TREES.clear()

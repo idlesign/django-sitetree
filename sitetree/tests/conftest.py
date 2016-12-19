@@ -197,7 +197,11 @@ def common_tree(build_tree):
                      'hint': 'The place', 'description': 'Russian Federation', 'children': [
                         {'title': 'Web', 'alias': 'ruweb', 'url': '/contacts/russia/web/', 'children': [
                             {'title': 'Public {{ subtitle }}', 'url': '/contacts/russia/web/public/'},
-                            {'title': 'Private', 'url': '/contacts/russia/web/private/'},
+                            {'title': 'Private',
+                             'url': '/contacts/russia/web/private/',
+                             'hint': 'Private Area Hint',
+                             'description': 'Private Area Description',
+                             },
                         ]},
                         {'title': 'Postal', 'insitetree': False, 'url': '/contacts/russia/postal/'},
                     ]},

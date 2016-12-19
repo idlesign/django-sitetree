@@ -174,14 +174,14 @@ def test_sitetree_children(render_template_tag, mock_template_context, common_tr
 @pytest.mark.django_db
 def test_sitetree_breadcrumbs(render_template_tag, mock_template_context, common_tree):
 
-    result = render_template_tag('sitetree', 'sitetree_breadcrumbs from "notree"')  # non-existing tree
+    result = render_template_tag('sitetree', 'sitetree_breadcrumbs from "notree"', mock_template_context())  # non-existing tree
 
     assert result.strip() == '<ul>\n\t\n</ul>'
 
     with pytest.raises(TemplateSyntaxError):
         render_template_tag('sitetree', 'sitetree_breadcrumbs')
 
-    result = render_template_tag('sitetree', 'sitetree_breadcrumbs from "mytree"')
+    result = render_template_tag('sitetree', 'sitetree_breadcrumbs from "mytree"', mock_template_context())
 
     assert result.strip() == '<ul>\n\t\n</ul>'
 
@@ -214,7 +214,7 @@ def check_page_attr_tag(realm, value, settings, monkeypatch, render_template_tag
     with pytest.raises(SiteTreeError) as e:
         render_template_tag('sitetree', 'sitetree_page_%s from "mytree"' % realm)
 
-    assert 'to be in TEMPLATE_CONTEXT_PROCESSORS' in '%s' % e.value
+    assert 'django.core.context_processors.request' in '%s' % e.value
 
     context = mock_template_context(request_path='/unknown_url/')
 
@@ -268,7 +268,8 @@ def test_sitetree_url(render_template_tag, mock_template_context, common_tree):
 @pytest.mark.django_db
 def test_sitetree_menu(render_template_tag, mock_template_context, common_tree):
 
-    result = render_template_tag('sitetree', 'sitetree_menu from "notree" include "%s"' % ALIAS_TRUNK)  # non-existing tree
+    result = render_template_tag(
+        'sitetree', 'sitetree_menu from "notree" include "%s"' % ALIAS_TRUNK, mock_template_context())  # non-existing tree
 
     assert result.strip() == '<ul>\n\t\n</ul>'
 

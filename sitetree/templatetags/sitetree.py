@@ -4,10 +4,8 @@ from django.template.base import FilterExpression
 
 from ..sitetreeapp import get_sitetree
 
-register = template.Library()
 
-# All utility methods are implemented in SiteTree class
-sitetree = get_sitetree()
+register = template.Library()
 
 
 @register.tag
@@ -163,7 +161,7 @@ class sitetree_treeNode(template.Node):
         self.tree_alias = tree_alias
 
     def render(self, context):
-        tree_items = sitetree.tree(self.tree_alias, context)
+        tree_items = get_sitetree().tree(self.tree_alias, context)
         return render(context, tree_items, self.use_template or 'sitetree/tree.html')
 
 
@@ -176,7 +174,7 @@ class sitetree_childrenNode(template.Node):
         self.navigation_type = navigation_type
 
     def render(self, context):
-        return sitetree.children(self.tree_item, self.navigation_type, self.use_template.resolve(context), context)
+        return get_sitetree().children(self.tree_item, self.navigation_type, self.use_template.resolve(context), context)
 
 
 class sitetree_breadcrumbsNode(template.Node):
@@ -187,7 +185,7 @@ class sitetree_breadcrumbsNode(template.Node):
         self.tree_alias = tree_alias
 
     def render(self, context):
-        tree_items = sitetree.breadcrumbs(self.tree_alias, context)
+        tree_items = get_sitetree().breadcrumbs(self.tree_alias, context)
         return render(context, tree_items, self.use_template or 'sitetree/breadcrumbs.html')
 
 
@@ -200,7 +198,7 @@ class sitetree_menuNode(template.Node):
         self.tree_branches = tree_branches
 
     def render(self, context):
-        tree_items = sitetree.menu(self.tree_alias, self.tree_branches, context)
+        tree_items = get_sitetree().menu(self.tree_alias, self.tree_branches, context)
         return render(context, tree_items, self.use_template or 'sitetree/menu.html')
 
 
@@ -254,28 +252,28 @@ class sitetree_urlNode(SimpleNode):
     """Resolves and renders specified url."""
 
     def get_value(self, context):
-        return sitetree.url(self.item, context)
+        return get_sitetree().url(self.item, context)
 
 
 class sitetree_page_titleNode(SimpleNode):
     """Renders a page title from the specified site tree."""
 
     def get_value(self, context):
-        return sitetree.get_current_page_title(self.item, context)
+        return get_sitetree().get_current_page_title(self.item, context)
 
 
 class sitetree_page_descriptionNode(SimpleNode):
     """Renders a page description from the specified site tree."""
 
     def get_value(self, context):
-        return sitetree.get_current_page_attr('description', self.item, context)
+        return get_sitetree().get_current_page_attr('description', self.item, context)
 
 
 class sitetree_page_hintNode(SimpleNode):
     """Renders a page hint from the specified site tree."""
 
     def get_value(self, context):
-        return sitetree.get_current_page_attr('hint', self.item, context)
+        return get_sitetree().get_current_page_attr('hint', self.item, context)
     
 
 def detect_clause(parser, clause_name, tokens):
