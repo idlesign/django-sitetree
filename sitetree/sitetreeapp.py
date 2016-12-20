@@ -13,7 +13,6 @@ from django.utils import six
 from django.utils.http import urlquote
 from django.utils.translation import get_language
 from django.utils.encoding import python_2_unicode_compatible
-from django.template import Context
 from django.template.loader import get_template
 from django.template.base import (
     FilterExpression, Lexer, Parser, Token, Variable, VariableDoesNotExist, TOKEN_BLOCK, UNKNOWN_SOURCE, TOKEN_TEXT,
@@ -25,6 +24,11 @@ from .settings import (
     ALIAS_TRUNK, ALIAS_THIS_CHILDREN, ALIAS_THIS_SIBLINGS, ALIAS_THIS_PARENT_SIBLINGS, ALIAS_THIS_ANCESTOR_CHILDREN,
     UNRESOLVED_ITEM_MARKER, RAISE_ITEMS_ERRORS_ON_DEBUG, CACHE_TIMEOUT)
 from .exceptions import SiteTreeError
+
+
+if False:  # For type hinting purposes.
+    from django.template import Context
+    from .models import TreeItemBase
 
 
 if VERSION >= (1, 9, 0):
@@ -498,10 +502,10 @@ class SiteTree(object):
         if not sitetree:
             sitetree = (
                 MODEL_TREE_ITEM_CLASS.objects.
-                    select_related('parent', 'tree').
-                    prefetch_related('access_permissions__content_type').
-                    filter(tree__alias__exact=alias).
-                    order_by('parent__sort_order', 'sort_order'))
+                select_related('parent', 'tree').
+                prefetch_related('access_permissions__content_type').
+                filter(tree__alias__exact=alias).
+                order_by('parent__sort_order', 'sort_order'))
 
             sitetree = self.attach_dynamic_tree_items(alias, sitetree)
             set_cache_entry('sitetrees', alias, sitetree)
@@ -960,7 +964,7 @@ class SiteTree(object):
         """Returns item's children.
 
         :param str|unicode tree_alias:
-        :param TreeItemBase item:
+        :param TreeItemBase|None item:
         :rtype: list
         """
         if not self.current_app_is_admin():
