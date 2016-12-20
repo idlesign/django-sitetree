@@ -14,7 +14,7 @@ def test_form(common_tree):
 
     assert items_field.tree == 'mytree'
     assert items_field.initial == 'root'
-    assert len(items_field.choices) == len(common_tree) + 1
+    assert len(items_field.choices) == len(common_tree)
 
 
 @pytest.mark.django_db
@@ -26,9 +26,9 @@ def test_field(common_tree):
 
     assert items_field.tree == 'mytree'
     assert items_field.initial == 'root'
-    assert len(items_field.choices) == len_common_tree + 1
+    assert len(items_field.choices) == len_common_tree
 
-    home_item = common_tree['/home/']
+    home_item = common_tree['']
     item = items_field.clean(home_item.id)
 
     assert item == home_item

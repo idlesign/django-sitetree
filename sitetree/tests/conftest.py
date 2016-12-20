@@ -6,6 +6,7 @@ except ImportError:
 
 import pytest
 
+from django.http import HttpRequest
 from django.conf import settings, global_settings
 from django import VERSION
 from django.template.context import Context
@@ -65,7 +66,7 @@ class MockUser(object):
         return self.permissions
 
 
-class MockRequest(object):
+class MockRequest(HttpRequest):
 
     def __init__(self, path='/', user=None, meta=None):
         self.path = path
@@ -84,6 +85,14 @@ def contribute_to_context(context, current_app=''):
 
     else:
         context._current_app = current_app
+
+@pytest.fixture
+def mock_request():
+
+    def get_request():
+        return MockRequest()
+
+    return get_request
 
 
 @pytest.fixture
@@ -219,4 +228,5 @@ def common_tree(build_tree):
             ]
         }]
     )
+    items[''] = items['/home/']
     return items
