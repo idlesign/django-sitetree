@@ -1,7 +1,5 @@
 from __future__ import unicode_literals
-
 import warnings
-
 from collections import defaultdict
 from copy import deepcopy
 from threading import local
@@ -56,6 +54,8 @@ _IDX_TPL = '%s|:|%s'
 
 _THREAD_LOCAL = local()
 _THREAD_SITETREE = 'sitetree'
+
+_URL_TAG_NEW_STYLE = VERSION >= (1, 5, 0)
 
 
 def get_sitetree():
@@ -303,7 +303,7 @@ class Cache(object):
         """Initializes local cache from Django cache."""
 
         # Drop cache flag set by .reset() method.
-        cache.get('sitetrees_reset') and self.empty()
+        cache.get('sitetrees_reset') and self.empty(init=False)
 
         self.cache = cache.get(
             'sitetrees', {'sitetrees': {}, 'urls': {}, 'parents': {}, 'items_by_ids': {}, 'tree_aliases': {}})
@@ -316,7 +316,8 @@ class Cache(object):
         """Empties cached sitetree data."""
         cache.delete('sitetrees')
         cache.delete('sitetrees_reset')
-        self.init()
+
+        kwargs.get('init', True) and self.init()
 
     def get_entry(self, entry_name, key):
         """Returns cache entry parameter value by its name.
@@ -350,16 +351,27 @@ class Cache(object):
 
 
 class SiteTree(object):
+    """Main logic handler."""
+
+    _unset = set()  # Sentinel.
 
     def __init__(self):
-        unset = set()  # Sentinel.
-        self._unset = unset
+        self.init(context=None)
+
+    def init(self, context):
+        """Initializes sitetree to handle new request.
+
+        :param Context|None context:
+        """
         self.cache = Cache()
-        self.current_page_context = Context()
-        self.current_request = None
+        self.current_page_context = context
+        self.current_request = context.get('request', None) if context else None
         self.current_lang = get_language()
+
+        unset = self._unset
         self._current_app_is_admin = None
         self._current_tree_item = unset
+        self._current_user_permissions = unset
 
     def resolve_tree_i18n_alias(self, alias):
         """Resolves internationalized tree alias.
@@ -413,18 +425,22 @@ class SiteTree(object):
             # Tree item attachment by alias.
             for static_item in list(src_tree_items):
                 items.append(static_item)
-                if static_item.alias:
-                    idx = _IDX_TPL % (tree_alias, static_item.alias)
-                    if idx in trees:
-                        for tree in trees[idx]:
-                            tree.alias = tree_alias
-                            for dyn_item in tree.dynamic_items:
-                                if dyn_item.parent is None:
-                                    dyn_item.parent = static_item
-                                # Unique IDs are required for the same trees attached
-                                # to different parents.
-                                dyn_item.id = generate_id_for(dyn_item)
-                                items.append(dyn_item)
+                if not static_item.alias:
+                    continue
+
+                idx = _IDX_TPL % (tree_alias, static_item.alias)
+                if idx not in trees:
+                    continue
+
+                for tree in trees[idx]:
+                    tree.alias = tree_alias
+                    for dyn_item in tree.dynamic_items:
+                        if dyn_item.parent is None:
+                            dyn_item.parent = static_item
+                        # Unique IDs are required for the same trees attached
+                        # to different parents.
+                        dyn_item.id = generate_id_for(dyn_item)
+                        items.append(dyn_item)
 
             # Tree root attachment.
             idx = _IDX_TPL % (tree_alias, None)
@@ -472,9 +488,11 @@ class SiteTree(object):
         set_cache_entry = cache_.set_entry
 
         caching_required = False
+
         if not self.current_app_is_admin():
             # We do not need i18n for a tree rendered in Admin dropdown.
             alias = self.resolve_tree_i18n_alias(alias)
+
         sitetree = get_cache_entry('sitetrees', alias)
 
         if not sitetree:
@@ -544,11 +562,13 @@ class SiteTree(object):
         :rtype: int
         """
         item = self.get_item_by_id(tree_alias, item_id)
-        if not hasattr(item, 'depth'):
+
+        if hasattr(item, 'depth'):
+            depth = item.depth + depth
+        else:
             if item.parent is not None:
                 depth = self.calculate_item_depth(tree_alias, item.parent.id, depth + 1)
-        else:
-            depth = item.depth + depth
+
         return depth
 
     def get_item_by_id(self, tree_alias, item_id):
@@ -621,12 +641,13 @@ class SiteTree(object):
 
                     # We enclose arg in double quotes as already resolved.
                     all_arguments.append('"%s"' % str(resolved))
+
                 view_path = view_path[0].strip('"\' ')
 
-            if VERSION >= (1, 5, 0):  # "new-style" url tag - consider sitetree named urls literals.
+            if _URL_TAG_NEW_STYLE:
                 view_path = "'%s'" % view_path
 
-            url_pattern = u'%s %s' % (view_path, ' '.join(all_arguments))
+            url_pattern = '%s %s' % (view_path, ' '.join(all_arguments))
         else:
             url_pattern = str(sitetree_item.url)
 
@@ -644,17 +665,14 @@ class SiteTree(object):
         else:
             if sitetree_item.urlaspattern:
                 # Form token to pass to Django 'url' tag.
-                url_token = u'url %s as item.url_resolved' % url_pattern
+                url_token = 'url %s as item.url_resolved' % url_pattern
                 url_tag(
                     Parser(None),
                     Token(token_type=TOKEN_BLOCK, contents=url_token)
                 ).render(context)
 
-                # We make an anchor link from an unresolved URL as a reminder.
-                if not context['item.url_resolved']:
-                    resolved_url = UNRESOLVED_ITEM_MARKER
-                else:
-                    resolved_url = context['item.url_resolved']
+                resolved_url = context['item.url_resolved'] or UNRESOLVED_ITEM_MARKER
+
             else:
                 resolved_url = url_pattern
 
@@ -681,19 +699,12 @@ class SiteTree(object):
                 'If it is, check that your view pushes request data into the template.')
 
         if id(request) != id(self.current_request):
-            # The same as in __init__
-            self.cache = Cache()
-            self.current_page_context = context
-            self.current_request = request
-            self.current_lang = get_language()
-            self._current_app_is_admin = None
-            self._current_tree_item = self._unset
+            self.init(context)
 
         # Resolve tree_alias from the context.
         tree_alias = self.resolve_var(tree_alias)
         tree_alias, sitetree_items = self.get_sitetree(tree_alias)
 
-        # No items in tree, fail silently.
         if not sitetree_items:
             return None, None
 
@@ -719,7 +730,6 @@ class SiteTree(object):
         tree_alias, sitetree_items = self.init_tree(tree_alias, context)
         current_item = self.get_tree_current_item(tree_alias)
 
-        # Current item is unresolved, fail silently.
         if current_item is None:
             if settings.DEBUG and RAISE_ITEMS_ERRORS_ON_DEBUG:
                 raise SiteTreeError(
@@ -737,13 +747,13 @@ class SiteTree(object):
         :param int depth:
         :rtype: TreeItemBase
         """
-        if current_item.parent is not None:
-            if depth <= 1:
-                return current_item.parent
-            else:
-                return self.get_ancestor_level(current_item.parent, depth=depth-1)
+        if current_item.parent is None:
+            return current_item
 
-        return current_item
+        if depth <= 1:
+            return current_item.parent
+
+        return self.get_ancestor_level(current_item.parent, depth=depth-1)
 
     def menu(self, tree_alias, tree_branches, context):
         """Builds and returns menu structure for 'sitetree_menu' tag.
@@ -755,7 +765,6 @@ class SiteTree(object):
         """
         tree_alias, sitetree_items = self.init_tree(tree_alias, context)
 
-        # No items in tree, fail silently.
         if not sitetree_items:
             return ''
 
@@ -807,7 +816,6 @@ class SiteTree(object):
                     if item.parent.id in parent_ids or item.parent.alias in parent_aliases:
                         menu_items.append(item)
 
-        # Parse titles for variables.
         menu_items = self.apply_hook(menu_items, 'menu')
         self.update_has_children(tree_alias, menu_items, 'menu')
         return menu_items
@@ -820,7 +828,7 @@ class SiteTree(object):
         Returns initial items list if no hook is registered.
 
         :param list items:
-        :param str|unicode sender: menu, breadcrumbs, sitetree, .children, .has_children
+        :param str|unicode sender: menu, breadcrumbs, sitetree, {type}.children, {type}.has_children
         :rtype: list
         """
         if _ITEMS_PROCESSOR is None:
@@ -844,13 +852,19 @@ class SiteTree(object):
             return False
 
         if item.access_restricted:
-            user_perms = set(context['user'].get_all_permissions())
+            user_perms = self._current_user_permissions
+
+            if user_perms is self._unset:
+                user_perms = set(context['user'].get_all_permissions())
+                self._current_user_permissions = user_perms
+
             if item.access_perm_type == MODEL_TREE_ITEM_CLASS.PERM_TYPE_ALL:
                 if len(item.perms) != len(item.perms.intersection(user_perms)):
                     return False
             else:
                 if not len(item.perms.intersection(user_perms)):
                     return False
+
         return True
 
     def breadcrumbs(self, tree_alias, context):
@@ -862,7 +876,6 @@ class SiteTree(object):
         """
         tree_alias, sitetree_items = self.init_tree(tree_alias, context)
 
-        # No items in tree, fail silently.
         if not sitetree_items:
             return ''
 
@@ -876,7 +889,7 @@ class SiteTree(object):
             check_access = self.check_access
             get_item_by_id = self.get_item_by_id
 
-            def breadcrumbs_climber(base_item):
+            def climb(base_item):
                 """Climbs up the site tree to build breadcrumb path.
 
                 :param TreeItemBase base_item:
@@ -885,9 +898,9 @@ class SiteTree(object):
                     breadcrumbs.append(base_item)
 
                 if hasattr(base_item, 'parent') and base_item.parent is not None:
-                    breadcrumbs_climber(get_item_by_id(tree_alias, base_item.parent.id))
+                    climb(get_item_by_id(tree_alias, base_item.parent.id))
 
-            breadcrumbs_climber(current_item)
+            climb(current_item)
             breadcrumbs.reverse()
 
         items = self.apply_hook(breadcrumbs, 'breadcrumbs')
@@ -904,7 +917,6 @@ class SiteTree(object):
         """
         tree_alias, sitetree_items = self.init_tree(tree_alias, context)
 
-        # No items in tree, fail silently.
         if not sitetree_items:
             return ''
 
@@ -921,11 +933,12 @@ class SiteTree(object):
         :param str|unicode navigation_type: menu, sitetree
         :param str|unicode use_template:
         :param Context context:
-        :return:
+        :rtype: list
         """
         # Resolve parent item and current tree alias.
         parent_item = self.resolve_var(parent_item, context)
         tree_alias, tree_items = self.get_sitetree(parent_item.tree.alias)
+
         # Mark path to current item.
         self.tree_climber(tree_alias, self.get_tree_current_item(tree_alias))
 
@@ -936,9 +949,12 @@ class SiteTree(object):
 
         my_template = get_template(use_template)
 
-        context.update({'sitetree_items': tree_items})
+        context.push()
+        context['sitetree_items'] = tree_items
+        rendered = my_template.render(context)
+        context.pop()
 
-        return my_template.render(context)
+        return rendered
 
     def get_children(self, tree_alias, item):
         """Returns item's children.
@@ -982,11 +998,18 @@ class SiteTree(object):
 
         context = self.current_page_context
         check_access = self.check_access
+
         for item in items:
-            no_access = not check_access(item, context)
-            hidden_for_nav_type = navigation_type is not None and not getattr(item, 'in' + navigation_type, False)
-            if not (item.hidden or no_access or hidden_for_nav_type):
-                items_filtered.append(item)
+            if item.hidden:
+                continue
+
+            if not check_access(item, context):
+                continue
+
+            if not getattr(item, 'in%s' % navigation_type, True):  # Hidden for current nav type
+                continue
+
+            items_filtered.append(item)
 
         return items_filtered
 
