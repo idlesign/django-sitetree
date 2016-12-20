@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 import pytest
 
-from sitetree.settings import  ALIAS_TRUNK
+from sitetree.settings import ALIAS_TRUNK
 
 from .common import strip_tags
 
@@ -29,3 +29,16 @@ def test_stress(render_template_tag, mock_template_context, common_tree):
                    'Public|Private|Postal|Australia|Darwin|China'
     assert tree == 'Home|Users|Moderators|Ordinary|Articles|About cats|Good|Bad|Ugly|About dogs|About mice|Contacts|' \
                    'Russia|Web|Public|Private|Australia|Darwin|China'
+
+
+def test_lazy_title(mock_template_context):
+
+    from sitetree.sitetreeapp import LazyTitle, get_sitetree
+
+    assert LazyTitle('one') == 'one'
+
+    title = LazyTitle('here{% no_way %}there')
+
+    get_sitetree().current_page_context = mock_template_context()
+
+    assert title == 'herethere'

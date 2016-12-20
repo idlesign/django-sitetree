@@ -99,6 +99,7 @@ def test_permissions(admin_user, build_tree, render_template_tag, mock_template_
 
     admin_user._perm_cache.remove('sitetree.add_tree')
 
+    context = mock_template_context(user_data=admin_user)
     result = render_template_tag('sitetree', 'sitetree_tree from "restricted_tree"', context)
 
     assert '"/contacts/australia/broome/"' in result
