@@ -89,8 +89,8 @@ def contribute_to_context(context, current_app=''):
 @pytest.fixture
 def mock_request():
 
-    def get_request():
-        return MockRequest()
+    def get_request(**kwargs):
+        return MockRequest(**kwargs)
 
     return get_request
 

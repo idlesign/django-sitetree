@@ -34,15 +34,15 @@ def test_sitetreeload(tmpdir, capsys):
         ']'
     )
 
+    with pytest.raises(CommandError):
+        load(treedump, dict(items_into_tree='nonexisting'))
+
     load(treedump)
 
     assert Tree.objects.filter(title='tree one').exists()
     assert Tree.objects.filter(title='tree two').exists()
     assert TreeItem.objects.get(title='tree item one', tree__alias='tree1')
     assert TreeItem.objects.get(title='tree item two', tree__alias='tree1', parent__title='tree item one')
-
-    with pytest.raises(CommandError):
-        load(treedump, dict(items_into_tree='nonexisting'))
 
     load(treedump, dict(items_into_tree='tree2'))
     assert TreeItem.objects.filter(title='tree item one', tree__alias='tree2').exists()

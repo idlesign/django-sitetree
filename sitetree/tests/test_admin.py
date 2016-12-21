@@ -93,3 +93,32 @@ def test_admin_tree():
     urls = admin.get_urls()
 
     assert len(urls) > 0
+
+
+def test_redirects_handler(mock_request):
+    from sitetree.admin import redirects_handler
+
+    def get_handler(referer, item_id=None):
+
+        req = mock_request(path=referer, meta={
+            'HTTP_REFERER': referer
+        })
+
+        args = [req]
+        kwargs = {}
+        if item_id is not None:
+            kwargs['item_id'] = item_id
+
+        return redirects_handler(*args, **kwargs)
+
+    handler = get_handler('/')
+    assert handler._headers['location'][1] == '/../'
+
+    handler = get_handler('/delete/')
+    assert handler._headers['location'][1] == '/delete/../../'
+
+    handler = get_handler('/history/')
+    assert handler._headers['location'][1] == '/history/../../'
+
+    handler = get_handler('/history/', 42)
+    assert handler._headers['location'][1] == '/history/../'
