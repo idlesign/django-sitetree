@@ -6,6 +6,7 @@ except ImportError:
 
 import pytest
 
+from django.http import HttpRequest
 from django.conf import settings, global_settings
 from django import VERSION
 from django.template.context import Context
@@ -65,12 +66,33 @@ class MockUser(object):
         return self.permissions
 
 
-class MockRequest(object):
+class MockRequest(HttpRequest):
 
     def __init__(self, path='/', user=None, meta=None):
         self.path = path
         self.user = user
         self.META = meta
+
+
+def contribute_to_context(context, current_app=''):
+    context.template = mock.MagicMock()
+    context.template.engine.string_if_invalid = ''
+
+    if VERSION >= (1, 10):
+        match = mock.MagicMock()
+        match.app_name = current_app
+        context.resolver_match = match
+
+    else:
+        context._current_app = current_app
+
+@pytest.fixture
+def mock_request():
+
+    def get_request(**kwargs):
+        return MockRequest(**kwargs)
+
+    return get_request
 
 
 @pytest.fixture
@@ -90,17 +112,7 @@ def mock_template_context():
         context_dict.update(context_updater)
 
         context = Context(context_dict)
-        context.template = mock.MagicMock()
-        context.template.engine.string_if_invalid = ''
-
-        if VERSION >= (1, 10):
-            match = mock.MagicMock()
-            match.app_name = current_app
-            context.resolver_match = match
-
-        else:
-            context._current_app = current_app
-
+        contribute_to_context(context, current_app)
         return context
 
     return get_context
@@ -167,6 +179,7 @@ def render_template_tag():
     def render(tag_library, tag_str, context=None):
         context = context or {}
         context = Context(context)
+        contribute_to_context(context)
         string = '{%% load %s %%}{%% %s %%}' % (tag_library, tag_str)
         return Template(string).render(context)
     return render
@@ -197,7 +210,11 @@ def common_tree(build_tree):
                      'hint': 'The place', 'description': 'Russian Federation', 'children': [
                         {'title': 'Web', 'alias': 'ruweb', 'url': '/contacts/russia/web/', 'children': [
                             {'title': 'Public {{ subtitle }}', 'url': '/contacts/russia/web/public/'},
-                            {'title': 'Private', 'url': '/contacts/russia/web/private/'},
+                            {'title': 'Private',
+                             'url': '/contacts/russia/web/private/',
+                             'hint': 'Private Area Hint',
+                             'description': 'Private Area Description',
+                             },
                         ]},
                         {'title': 'Postal', 'insitetree': False, 'url': '/contacts/russia/postal/'},
                     ]},
@@ -211,4 +228,5 @@ def common_tree(build_tree):
             ]
         }]
     )
+    items[''] = items['/home/']
     return items

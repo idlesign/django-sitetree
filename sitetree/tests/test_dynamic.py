@@ -1,28 +1,16 @@
 #! -*- encoding: utf-8 -*-
 from __future__ import unicode_literals
-import re
 
 import pytest
 
-
-RE_TAG_VALUES = re.compile('>([^<]+)<')
-
-
-def strip_tags(src):
-
-    result = []
-    for match in RE_TAG_VALUES.findall(src):
-        match = match.strip()
-        if match:
-            result.append(match)
-
-    return '|'.join(result)
+from .common import strip_tags
 
 
 @pytest.mark.django_db
 def test_dynamic_basic(render_template_tag, mock_template_context):
 
-    from sitetree.toolbox import compose_dynamic_tree, register_dynamic_trees, tree, item
+    from sitetree.toolbox import compose_dynamic_tree, register_dynamic_trees, tree, item, get_dynamic_trees
+    from sitetree.sitetreeapp import _IDX_ORPHAN_TREES
 
     trees = [
         compose_dynamic_tree([tree('dynamic1', items=[
@@ -35,17 +23,23 @@ def test_dynamic_basic(render_template_tag, mock_template_context):
         ])]),
     ]
 
-    register_dynamic_trees(*trees)  # new less-brackets style
+    register_dynamic_trees(*trees, reset_cache=True)  # new less-brackets style
     result = strip_tags(render_template_tag('sitetree', 'sitetree_tree from "dynamic1"', mock_template_context()))
 
     assert 'dynamic1_1|dynamic1_2' in result
     assert 'dynamic2_1' not in result
 
-    register_dynamic_trees(trees,)
+    register_dynamic_trees(trees)
 
     result = strip_tags(render_template_tag('sitetree', 'sitetree_tree from "dynamic1"', mock_template_context()))
     assert 'dynamic1_1|dynamic1_2' in result
     assert 'dynamic2_1' not in result
+
+    trees = get_dynamic_trees()
+    assert len(trees[_IDX_ORPHAN_TREES]) == 2
+
+    from sitetree.sitetreeapp import _DYNAMIC_TREES
+    _DYNAMIC_TREES.clear()
 
 
 @pytest.mark.django_db
@@ -70,6 +64,9 @@ def test_dynamic_attach(render_template_tag, mock_template_context, common_tree)
     assert 'Web|dynamic2_1|dynamic2_2' in result
     assert 'China|dynamic1_1|dynamic1_2' in result
 
+    from sitetree.sitetreeapp import _DYNAMIC_TREES
+    _DYNAMIC_TREES.clear()
+
 
 @pytest.mark.django_db
 def test_dynamic_attach_from_module(render_template_tag, mock_template_context, settings):
@@ -86,3 +83,5 @@ def test_dynamic_attach_from_module(render_template_tag, mock_template_context, 
     with pytest.warns(UserWarning):
         compose_dynamic_tree('nonexistent')
 
+    from sitetree.sitetreeapp import _DYNAMIC_TREES
+    _DYNAMIC_TREES.clear()

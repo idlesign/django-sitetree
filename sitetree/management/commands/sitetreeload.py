@@ -30,7 +30,7 @@ get_options = options_getter((
         help='Mode to put data into DB. Variants: `replace`, `append`.'),
 
     CommandOption(
-        '--items_into_tree', action='store', dest='into_tree', default=None,
+        '--items_into_tree', action='store', dest='items_into_tree', default=None,
         help='Import only tree items data into tree with given alias.'),
 ))
 
@@ -50,7 +50,7 @@ class Command(BaseCommand):
 
         using = options.get('database', DEFAULT_DB_ALIAS)
         mode = options.get('mode', 'append')
-        items_into_tree = options.get('into_tree', None)
+        items_into_tree = options.get('items_into_tree', None)
 
         if items_into_tree is not None:
             try:
@@ -78,11 +78,8 @@ class Command(BaseCommand):
         loaded_object_count = 0
 
         if mode == 'replace':
-            try:
-                MODEL_TREE_CLASS.objects.all().delete()
-                MODEL_TREE_ITEM_CLASS.objects.all().delete()
-            except ObjectDoesNotExist:
-                pass
+            MODEL_TREE_CLASS.objects.all().delete()
+            MODEL_TREE_ITEM_CLASS.objects.all().delete()
 
         for fixture_file in fixture_files:
 

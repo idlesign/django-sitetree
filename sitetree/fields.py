@@ -41,10 +41,8 @@ class TreeItemChoiceField(ChoiceField):
         tree_token = u'sitetree_tree from "%s" template "%s"' % (self.tree, self.template)
 
         context_kwargs = {'current_app': 'admin'}
-        if VERSION >= (1, 8):
-            context = template.Context(context_kwargs)
-        else:
-            context = template.Context(**context_kwargs)
+        context = template.Context(context_kwargs) if VERSION >= (1, 8) else template.Context(**context_kwargs)
+        context.update({'request': object()})
 
         choices_str = sitetree_tree(
             Parser(None), Token(token_type=TOKEN_BLOCK, contents=tree_token)
