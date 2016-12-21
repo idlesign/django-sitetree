@@ -644,7 +644,7 @@ class SiteTree(object):
                             resolved = view_argument
 
                     # We enclose arg in double quotes as already resolved.
-                    all_arguments.append('"%s"' % str(resolved))
+                    all_arguments.append('"%s"' % resolved)
 
                 view_path = view_path[0].strip('"\' ')
 
@@ -653,7 +653,7 @@ class SiteTree(object):
 
             url_pattern = '%s %s' % (view_path, ' '.join(all_arguments))
         else:
-            url_pattern = str(sitetree_item.url)
+            url_pattern = '%s' % sitetree_item.url
 
         # i18n_patterns compatibility organized using compound cache key.
         cache_key = '%s%s' % (sitetree_item.tree.alias, self.current_lang)
