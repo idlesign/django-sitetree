@@ -2,23 +2,25 @@ django-sitetree
 ===============
 http://github.com/idlesign/django-sitetree
 
-.. image:: https://img.shields.io/pypi/v/django-sitetree.svg
+|release| |stats|  |lic| |ci| |coverage| |health|
+
+.. |release| image:: https://img.shields.io/pypi/v/django-sitetree.svg
     :target: https://pypi.python.org/pypi/django-sitetree
 
-.. image:: https://img.shields.io/pypi/dm/django-sitetree.svg
+.. |stats| image:: https://img.shields.io/pypi/dm/django-sitetree.svg
     :target: https://pypi.python.org/pypi/django-sitetree
 
-.. image:: https://img.shields.io/pypi/l/django-sitetree.svg
+.. |lic| image:: https://img.shields.io/pypi/l/django-sitetree.svg
     :target: https://pypi.python.org/pypi/django-sitetree
 
-.. image:: https://img.shields.io/coveralls/idlesign/django-sitetree/master.svg
-    :target: https://coveralls.io/r/idlesign/django-sitetree
-
-.. image:: https://img.shields.io/travis/idlesign/django-sitetree/master.svg
+.. |ci| image:: https://img.shields.io/travis/idlesign/django-sitetree/master.svg
     :target: https://travis-ci.org/idlesign/django-sitetree
 
-.. image:: https://landscape.io/github/idlesign/django-sitetree/master/landscape.svg?style=flat
-   :target: https://landscape.io/github/idlesign/django-sitetree/master
+.. |coverage| image:: https://img.shields.io/coveralls/idlesign/django-sitetree/master.svg
+    :target: https://coveralls.io/r/idlesign/django-sitetree
+
+.. |health| image:: https://landscape.io/github/idlesign/django-sitetree/master/landscape.svg?style=flat
+    :target: https://landscape.io/github/idlesign/django-sitetree/master
 
 
 What's that
