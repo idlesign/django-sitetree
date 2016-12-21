@@ -78,11 +78,8 @@ class Command(BaseCommand):
         loaded_object_count = 0
 
         if mode == 'replace':
-            try:
-                MODEL_TREE_CLASS.objects.all().delete()
-                MODEL_TREE_ITEM_CLASS.objects.all().delete()
-            except ObjectDoesNotExist:
-                pass
+            MODEL_TREE_CLASS.objects.all().delete()
+            MODEL_TREE_ITEM_CLASS.objects.all().delete()
 
         for fixture_file in fixture_files:
 
