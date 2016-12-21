@@ -61,6 +61,8 @@ _THREAD_SITETREE = 'sitetree'
 
 _URL_TAG_NEW_STYLE = VERSION >= (1, 5, 0)
 
+_UNSET = set()  # Sentinel
+
 
 def get_sitetree():
     """Returns SiteTree (thread-singleton) object, implementing utility methods.
@@ -310,7 +312,7 @@ class Cache(object):
         cache.get('sitetrees_reset') and self.empty(init=False)
 
         self.cache = cache.get(
-            'sitetrees', {'sitetrees': {}, 'urls': {}, 'parents': {}, 'items_by_ids': {}, 'tree_aliases': {}})
+            'sitetrees', {'sitetrees': {}, 'parents': {}, 'items_by_ids': {}, 'tree_aliases': {}})
 
     def save(self):
         """Saves sitetree data to Django cache."""
@@ -357,8 +359,6 @@ class Cache(object):
 class SiteTree(object):
     """Main logic handler."""
 
-    _unset = set()  # Sentinel.
-
     def __init__(self):
         self.init(context=None)
 
@@ -372,10 +372,10 @@ class SiteTree(object):
         self.current_request = context.get('request', None) if context else None
         self.current_lang = get_language()
 
-        unset = self._unset
         self._current_app_is_admin = None
-        self._current_tree_item = unset
-        self._current_user_permissions = unset
+        self._current_user_permissions = _UNSET
+        self._items_urls = {}  # Resolved urls are cache for a request.
+        self._current_items = {}
 
     def resolve_tree_i18n_alias(self, alias):
         """Resolves internationalized tree alias.
@@ -591,24 +591,35 @@ class SiteTree(object):
         :param str|unicode tree_alias:
         :rtype: TreeItemBase
         """
-        current_item = self._current_tree_item
-        if True:  # todo if current_item is self._unset:
-            current_item = None
+        current_item = self._current_items.get(tree_alias, _UNSET)
 
-            if not self.current_app_is_admin():
-                # urlquote is an attempt to support non-ascii in url.
-                current_url = urlquote(self.current_request.path)
-                urls_cache = self.cache.get_entry('urls', '%s%s' % (tree_alias, self.current_lang))
-                if urls_cache:
-                    for url_item in urls_cache:
-                        urls_cache[url_item][1].is_current = False
-                        if urls_cache[url_item][0] == current_url:
-                            current_item = urls_cache[url_item][1]
+        if current_item is not _UNSET:
 
-                if current_item is not None:
-                    current_item.is_current = True
+            if current_item is not None:
+                current_item.is_current = True  # Could be reset by .get_sitetree()
 
-            self._current_tree_item = current_item
+            return current_item
+
+        current_item = None
+
+        if self.current_app_is_admin():
+            self._current_items[tree_alias] = current_item
+            return None
+
+        # urlquote is an attempt to support non-ascii in url.
+        current_url = urlquote(self.current_request.path)
+
+        for url_item, url in self._items_urls.items():
+            # Iterate each as this dict may contains "current" items for various trees.
+            if url != current_url:
+                continue
+
+            url_item.is_current = True
+            if url_item.tree.alias == tree_alias:
+                current_item = url_item
+
+        if current_item is not None:
+            self._current_items[tree_alias] = current_item
 
         return current_item
 
@@ -626,6 +637,10 @@ class SiteTree(object):
 
         if not isinstance(sitetree_item, MODEL_TREE_ITEM_CLASS):
             sitetree_item = self.resolve_var(sitetree_item, context)
+
+        resolved_url = self._items_urls.get(sitetree_item)
+        if resolved_url is not None:
+            return resolved_url
 
         # Resolve only if item's URL is marked as pattern.
         if sitetree_item.urlaspattern:
@@ -655,32 +670,20 @@ class SiteTree(object):
         else:
             url_pattern = '%s' % sitetree_item.url
 
-        # i18n_patterns compatibility organized using compound cache key.
-        cache_key = '%s%s' % (sitetree_item.tree.alias, self.current_lang)
+        if sitetree_item.urlaspattern:
+            # Form token to pass to Django 'url' tag.
+            url_token = 'url %s as item.url_resolved' % url_pattern
+            url_tag(
+                Parser(None),
+                Token(token_type=TOKEN_BLOCK, contents=url_token)
+            ).render(context)
 
-        entry_from_cache = self.cache.get_entry('urls', cache_key)
-        if not entry_from_cache:
-            # Create 'cache_urls' for this tree.
-            entry_from_cache = {}
-            self.cache.set_entry('urls', cache_key, {})
+            resolved_url = context['item.url_resolved'] or UNRESOLVED_ITEM_MARKER
 
-        if url_pattern in entry_from_cache:
-            resolved_url = entry_from_cache[url_pattern][0]
         else:
-            if sitetree_item.urlaspattern:
-                # Form token to pass to Django 'url' tag.
-                url_token = 'url %s as item.url_resolved' % url_pattern
-                url_tag(
-                    Parser(None),
-                    Token(token_type=TOKEN_BLOCK, contents=url_token)
-                ).render(context)
+            resolved_url = url_pattern
 
-                resolved_url = context['item.url_resolved'] or UNRESOLVED_ITEM_MARKER
-
-            else:
-                resolved_url = url_pattern
-
-            self.cache.update_entry_value('urls', cache_key, {url_pattern: (resolved_url, sitetree_item)})
+        self._items_urls[sitetree_item] = resolved_url
 
         return resolved_url
 
@@ -858,7 +861,7 @@ class SiteTree(object):
         if item.access_restricted:
             user_perms = self._current_user_permissions
 
-            if user_perms is self._unset:
+            if user_perms is _UNSET:
                 user_perms = set(context['user'].get_all_permissions())
                 self._current_user_permissions = user_perms
 
