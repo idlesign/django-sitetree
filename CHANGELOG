@@ -4,6 +4,7 @@ django-sitetree changelog
 
 Unreleased
 ----------
+* IMPORTANT: Caching reworked.
 * IMPORTANT: Dropped Django 1.5, 1.6 support (will not be tested anymore).
 + Added `ITEMS_FIELD_ROOT_ID` setting (see #205).
 * Reduced DB hits for trees with lots of permissions (see #213).
