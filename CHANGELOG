@@ -10,6 +10,7 @@ Unreleased
 * Improved `sitetreeload` command py3 compatibility (see #209).
 * Fixed `sitetreeload` unable to load some twisted tree structures (see #209).
 * Fixed `sitetree_resync_apps` run without args.
+* Fixed package distribution (see #222).
 
 
 v1.6.0
