@@ -2,8 +2,8 @@ django-sitetree changelog
 =========================
 
 
-Unreleased
-----------
+v1.7.0
+------
 * IMPORTANT: Caching reworked.
 * IMPORTANT: Dropped Django 1.5, 1.6 support (will not be tested anymore).
 + Added `ITEMS_FIELD_ROOT_ID` setting (see #205).
