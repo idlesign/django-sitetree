@@ -31,11 +31,11 @@ Example:
     register_i18n_trees(['my_tree', 'my_another_tree'])
 
     # After that you need to create trees for languages supported
-    # in your project, e.g.: `my_tree_en`, `my_tree_ru`.
+    # in your project, e.g.: `my_tree_en`, `my_tree_ru`, `my_tree_pt-br`.
 
     # Then when we address ``my_tree`` from a template django-sitetree will render
     # an appropriate tree for locale currently active in your project.
     # See ``activate`` function from ``django.utils.translation``
-    # and https://docs.djangoproject.com/en/dev/topics/i18n/internationalization
+    # and https://docs.djangoproject.com/en/dev/topics/i18n/
     # for more information.
 

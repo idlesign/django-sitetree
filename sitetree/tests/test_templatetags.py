@@ -42,6 +42,14 @@ def test_i18n(build_tree, render_template_tag, mock_template_context):
         {'alias': 'i18tree_ru'},
         [{'title': 'Заголовок', 'url': '/url_ru/'}],
     )
+    build_tree(
+        {'alias': 'i18tree_pt-br'},
+        [{'title': 'Meu Título', 'url': '/url_pt-br/'}],
+    )
+    build_tree(
+        {'alias': 'i18tree_zh-hans'},
+        [{'title': '我蒂特', 'url': '/url_zh-hans/'}],
+    )
     register_i18n_trees(['i18tree'])
 
     activate('en')
@@ -55,6 +63,18 @@ def test_i18n(build_tree, render_template_tag, mock_template_context):
 
     assert '/url_ru/' in result
     assert 'Заголовок' in result
+
+    activate('pt-br')
+    result = render_template_tag('sitetree', 'sitetree_tree from "i18tree"', mock_template_context())
+
+    assert '/url_pt-br/' in result
+    assert 'Meu Título' in result
+
+    activate('zh-hans')
+    result = render_template_tag('sitetree', 'sitetree_tree from "i18tree"', mock_template_context())
+
+    assert '/url_zh-hans/' in result
+    assert '我蒂特' in result
 
     deactivate_all()
 
