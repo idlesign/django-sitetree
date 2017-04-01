@@ -174,6 +174,18 @@ Usage example::
 This command renders current page description from tree named 'mytree'.
 
 
+.. _tag-page-hint:
+
+sitetree_page_hint
+------------------
+
+This tag is similar to `sitetree_page_description`, but it uses data from  tree item `hint` field instead of a `description` fields.
+
+Usage example::
+
+  {% sitetree_page_hint from "mytree" %}
+
+
 
 .. _tag-ignore-errors:
 
