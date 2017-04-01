@@ -388,7 +388,7 @@ class SiteTree(object):
         if alias not in _I18N_TREES:
             return alias
 
-        current_language_code = self.current_lang.replace('_', '-').split('-')[0]
+        current_language_code = self.current_lang
         i18n_tree_alias = '%s_%s' % (alias, current_language_code)
         trees_count = self.cache.get_entry('tree_aliases', i18n_tree_alias)
 
