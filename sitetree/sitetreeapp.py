@@ -60,6 +60,7 @@ _THREAD_LOCAL = local()
 _THREAD_SITETREE = 'sitetree'
 
 _URL_TAG_NEW_STYLE = VERSION >= (1, 5, 0)
+_CONTEXT_FLATTEN = VERSION >= (1, 11)
 
 _UNSET = set()  # Sentinel
 
@@ -958,7 +959,7 @@ class SiteTree(object):
 
         context.push()
         context['sitetree_items'] = tree_items
-        rendered = my_template.render(context)
+        rendered = my_template.render(context.flatten() if _CONTEXT_FLATTEN else context)
         context.pop()
 
         return rendered

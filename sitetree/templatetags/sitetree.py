@@ -2,7 +2,7 @@ from django import template
 from django.template.loader import get_template
 from django.template.base import FilterExpression
 
-from ..sitetreeapp import get_sitetree
+from ..sitetreeapp import get_sitetree, _CONTEXT_FLATTEN
 
 
 register = template.Library()
@@ -301,7 +301,7 @@ def render(context, tree_items, use_template):
     if isinstance(use_template, FilterExpression):
         use_template = use_template.resolve(context)
 
-    content = get_template(use_template).render(context)
+    content = get_template(use_template).render(context.flatten() if _CONTEXT_FLATTEN else context)
     context.pop()
 
     return content

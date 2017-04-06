@@ -9,7 +9,7 @@ import pytest
 from django.http import HttpRequest
 from django.conf import settings, global_settings
 from django import VERSION
-from django.template.context import Context
+from django.template.context import Context, RenderContext
 from django.template.base import Template
 
 
@@ -75,8 +75,13 @@ class MockRequest(HttpRequest):
 
 
 def contribute_to_context(context, current_app=''):
-    context.template = mock.MagicMock()
-    context.template.engine.string_if_invalid = ''
+    template = mock.MagicMock()
+    template.engine.string_if_invalid = ''
+
+    context.template = template
+
+    if VERSION >= (1, 11):
+        context.render_context = RenderContext()
 
     if VERSION >= (1, 10):
         match = mock.MagicMock()
@@ -178,10 +183,19 @@ def render_template_tag():
     """
     def render(tag_library, tag_str, context=None):
         context = context or {}
-        context = Context(context)
+
+        if not isinstance(context, Context):
+            context = Context(context)
+
         contribute_to_context(context)
         string = '{%% load %s %%}{%% %s %%}' % (tag_library, tag_str)
-        return Template(string).render(context)
+        template = Template(string)
+
+        if VERSION >= (1, 11):
+            # Prevent "TypeError: 'NoneType' object is not iterable" in  get_exception_info
+            template.nodelist[1].token.position = (0, 0)
+
+        return template.render(context)
     return render
 
 
