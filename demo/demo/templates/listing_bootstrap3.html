@@ -1,0 +1,26 @@
+{%  load sitetree %}
+
+<div class="container">
+
+    <div class="navbar navbar-inverse">
+        <div class="navbar-inner">
+            <div class="container">
+                {% sitetree_menu from "main" include "trunk" template "sitetree/menu_bootstrap3.html" %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            {% sitetree_menu from "main" include "this-siblings" template "sitetree/menu_bootstrap3_navpills.html" %}
+            <hr/>
+            {% sitetree_menu from "main" include "this-siblings" template "sitetree/menu_bootstrap3_navpills-stacked.html" %}
+        </div>
+        <div class="col-md-9">
+            {% sitetree_breadcrumbs from "main" template "sitetree/breadcrumbs_bootstrap3.html" %}
+
+            {% include '_listing_contents.html' %}
+        </div>
+    </div>
+
+</div>

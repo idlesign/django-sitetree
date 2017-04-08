@@ -1,0 +1,19 @@
+{% load sitetree %}
+
+<div id="page-contents">
+    <h1>{% sitetree_page_title from "main" %} </h1>
+
+    <ul>
+    {% for article in articles %}
+        <li><a href="{%  url 'demo:articles-detailed' article.id %}">{{ article.title }}</a></li>
+    {% endfor %}
+    </ul>
+</div>
+
+<hr>
+
+<h2>Site structure</h2>
+{% sitetree_tree from "main" %}
+
+<hr>
+{% include 'demo_nav.html' %}

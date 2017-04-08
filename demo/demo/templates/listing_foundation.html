@@ -1,0 +1,24 @@
+{%  load sitetree %}
+
+<div class="row">
+
+    {% sitetree_menu from "main" include "trunk" template "sitetree/menu_foundation.html" %}
+
+</div>
+
+<div class="row">
+    <div class="three columns">
+
+        {% sitetree_menu from "main" include "trunk" template "sitetree/menu_foundation-vertical.html" %}
+
+        {% sitetree_menu from "main" include "this-siblings" template "sitetree/menu_foundation_sidenav.html" %}
+
+    </div>
+    <div class="nine columns">
+
+        {% sitetree_breadcrumbs from "main" template "sitetree/breadcrumbs_foundation.html" %}
+
+        {% include '_listing_contents.html' %}
+
+    </div>
+</div>

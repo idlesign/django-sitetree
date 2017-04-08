@@ -1,0 +1,18 @@
+{%  load sitetree %}
+
+<div class="ui menu">
+
+    {% sitetree_menu from "main" include "trunk" template "sitetree/menu_semantic.html" %}
+</div>
+
+
+<div class="ui two column grid">
+    <div class="column">
+        {% sitetree_menu from "main" include "this-siblings" template "sitetree/menu_semantic-vertical.html" %}
+    </div>
+    <div class="column">
+        {% sitetree_breadcrumbs from "main" template "sitetree/breadcrumbs_semantic.html" %}
+
+        {% include '_listing_contents.html' %}
+    </div>
+</div>

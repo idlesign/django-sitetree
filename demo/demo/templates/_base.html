@@ -1,0 +1,33 @@
+{% load sitetree static i18n %}
+<!DOCTYPE html>
+<html lang="{{ request.lang }}">
+<head>
+    <meta charset="UTF-8">
+    <title>django-sitetree demo > {% sitetree_page_title from "main" %} ({% get_current_language as LANGUAGE_CODE %}{{LANGUAGE_CODE}})</title>
+
+    <script src="{% static 'jquery-1.12.4.min.js' %}"></script>
+
+    {% include tpl_head %}
+
+
+    <style type="text/css">
+        #page-contents {
+            background-color: gainsboro;
+            padding: 20px;
+        }
+        #demo-navigation {
+            padding: 10px;
+            border: 1px solid #ce8483;
+        }
+    </style>
+
+</head>
+<body>
+
+    <div align="center">
+        <a href="https://github.com/idlesign/django-sitetree">django-sitetree</a>
+    </div>
+
+    {% block body %}{% endblock %}
+</body>
+</html>

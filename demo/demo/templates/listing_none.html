@@ -1,0 +1,15 @@
+{% load sitetree %}
+
+
+<div>
+    {% sitetree_menu from "main" include "trunk" %}
+    <div>
+        <div>
+            {% sitetree_menu from "main" include "this-siblings" %}
+        </div>
+        <div>
+            {% sitetree_breadcrumbs from "main" %}
+            {% include '_listing_contents.html' %}
+        </div>
+    </div>
+</div>
