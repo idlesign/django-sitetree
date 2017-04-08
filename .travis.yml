@@ -1,6 +1,7 @@
 language: python
 
 python:
+  - 3.6
   - 3.5
   - 3.4
   - 3.3
@@ -21,6 +22,9 @@ script: coverage run -a --source=sitetree setup.py test
 matrix:
 
   exclude:
+   - python: 3.6
+     env: DJANGO="Django>=1.7,<1.8"
+
    - python: 3.5
      env: DJANGO="Django>=1.7,<1.8"
 
