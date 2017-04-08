@@ -2,6 +2,12 @@
 import os
 import sys
 
+
+PATH_DEMO = os.path.dirname(__file__)
+PATH_SITETREE = os.path.dirname(PATH_DEMO)
+
+sys.path = [PATH_DEMO, PATH_SITETREE] + sys.path
+
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings.settings")
     try:
