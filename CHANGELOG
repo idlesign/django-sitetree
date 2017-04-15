@@ -2,8 +2,8 @@ django-sitetree changelog
 =========================
 
 
-Unreleased
-----------
+v1.8.0
+------
 + IMPORTANT: i18n trees now support full lang names (e.g. de-ch, pt-br), update your i18n trees aliases.
 + Django 1.11 compatibility improvements.
 
