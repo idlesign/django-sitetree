@@ -686,6 +686,10 @@ class SiteTree(object):
 
         self._items_urls[sitetree_item] = resolved_url
 
+        # Append optional url_params
+        if sitetree_item.url_params:
+            resolved_url = u'%s?%s' % (resolved_url, sitetree_item.url_params)
+
         return resolved_url
 
     def init_tree(self, tree_alias, context):

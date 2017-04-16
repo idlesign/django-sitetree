@@ -68,6 +68,9 @@ class TreeItemBase(models.Model):
     url = models.CharField(
         _('URL'), max_length=200,
         help_text=_('Exact URL or URL pattern (see "Additional settings") for this item.'), db_index=True)
+    url_params = models.CharField(
+        _('URL Parameters'), max_length=200,
+        help_text=_('Additional URL parameters (see "Additional settings") for this item.'), blank=True, db_index=True)
     urlaspattern = models.BooleanField(
         _('URL as Pattern'),
         help_text=_('Whether the given URL should be treated as a pattern.<br />'

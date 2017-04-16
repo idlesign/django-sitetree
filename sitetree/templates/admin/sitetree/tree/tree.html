@@ -28,6 +28,7 @@
             {% if item.is_dynamic %}{{ item.title }}{% else %}<a href="item_{{ item.id }}/">{{ item.title }}</a>{% endif %}
         </td>
 		<td>{{ item.url }}</td>
+		<td>{{ item.url_params }}</td>
 		<td>
 			&nbsp;&nbsp;
 			<a href="item_{{ item.id }}/move_up/" class="ctl arr_up" title="{% trans "Move up" %}"/></a>
