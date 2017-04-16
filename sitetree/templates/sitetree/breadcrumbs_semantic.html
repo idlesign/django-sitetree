@@ -4,7 +4,7 @@
 <div class="ui breadcrumb">
     {% for item in sitetree_items %}
         {% if not forloop.last %}
-            <a href="{% sitetree_url for item %}" class="section">{{ item.title_resolved }}</a> <div class="divider"> / </div>
+            <a {% if item.external %}target="_blank" {% endif %} href="{% sitetree_url for item %}" class="section">{{ item.title_resolved }}</a> <div class="divider"> / </div>
         {% else %}
             <li class="active section">{{ item.title_resolved }}</li>
         {% endif %}

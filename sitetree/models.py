@@ -68,6 +68,9 @@ class TreeItemBase(models.Model):
     url = models.CharField(
         _('URL'), max_length=200,
         help_text=_('Exact URL or URL pattern (see "Additional settings") for this item.'), db_index=True)
+    external = models.BooleanField(
+        _('Open URL in new window'),
+        help_text=_('If enabled link will open in a new window'), default=False)
     urlaspattern = models.BooleanField(
         _('URL as Pattern'),
         help_text=_('Whether the given URL should be treated as a pattern.<br />'

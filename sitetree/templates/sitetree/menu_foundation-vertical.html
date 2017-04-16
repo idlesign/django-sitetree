@@ -4,7 +4,7 @@
 	<li class="{% if item.is_current or item.in_current_branch %}active{% endif %} {% if item.has_children %}has-flyout{% endif %}">
         <a href="{% if item.has_children %}#{% else %}{% sitetree_url for item %}{% endif %}">{{ item.title_resolved }}</a>
 		{% if item.has_children %}
-            <a href="#" class="flyout-toggle"><span> </span></a>
+            <a {% if item.external %}target="_blank" {% endif %} href="#" class="flyout-toggle"><span> </span></a>
 			{% sitetree_children of item for menu template "sitetree/menu_foundation_flyout.html" %}
 		{% endif %}
 	</li>
