@@ -1,10 +1,12 @@
 import os
 
 
+USE_DEBUG_TOOLBAR = False
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'not-a-secret'
 DEBUG = True
 ALLOWED_HOSTS = []
+INTERNAL_IPS = ['127.0.0.1']
 
 
 # SITETREE_MODEL_TREE = 'demo.MyTree'
@@ -77,3 +79,8 @@ CACHES = {
        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
    }
 }
+
+
+if USE_DEBUG_TOOLBAR:
+    INSTALLED_APPS.append('debug_toolbar')
+    MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
