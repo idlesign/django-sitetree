@@ -115,7 +115,8 @@ class TreeItemAdmin(admin.ModelAdmin):
         # Avoid a major performance hit resolving permission names which
         # triggers a content_type load:
         if db_field.name == 'access_permissions':
-            qs = kwargs.get('queryset', db_field.remote_field.model.objects)
+            objects = db_field.remote_field.model.objects if DJANGO_POST_19 else db_field.rel.to.objects
+            qs = kwargs.get('queryset', objects)
             kwargs['queryset'] = qs.select_related('content_type')
 
         return super(TreeItemAdmin, self).formfield_for_manytomany(db_field, request=request, **kwargs)
