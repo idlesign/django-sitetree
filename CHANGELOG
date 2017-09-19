@@ -2,6 +2,11 @@ django-sitetree changelog
 =========================
 
 
+Unreleased
+----------
+* Reduced number of SQL queries on item admin page (see #237)
+
+
 v1.8.0
 ------
 + IMPORTANT: i18n trees now support full lang names (e.g. de-ch, pt-br), update your i18n trees aliases.

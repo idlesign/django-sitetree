@@ -109,6 +109,17 @@ class TreeItemAdmin(admin.ModelAdmin):
     change_form_template = 'admin/sitetree/treeitem/change_form.html'
     delete_confirmation_template = 'admin/sitetree/treeitem/delete_confirmation.html'
 
+    def formfield_for_manytomany(self, db_field, request=None, **kwargs):
+
+        # The same as for GroupAdmin
+        # Avoid a major performance hit resolving permission names which
+        # triggers a content_type load:
+        if db_field.name == 'access_permissions':
+            qs = kwargs.get('queryset', db_field.remote_field.model.objects)
+            kwargs['queryset'] = qs.select_related('content_type')
+
+        return super(TreeItemAdmin, self).formfield_for_manytomany(db_field, request=request, **kwargs)
+
     def response_add(self, request, obj, post_url_continue=None, **kwargs):
         """Redirects to the appropriate items' 'continue' page on item add.
 
