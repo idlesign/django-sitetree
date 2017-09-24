@@ -74,7 +74,7 @@ class TreeItemBase(models.Model):
                     '<b>Note:</b> Refer to Django "URL dispatcher" documentation (e.g. "Naming URL patterns" part).'),
         db_index=True, default=False)
     tree = models.ForeignKey(
-        MODEL_TREE, related_name='%(class)s_tree', verbose_name=_('Site Tree'),
+        MODEL_TREE, related_name='%(class)s_tree', on_delete=models.CASCADE, verbose_name=_('Site Tree'),
         help_text=_('Site tree this item belongs to.'), db_index=True)
     hidden = models.BooleanField(
         _('Hidden'), help_text=_('Whether to show this item in navigation.'), db_index=True, default=False)
@@ -118,7 +118,7 @@ class TreeItemBase(models.Model):
     # These two are for 'adjacency list' model.
     # This is the current approach of tree representation for sitetree.
     parent = models.ForeignKey(
-        'self', related_name='%(class)s_parent', verbose_name=_('Parent'),
+        'self', related_name='%(class)s_parent', on_delete=models.CASCADE, verbose_name=_('Parent'),
         help_text=_('Parent site tree item.'), db_index=True, null=True, blank=True)
     sort_order = models.IntegerField(
         _('Sort order'),
