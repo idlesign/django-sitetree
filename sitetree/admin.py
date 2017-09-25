@@ -1,6 +1,9 @@
 from django.conf import settings as django_settings
 from django import VERSION as django_version
-from django.urls import get_urlconf, get_resolver
+try:
+    from django.urls import get_urlconf, get_resolver
+except ImportError:
+    from django.conf.urls import get_urlconf, get_resolver
 from django.utils.translation import ugettext_lazy as _
 from django.utils import six
 from django.http import HttpResponseRedirect
