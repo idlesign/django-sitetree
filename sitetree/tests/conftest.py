@@ -19,6 +19,10 @@ def pytest_configure():
 
     if not pytest.config.pluginmanager.hasplugin('django'):
         raise Exception('`pytest-django` package is required to run `%s` tests.' % app_name)
+    if hasattr(global_settings, "MIDDLEWARE"):
+        middleware = global_settings.MIDDLEWARE
+    else:
+        middleware = global_settings.MIDDLEWARE_CLASSES
 
     configure_kwargs = dict(
         INSTALLED_APPS=(
@@ -28,7 +32,7 @@ def pytest_configure():
             '%s.tests' % app_name
         ),
         DATABASES={'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': ':memory:'}},
-        MIDDLEWARE_CLASSES=global_settings.MIDDLEWARE_CLASSES,  # Prevents Django 1.7 warning.
+        MIDDLEWARE_CLASSES=middleware,  # Prevents Django 1.7 warning.
         ROOT_URLCONF='%s.tests.urls' % app_name,
         TEMPLATES=[{
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
