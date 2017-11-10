@@ -63,6 +63,9 @@ class Command(BaseCommand):
                             item.save(using=using)
                             # Copy permissions to M2M field once `item`
                             # has been saved
-                            item.access_permissions = item.permissions
+                            if hasattr(item.access_permissions, "set"):
+                                item.access_permissions.set(item.permissions)
+                            else:
+                                item.access_permissions = item.permissions
 
         Cache.reset()

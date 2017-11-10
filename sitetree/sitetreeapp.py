@@ -608,7 +608,13 @@ class SiteTree(object):
             return None
 
         # urlquote is an attempt to support non-ascii in url.
-        current_url = urlquote(self.current_request.path)
+        path = self.current_request.path
+        if type(path) == str:
+            current_url = urlquote(path.encode("UTF-8"))
+        elif type(path) in (bytes, bytearray):
+            current_url = urlquote(path)
+        else:
+            current_url = path
 
         for url_item, url in self._items_urls.items():
             # Iterate each as this dict may contains "current" items for various trees.
@@ -851,7 +857,10 @@ class SiteTree(object):
         :param Context context:
         :rtype: bool
         """
-        authenticated = self.current_request.user.is_authenticated()
+        if hasattr(self.current_request.user.is_authenticated, "__call__"):
+            authenticated = self.current_request.user.is_authenticated()
+        else:
+            authenticated = self.current_request.user.is_authenticated
 
         if item.access_loggedin and not authenticated:
             return False
