@@ -608,13 +608,11 @@ class SiteTree(object):
             return None
 
         # urlquote is an attempt to support non-ascii in url.
-        path = self.current_request.path
-        if type(path) == str:
-            current_url = urlquote(path.encode('UTF-8'))
-        elif type(path) in (bytes, bytearray):
-            current_url = urlquote(path)
-        else:
-            current_url = path
+        current_url = self.current_request.path
+        if isinstance(current_url, str):
+            current_url = current_url.encode('UTF-8')
+        if current_url:
+            current_url = urlquote(current_url)
 
         for url_item, url in self._items_urls.items():
             # Iterate each as this dict may contains "current" items for various trees.
