@@ -610,7 +610,7 @@ class SiteTree(object):
         # urlquote is an attempt to support non-ascii in url.
         path = self.current_request.path
         if type(path) == str:
-            current_url = urlquote(path.encode("UTF-8"))
+            current_url = urlquote(path.encode('UTF-8'))
         elif type(path) in (bytes, bytearray):
             current_url = urlquote(path)
         else:
@@ -857,7 +857,7 @@ class SiteTree(object):
         :param Context context:
         :rtype: bool
         """
-        if hasattr(self.current_request.user.is_authenticated, "__call__"):
+        if hasattr(self.current_request.user.is_authenticated, '__call__'):
             authenticated = self.current_request.user.is_authenticated()
         else:
             authenticated = self.current_request.user.is_authenticated
