@@ -2,12 +2,9 @@ django-sitetree
 ===============
 http://github.com/idlesign/django-sitetree
 
-|release| |stats|  |lic| |ci| |coverage| |health|
+|release| |lic| |ci| |coverage| |health|
 
 .. |release| image:: https://img.shields.io/pypi/v/django-sitetree.svg
-    :target: https://pypi.python.org/pypi/django-sitetree
-
-.. |stats| image:: https://img.shields.io/pypi/dm/django-sitetree.svg
     :target: https://pypi.python.org/pypi/django-sitetree
 
 .. |lic| image:: https://img.shields.io/pypi/l/django-sitetree.svg
