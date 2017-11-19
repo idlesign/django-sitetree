@@ -46,8 +46,8 @@ class Migration(migrations.Migration):
                 ('access_perm_type', models.IntegerField(default=1, help_text='<b>Any</b> &mdash; user should have any of chosen permissions. <b>All</b> &mdash; user should have all chosen permissions.', verbose_name='Permissions interpretation', choices=[(1, 'Any'), (2, 'All')])),
                 ('sort_order', models.IntegerField(default=0, help_text='Item position among other site tree items under the same parent.', verbose_name='Sort order', db_index=True)),
                 ('access_permissions', models.ManyToManyField(to='auth.Permission', verbose_name='Permissions granting access', blank=True)),
-                ('parent', models.ForeignKey(related_name='treeitem_parent', blank=True, to='sitetree.TreeItem', help_text='Parent site tree item.', null=True, verbose_name='Parent')),
-                ('tree', models.ForeignKey(related_name='treeitem_tree', verbose_name='Site Tree', to='sitetree.Tree', help_text='Site tree this item belongs to.')),
+                ('parent', models.ForeignKey(related_name='treeitem_parent', on_delete=models.CASCADE, blank=True, to='sitetree.TreeItem', help_text='Parent site tree item.', null=True, verbose_name='Parent')),
+                ('tree', models.ForeignKey(related_name='treeitem_tree', on_delete=models.CASCADE, verbose_name='Site Tree', to='sitetree.Tree', help_text='Site tree this item belongs to.')),
             ],
             options={
                 'abstract': False,
