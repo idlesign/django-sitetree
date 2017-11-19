@@ -4,6 +4,7 @@ django-sitetree changelog
 
 Unreleased
 ----------
++ Added French translation.
 * Reduced number of SQL queries on item admin page (see #237)
 
 
