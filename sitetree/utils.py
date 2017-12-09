@@ -1,14 +1,11 @@
+from importlib import import_module
+
+from django.apps import apps
 from django.contrib.auth.models import Permission
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import six
 from django.utils.module_loading import module_has_submodule
 
-try:
-    from importlib import import_module
-except ImportError:  # Python < 2.7
-    from django.utils.importlib import import_module
-
-from django.apps import apps
 apps_get_model = apps.get_model
 
 from sitetree import settings
