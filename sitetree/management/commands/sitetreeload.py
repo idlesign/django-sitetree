@@ -1,21 +1,19 @@
-import sys
 from collections import defaultdict
 
+import sys
 from django import VERSION
 from django.core import serializers
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management.color import no_style
 from django.db import connections, router, transaction, DEFAULT_DB_ALIAS
-from django.core.exceptions import ObjectDoesNotExist
 
-from sitetree.utils import get_tree_model, get_tree_item_model
 from sitetree.compat import CommandOption, options_getter
-
+from sitetree.utils import get_tree_model, get_tree_item_model
 
 MODEL_TREE_CLASS = get_tree_model()
 MODEL_TREE_ITEM_CLASS = get_tree_item_model()
 
-VER_LESS_17 = VERSION < (1, 7)
 VER_LESS_18 = VERSION < (1, 8)
 
 
@@ -66,14 +64,8 @@ class Command(BaseCommand):
 
         self.style = no_style()
 
-        if VER_LESS_17:
-            transaction.commit_unless_managed(using=using)
-
         if VER_LESS_18:
             transaction.enter_transaction_management(using=using)
-
-        if VER_LESS_17:
-            transaction.managed(True, using=using)
 
         loaded_object_count = 0
 

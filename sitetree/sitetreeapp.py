@@ -1,32 +1,32 @@
 from __future__ import unicode_literals
+
 import warnings
 from collections import defaultdict
 from copy import deepcopy
-from threading import local
 from functools import partial
+from threading import local
 
-from django.conf import settings
 from django import VERSION
+from django.conf import settings
 from django.core.cache import cache
 from django.db.models import signals
-from django.utils import six
-from django.utils.http import urlquote
-from django.utils.translation import get_language
-from django.utils.encoding import python_2_unicode_compatible
-from django.template.loader import get_template
 from django.template.base import (
     FilterExpression, Lexer, Parser, Token, Variable, VariableDoesNotExist, TOKEN_BLOCK, UNKNOWN_SOURCE, TOKEN_TEXT,
     TOKEN_VAR, VARIABLE_TAG_START)
 from django.template.defaulttags import url as url_tag
+from django.template.loader import get_template
+from django.utils import six
+from django.utils.encoding import python_2_unicode_compatible
+from django.utils.http import urlquote
+from django.utils.translation import get_language
 
-from .utils import get_tree_model, get_tree_item_model, import_app_sitetree_module, generate_id_for
+from .exceptions import SiteTreeError
 from .settings import (
     ALIAS_TRUNK, ALIAS_THIS_CHILDREN, ALIAS_THIS_SIBLINGS, ALIAS_THIS_PARENT_SIBLINGS, ALIAS_THIS_ANCESTOR_CHILDREN,
     UNRESOLVED_ITEM_MARKER, RAISE_ITEMS_ERRORS_ON_DEBUG, CACHE_TIMEOUT)
-from .exceptions import SiteTreeError
+from .utils import get_tree_model, get_tree_item_model, import_app_sitetree_module, generate_id_for
 
-
-if False:  # For type hinting purposes.
+if False:  # pragma: nocover
     from django.template import Context
     from .models import TreeItemBase
 
@@ -59,7 +59,6 @@ _IDX_TPL = '%s|:|%s'
 _THREAD_LOCAL = local()
 _THREAD_SITETREE = 'sitetree'
 
-_URL_TAG_NEW_STYLE = VERSION >= (1, 5, 0)
 _CONTEXT_FLATTEN = VERSION >= (1, 11)
 
 _UNSET = set()  # Sentinel
@@ -668,10 +667,8 @@ class SiteTree(object):
 
                 view_path = view_path[0].strip('"\' ')
 
-            if _URL_TAG_NEW_STYLE:
-                view_path = "'%s'" % view_path
+            url_pattern = "'%s' %s" % (view_path, ' '.join(all_arguments))
 
-            url_pattern = '%s %s' % (view_path, ' '.join(all_arguments))
         else:
             url_pattern = '%s' % sitetree_item.url
 

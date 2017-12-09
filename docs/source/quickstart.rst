@@ -5,19 +5,7 @@ Getting started
 2. Check that *django.core.context_processors.request* is added to TEMPLATE_CONTEXT_PROCESSORS in your settings file.
    For Django 1.8+: *django.template.context_processors.request* should be defined in ``TEMPLATES/OPTIONS/context_processors``.
 3. Check that *django.contrib.auth.context_processors.auth* is enabled in TEMPLATE_CONTEXT_PROCESSORS too.
-4. Run ``./manage.py syncdb`` to install sitetree tables into database (``./manage.py migrate`` for Django 1.7+).
-
-    .. warning::
-
-        Those, who are using South <1.0 for migrations with Django <1.7, add this into settings file:
-
-        .. code-block:: python
-
-            SOUTH_MIGRATION_MODULES = {
-                'sitetree': 'sitetree.south_migrations',
-            }
-
-
+4. Run ``./manage.py migrate`` to install sitetree tables into database.
 5. Go to Django Admin site and add some trees and tree items (see :ref:`Making tree <making-tree>` section).
 6. Add *{% load sitetree %}* tag to the top of a template.
 

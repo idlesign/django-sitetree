@@ -22,4 +22,5 @@ class TreeItemForm(forms.Form):
 
         # autocomplete off - deals with Firefox form caching
         # https://bugzilla.mozilla.org/show_bug.cgi?id=46845
-        self.fields['tree_item'] = self.choice_field_class(tree, initial=tree_item, widget=forms.Select(attrs={'autocomplete': 'off'}))
+        self.fields['tree_item'] = self.choice_field_class(
+            tree, initial=tree_item, widget=forms.Select(attrs={'autocomplete': 'off'}))

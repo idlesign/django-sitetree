@@ -1,16 +1,9 @@
-from django.db import models
-from django.conf import settings
 from django.contrib.auth.models import Permission
-from django.utils.translation import ugettext_lazy as _
+from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils.translation import ugettext_lazy as _
 
 from .settings import MODEL_TREE, TREE_ITEMS_ALIASES
-
-
-# This allows South to handle our custom 'CharFieldNullable' field.
-if 'south' in settings.INSTALLED_APPS:
-    from south.modelsinspector import add_introspection_rules
-    add_introspection_rules([], ['^sitetree\.models\.CharFieldNullable'])
 
 
 class CharFieldNullable(models.CharField):
