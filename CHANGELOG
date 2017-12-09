@@ -4,7 +4,7 @@ django-sitetree changelog
 
 Unreleased
 ----------
-+ Added basic Django 2.0 compitibility.
++ Added basic Django 2.0 compatibility.
 + Added French translation.
 * Reduced number of SQL queries on item admin page (see #237)
 
