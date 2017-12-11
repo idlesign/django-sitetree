@@ -88,6 +88,10 @@ The following templates are bundled with SiteTree:
 
    The same as above but for Bootstrap version 3.
 
+ * `sitetree/breadcrumbs_bootstrap4.html`
+
+   The same as above but for Bootstrap version 4.
+
  * `sitetree/menu_bootstrap.html`
 
    This template can be used to construct *menu contents* for Bootstrap Navbar.
@@ -119,6 +123,10 @@ The following templates are bundled with SiteTree:
 
    The same as above but for Bootstrap version 3.
 
+  * `sitetree/menu_bootstrap4.html`
+
+   The same as above but for Bootstrap version 3.
+
  * `sitetree/menu_bootstrap_dropdown.html`
 
    One level deep dropdown menu.
@@ -126,6 +134,10 @@ The following templates are bundled with SiteTree:
  * `sitetree/menu_bootstrap3_dropdown.html`
 
    The same as above but for Bootstrap version 3.
+
+ * `sitetree/menu_bootstrap4_dropdown.html`
+
+   The same as above but for Bootstrap version 4.
 
  * `sitetree/menu_bootstrap_navlist.html`
 
@@ -139,9 +151,17 @@ The following templates are bundled with SiteTree:
 
    Constructs nav-pills Bootstrap 3 horizontal navigation.
 
+ * `sitetree/menu_bootstrap4_navpills.html`
+
+   The same as above but for Bootstrap version 4.
+
  * `sitetree/menu_bootstrap3_navpills-stacked.html`
 
    Constructs nav-pills Bootstrap 3 vertical navigation similar to navlist from Bootstrap 2.
+
+ * `sitetree/menu_bootstrap4_navpills-stacked.html`
+
+   The same as above but for Bootstrap version 4.
 
 
 You can find Bootstrap navigation elements examples at http://getbootstrap.com/components/

@@ -4,6 +4,7 @@ django-sitetree changelog
 
 Unreleased
 ----------
++ Added Bootstrap 4 templates.
 * Dropped support for Python 2.6 and 3.3.
 * Dropped Django<1.7 related code.
 + Added basic Django 2.0 compatibility.
