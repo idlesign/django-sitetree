@@ -8,6 +8,7 @@ recursive-include docs *.rst
 recursive-include docs *.py
 
 recursive-include sitetree/locale *
+recursive-include sitetree/static *
 recursive-include sitetree/migrations *.py
 recursive-include sitetree/south_migrations *.py
 recursive-include sitetree/templates *.html
