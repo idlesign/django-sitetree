@@ -62,10 +62,10 @@ Dynamic sitetree structuring
 
 Optionally you can structure app-defined sitetrees into existing or new trees runtime.
 
-Basically one should compose a dynamic tree with `compose_dynamic_tree()` and register it with `register_dynamic_trees()`.
+Basically one should compose a dynamic tree with ``compose_dynamic_tree()`` and register it with ``register_dynamic_trees()``.
 
-Let's suppose the following code is in `setting.py` (for Django < 1.7; or for Djagno >= 1.7 somewhere where app registry
-is already created, e.g. `urls.py`) of your project.
+Let's suppose the following code somewhere where app registry is already created, e.g. ``config.ready()`` or even
+in ``urls.py`` of your project.
 
 
 .. code-block:: python
@@ -99,4 +99,8 @@ is already created, e.g. `urls.py`) of your project.
         # dynamic trees are rendered immediately.
         reset_cache=True
     )
+
+
+.. note:: If you use only dynamic trees you can set ``SITETREE_DYNAMIC_ONLY = True`` to prevent the application
+    from querying trees and items stored in DB.
 

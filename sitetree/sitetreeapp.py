@@ -23,7 +23,7 @@ from django.utils.translation import get_language
 from .exceptions import SiteTreeError
 from .settings import (
     ALIAS_TRUNK, ALIAS_THIS_CHILDREN, ALIAS_THIS_SIBLINGS, ALIAS_THIS_PARENT_SIBLINGS, ALIAS_THIS_ANCESTOR_CHILDREN,
-    UNRESOLVED_ITEM_MARKER, RAISE_ITEMS_ERRORS_ON_DEBUG, CACHE_TIMEOUT)
+    UNRESOLVED_ITEM_MARKER, RAISE_ITEMS_ERRORS_ON_DEBUG, CACHE_TIMEOUT, DYNAMIC_ONLY)
 from .utils import get_tree_model, get_tree_item_model, import_app_sitetree_module, generate_id_for
 
 if False:  # pragma: nocover
@@ -500,12 +500,16 @@ class SiteTree(object):
         sitetree = get_cache_entry('sitetrees', alias)
 
         if not sitetree:
-            sitetree = (
-                MODEL_TREE_ITEM_CLASS.objects.
-                select_related('parent', 'tree').
-                prefetch_related('access_permissions__content_type').
-                filter(tree__alias__exact=alias).
-                order_by('parent__sort_order', 'sort_order'))
+            if DYNAMIC_ONLY:
+                sitetree = []
+
+            else:
+                sitetree = (
+                    MODEL_TREE_ITEM_CLASS.objects.
+                    select_related('parent', 'tree').
+                    prefetch_related('access_permissions__content_type').
+                    filter(tree__alias__exact=alias).
+                    order_by('parent__sort_order', 'sort_order'))
 
             sitetree = self.attach_dynamic_tree_items(alias, sitetree)
             set_cache_entry('sitetrees', alias, sitetree)

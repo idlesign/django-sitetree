@@ -15,6 +15,9 @@ UNRESOLVED_ITEM_MARKER = getattr(settings, 'SITETREE_UNRESOLVED_ITEM_MARKER', u'
 
 RAISE_ITEMS_ERRORS_ON_DEBUG = getattr(settings, 'SITETREE_RAISE_ITEMS_ERRORS_ON_DEBUG', True)
 
+DYNAMIC_ONLY = getattr(settings, 'SITETREE_DYNAMIC_ONLY', False)
+"""Whether to query DB for static trees items or use dynamic only."""
+
 ITEMS_FIELD_ROOT_ID = getattr(settings, 'SITETREE_ITEMS_FIELD_ROOT_ID', '')
 """Item ID to be used for root item in TreeItemChoiceField.
 This is adjustable to be able to workaround client-side field validation issues in thirdparties.

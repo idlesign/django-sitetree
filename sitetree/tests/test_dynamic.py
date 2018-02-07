@@ -6,6 +6,21 @@ import pytest
 from .common import strip_tags
 
 
+def test_dynamic_only(render_template_tag, mock_template_context, monkeypatch):
+    from sitetree.toolbox import compose_dynamic_tree, register_dynamic_trees, tree, item
+
+    # If DYNAMIC_ONLY is not set, pytest-django will tell: "Database access not allowed" on any DB access attempt.
+    monkeypatch.setattr('sitetree.sitetreeapp.DYNAMIC_ONLY', 'UNKNOWN')
+
+    register_dynamic_trees(compose_dynamic_tree([tree('dynamic1', items=[
+            item('dynamic1_1', '/dynamic1_1_url', url_as_pattern=False, sort_order=2),
+        ])]), reset_cache=True)
+
+    result = strip_tags(render_template_tag('sitetree', 'sitetree_tree from "dynamic1"', mock_template_context()))
+
+    assert 'dynamic1_1' in result
+
+
 @pytest.mark.django_db
 def test_dynamic_basic(render_template_tag, mock_template_context):
 

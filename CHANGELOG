@@ -5,6 +5,7 @@ django-sitetree changelog
 Unreleased
 ----------
 + Added Bootstrap 3 deep menu template (with nested dropdowns).
++ Added SITETREE_DYNAMIC_ONLY setting.
 
 
 v1.9.0
