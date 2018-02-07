@@ -151,6 +151,14 @@ The following templates are bundled with SiteTree:
 
    Constructs nav-pills Bootstrap 3 horizontal navigation.
 
+ * `sitetree/menu_bootstrap3_deep.html`
+
+   Constructs Bootstrap 3 menu with infinite submenus.
+   Requires adding extra CSS::
+
+   <link href="{% static "css/sitetree_bootstrap_submenu.css"%}" type="text/css" rel="stylesheet" media="screen">
+
+
  * `sitetree/menu_bootstrap4_navpills.html`
 
    The same as above but for Bootstrap version 4.
