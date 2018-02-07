@@ -17,8 +17,6 @@ def pytest_configure():
 
     app_name = os.path.basename(os.path.dirname(os.path.dirname(__file__)))
 
-    if not pytest.config.pluginmanager.hasplugin('django'):
-        raise Exception('`pytest-django` package is required to run `%s` tests.' % app_name)
     if hasattr(global_settings, "MIDDLEWARE"):
         middleware = global_settings.MIDDLEWARE
     else:
