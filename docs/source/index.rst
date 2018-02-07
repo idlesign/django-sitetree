@@ -25,6 +25,8 @@ After setting up site structure as a sitetree you should be able to use convenie
 
 User access to certain sitetree items can be restricted to authenticated users or more accurately with the help of Django permissions system (Auth contrib package).
 
+Sitetree also allows you to define dynamic trees in your code instead of Admin interface. And even more: you can combine those two types of trees in more sophisticated ways.
+
 
 Requirements
 ------------
@@ -57,19 +59,7 @@ Table of Contents
     thirdparty
 
 
-Get involved into django-sitetree
----------------------------------
-
-**Submit issues.** If you spotted something weird in application behavior or want to propose a feature you can do that at https://github.com/idlesign/django-sitetree/issues
-
-**Write code.** If you are eager to participate in application development, fork it at https://github.com/idlesign/django-sitetree, write your code, whether it should be a bugfix or a feature implementation, and make a pull request right from the forked project page.
-
-**Translate.** If want to translate the application into your native language use Transifex: https://www.transifex.net/projects/p/django-sitetree/.
-
-**Spread the word.** If you have some tips and tricks or any other words in mind that you think might be of interest for the others — publish it.
-
-
-Also
-----
+See also
+--------
 
 If the application is not what you want for site navigation, you might be interested in considering the other choices — http://djangopackages.com/grids/g/navigation/
