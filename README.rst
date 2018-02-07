@@ -43,7 +43,10 @@ If we define a named URL for user personal page in urls.py, for example, 'users-
       |_users-personal user.id  - User Called {{ user.first_name }}
 
 After setting up site structure as a sitetree you should be able to use convenient and highly customizable site navigation means (menus, breadcrumbs and full site trees).
+
 User access to certain sitetree items can be restricted to authenticated users or more accurately with the help of Django permissions system (Auth contrib package).
+
+Sitetree also allows you to define dynamic trees in your code instead of Admin interface. And even more: you can combine those two types of trees in more sophisticated ways.
 
 
 Documentation
