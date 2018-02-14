@@ -44,7 +44,7 @@ msgstr ""
 
 #: sitetree/admin.py:266
 msgid "Item's parent left unchanged. Item couldn't be parent to itself."
-msgstr ""
+msgstr "アイテムの親は変更されませんでした。そのアイテムは親にはなれません。"
 
 #: sitetree/config.py:9 sitetree/models.py:35
 msgid "Site Trees"
@@ -92,7 +92,7 @@ msgstr "ヒント"
 
 #: sitetree/models.py:60
 msgid "Some additional information about this item that is used as a hint."
-msgstr ""
+msgstr "ヒントとなるアイテムの追加情報"
 
 #: sitetree/models.py:62
 #: sitetree/templates/admin/sitetree/tree/change_form.html:42
@@ -101,38 +101,38 @@ msgstr "URL"
 
 #: sitetree/models.py:63
 msgid "Exact URL or URL pattern (see \"Additional settings\") for this item."
-msgstr ""
+msgstr "このアイテムの正しいURLまたはURLパターンを入力してください。（URLパターンは「追加設定」を参照）"
 
 #: sitetree/models.py:65
 msgid "URL as Pattern"
-msgstr ""
+msgstr "URLパターン"
 
 #: sitetree/models.py:66
 msgid ""
 "Whether the given URL should be treated as a pattern.<br /><b>Note:</b> "
 "Refer to Django \"URL dispatcher\" documentation (e.g. \"Naming URL patterns"
 "\" part)."
-msgstr ""
+msgstr "与えられたURLがパターンとして扱われます。<br /><b>注意: </b>Djangoの「URLディスパッチャ」ドキュメント（例：「URLパターンに名前をつける部分」）を参照してください。"
 
 #: sitetree/models.py:71
 msgid "Site tree this item belongs to."
-msgstr ""
+msgstr "このアイテムが属するSite　Tree"
 
 #: sitetree/models.py:73
 #: sitetree/templates/admin/sitetree/tree/change_form.html:34
 msgid "Hidden"
-msgstr ""
+msgstr "非表示"
 
 #: sitetree/models.py:73
 msgid "Whether to show this item in navigation."
-msgstr ""
+msgstr "ナビゲーションでの表示・非表示を設定できます。"
 
 #: sitetree/models.py:77
 #, python-format
 msgid ""
 "Short name to address site tree item from a template.<br /><b>Reserved "
 "aliases:</b> \"%s\"."
-msgstr ""
+msgstr "テンプレートからSite Treeアイテムをアドレス指定するスラッグ<br /><b>スラッグ:</b> \"%s\"."
 
 #: sitetree/models.py:82
 msgid "Description"
@@ -144,27 +144,27 @@ msgstr "このアイテムにコメントを追加"
 
 #: sitetree/models.py:85
 msgid "Show in menu"
-msgstr "メニューを見る"
+msgstr "メニュー表示"
 
 #: sitetree/models.py:86
 msgid "Whether to show this item in a menu."
-msgstr ""
+msgstr "メニューでの表示・非表示を設定できます。"
 
 #: sitetree/models.py:88
 msgid "Show in breadcrumb path"
-msgstr ""
+msgstr "Breadcrumb表示"
 
 #: sitetree/models.py:89
 msgid "Whether to show this item in a breadcrumb path."
-msgstr ""
+msgstr "Breadcrumbでの表示・非表示を設定できます。"
 
 #: sitetree/models.py:91
 msgid "Show in site tree"
-msgstr "Site Treeを見る"
+msgstr "Site Tree表示"
 
 #: sitetree/models.py:92
 msgid "Whether to show this item in a site tree."
-msgstr ""
+msgstr "Site Treeでの表示・非表示を設定できます。"
 
 #: sitetree/models.py:94
 msgid "Logged in only"
@@ -220,20 +220,20 @@ msgstr "親アイテム"
 #: sitetree/models.py:117
 #: sitetree/templates/admin/sitetree/tree/change_form.html:43
 msgid "Sort order"
-msgstr ""
+msgstr "並び替え"
 
 #: sitetree/models.py:118
 msgid "Item position among other site tree items under the same parent."
-msgstr ""
+msgstr "親内のSite Tree間での位置"
 
 #: sitetree/models.py:143
 msgid "Site Tree Item"
-msgstr ""
+msgstr "Site Treeのアイテム"
 
 #: sitetree/models.py:144
 #: sitetree/templates/admin/sitetree/tree/change_form.html:17
 msgid "Site Tree Items"
-msgstr ""
+msgstr "Site Treeのアイテム"
 
 #: sitetree/templates/admin/sitetree/tree/change_form.html:24
 msgid "Add Site Tree item"
@@ -257,11 +257,11 @@ msgstr "限定公開"
 
 #: sitetree/templates/admin/sitetree/tree/change_form.html:39
 msgid "Users only"
-msgstr ""
+msgstr "ユーザーのみ"
 
 #: sitetree/templates/admin/sitetree/tree/change_list_.html:7
 msgid "Dump data"
-msgstr ""
+msgstr "データ出力"
 
 #: sitetree/templates/admin/sitetree/tree/change_list_.html:8
 msgid "Load data"
