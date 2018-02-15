@@ -39,12 +39,11 @@ msgid ""
 "You are seeing this warning because \"URL as Pattern\" option is active and "
 "pattern entered above seems to be invalid. Currently registered URL pattern "
 "names and parameters: "
-msgstr ""
-"既に同様のURLが使われています。"
+msgstr "URLパターンが有効であるため、この警告が表示されます。入力されたURLパターンは無効と思われます。すでに登録されているURLパターンとパラメータ："
 
 #: sitetree/admin.py:266
 msgid "Item's parent left unchanged. Item couldn't be parent to itself."
-msgstr "アイテムの親は変更されませんでした。そのアイテムは親にはなれません。"
+msgstr "アイテムの親は変更されません。アイテムは自分自身の親にはなれません。"
 
 #: sitetree/config.py:9 sitetree/models.py:35
 msgid "Site Trees"
@@ -54,8 +53,8 @@ msgstr "Site Trees"
 #: sitetree/templates/admin/sitetree/tree/change_form.html:41
 msgid "Title"
 msgstr "タイトル"
-
 #: sitetree/models.py:26
+
 msgid "Site tree title for presentational purposes."
 msgstr "ユーザーに表示するタイトルを入力してください。"
 
@@ -84,7 +83,7 @@ msgstr "全て"
 #: sitetree/models.py:57
 msgid ""
 "Site tree item title. Can contain template variables E.g.: {{ mytitle }}."
-msgstr "アイテムのタイトルを入力してください。タイトルにはテンプレート的に変数を含める事ができます。例：{{mytitle}}"
+msgstr "アイテムのタイトルを入力してください。タイトルにはテンプレート変数を含める事ができます。例：{{mytitle}}"
 
 #: sitetree/models.py:59
 msgid "Hint"
@@ -172,7 +171,7 @@ msgstr "ログインユーザーのみ"
 
 #: sitetree/models.py:95
 msgid "Check it to grant access to this item to authenticated users only."
-msgstr "認証済みユーザーのみこのアイテムにアクセスできます。"
+msgstr "認証されたユーザーにのみこのアイテムへのアクセスを許可します。"
 
 #: sitetree/models.py:98
 #: sitetree/templates/admin/sitetree/tree/change_form.html:40
@@ -181,7 +180,7 @@ msgstr "ゲストのみ"
 
 #: sitetree/models.py:99
 msgid "Check it to grant access to this item to guests only."
-msgstr "ゲストユーザーのみ閲覧できます。"
+msgstr "ゲストにのみこのアイテムへのアクセスを許可します。"
 
 #: sitetree/models.py:101
 msgid "Restrict access to permissions"
@@ -191,7 +190,7 @@ msgstr "限定公開"
 msgid ""
 "Check it to restrict user access to this item, using Django permissions "
 "system."
-msgstr "Djangoに許可された一部のユーザーのみ閲覧できます。"
+msgstr "Django認証システムを使用し、このアイテムへのユーザーアクセスを制限します。"
 
 #: sitetree/models.py:105
 msgid "Permissions granting access"
@@ -257,7 +256,7 @@ msgstr "限定公開"
 
 #: sitetree/templates/admin/sitetree/tree/change_form.html:39
 msgid "Users only"
-msgstr "ユーザーのみ"
+msgstr "ログインユーザーのみ"
 
 #: sitetree/templates/admin/sitetree/tree/change_list_.html:7
 msgid "Dump data"
