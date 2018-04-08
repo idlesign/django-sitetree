@@ -6,6 +6,7 @@ Unreleased
 ----------
 + Added Bootstrap 3 deep menu template (with nested dropdowns).
 + Added SITETREE_DYNAMIC_ONLY setting.
++ Japanese translation.
 
 
 v1.9.0
