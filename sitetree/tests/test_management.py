@@ -77,7 +77,7 @@ def test_sitetreedump(capsys, common_tree):
 def test_sitetreedump(capsys):
     from sitetree.models import TreeItem
 
-    call_command('sitetree_resync_apps', 'sitetree.tests')
+    call_command('sitetree_resync_apps', 'sitetree.tests.testapp')
     out, _ = capsys.readouterr()
 
     assert 'Sitetrees found in' in out

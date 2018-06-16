@@ -5,10 +5,8 @@ import pytest
 
 from sitetree.settings import ALIAS_TRUNK
 
-from .common import strip_tags
 
-
-def test_stress(template_render_tag, template_context, build_tree, common_tree):
+def test_stress(template_render_tag, template_context, template_strip_tags, build_tree, common_tree):
 
     build_tree(
         {'alias': 'othertree'},
@@ -25,8 +23,8 @@ def test_stress(template_render_tag, template_context, build_tree, common_tree):
 
     hint = template_render_tag('sitetree', 'sitetree_page_hint from "mytree"', context)
     description = template_render_tag('sitetree', 'sitetree_page_description from "mytree"', context)
-    tree = strip_tags(template_render_tag('sitetree', 'sitetree_tree from "mytree"', context))
-    breadcrumbs = strip_tags(template_render_tag('sitetree', 'sitetree_breadcrumbs from "mytree"', context))
+    tree = template_strip_tags(template_render_tag('sitetree', 'sitetree_tree from "mytree"', context))
+    breadcrumbs = template_strip_tags(template_render_tag('sitetree', 'sitetree_breadcrumbs from "mytree"', context))
 
     menu = template_render_tag('sitetree', 'sitetree_menu from "mytree" include "%s"' % ALIAS_TRUNK, context)
     menu_other = template_render_tag('sitetree', 'sitetree_menu from "othertree" include "%s"' % ALIAS_TRUNK, context)
@@ -37,11 +35,11 @@ def test_stress(template_render_tag, template_context, build_tree, common_tree):
     assert description == 'Private Area Description'
     assert breadcrumbs == 'Home|&gt;|Russia|&gt;|Web|&gt;|Private'
 
-    assert strip_tags(menu) == 'Home|Users|Moderators|Ordinary|Articles|About cats|Good|Bad|Ugly|About dogs|' \
+    assert template_strip_tags(menu) == 'Home|Users|Moderators|Ordinary|Articles|About cats|Good|Bad|Ugly|About dogs|' \
                                'Contacts|Russia|Web|Public|Private|Postal|Australia|Darwin|China'
     assert 'current_item current_branch">Private' in menu
 
-    assert strip_tags(menu_other) == 'Root|Other title|Title_myval'
+    assert template_strip_tags(menu_other) == 'Root|Other title|Title_myval'
     assert 'current_item current_branch">Other title' in menu_other
 
     assert tree == 'Home|Users|Moderators|Ordinary|Articles|About cats|Good|Bad|Ugly|About dogs|About mice|Contacts|' \
