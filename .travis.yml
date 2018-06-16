@@ -15,7 +15,7 @@ env:
   - DJANGO="Django>=1.7,<1.8"
 
 install:
-  - pip install -U coverage coveralls $DJANGO
+  - pip install -U pytest pytest-djangoapp coverage coveralls $DJANGO
 
 script: coverage run -a --source=sitetree setup.py test
 

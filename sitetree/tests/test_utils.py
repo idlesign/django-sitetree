@@ -79,7 +79,6 @@ class TestPermissions():
         i1 = item('root', 'url', access_by_perms=[1, 2, 3])
         assert i1.permissions == [1, 2, 3]
 
-    @pytest.mark.django_db
     def test_valid_string_permissions(self):
         from sitetree.toolbox import item
 
@@ -88,7 +87,6 @@ class TestPermissions():
         i1 = item('root', 'url', access_by_perms=perm_name)
         assert i1.permissions == [perm]
 
-    @pytest.mark.django_db
     def test_perm_obj_permissions(self):
         from sitetree.toolbox import item
 
@@ -97,7 +95,6 @@ class TestPermissions():
         i1 = item('root', 'url', access_by_perms=perm)
         assert i1.permissions == [perm]
 
-    @pytest.mark.django_db
     def test_bad_string_permissions(self):
         from sitetree.toolbox import item
 

@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 import pytest
 
 
-@pytest.mark.django_db
 def test_form(common_tree):
     from sitetree.toolbox import TreeItemForm
 
@@ -17,7 +16,6 @@ def test_form(common_tree):
     assert len(items_field.choices) == len(common_tree)
 
 
-@pytest.mark.django_db
 def test_field(common_tree):
     from sitetree.toolbox import TreeItemChoiceField
 

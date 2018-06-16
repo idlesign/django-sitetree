@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 import pytest
 
 
-@pytest.mark.django_db
 def test_model_tree():
     from sitetree.models import Tree
 
@@ -18,7 +17,6 @@ def test_model_tree():
         Tree(alias='test').save()  # Unique alias
 
 
-@pytest.mark.django_db
 def test_model_tree_item():
     from sitetree.models import Tree, TreeItem
 
@@ -50,5 +48,3 @@ def test_model_tree_item():
 
     with pytest.raises(Exception):
         TreeItem(tree=tree1, alias='only').save()  # Unique alias within tree
-
-

@@ -10,7 +10,6 @@ from django.core.management.base import CommandError
 from django.core.serializers.base import DeserializationError
 
 
-@pytest.mark.django_db
 def test_sitetreeload(tmpdir, capsys):
     from sitetree.models import Tree, TreeItem
 
@@ -58,7 +57,6 @@ def test_sitetreeload(tmpdir, capsys):
     assert 'does not exist.' in err
 
 
-@pytest.mark.django_db
 def test_sitetreedump(capsys, common_tree):
 
     call_command('sitetreedump')
@@ -76,11 +74,10 @@ def test_sitetreedump(capsys, common_tree):
     assert out == []
 
 
-@pytest.mark.django_db
 def test_sitetreedump(capsys):
     from sitetree.models import TreeItem
 
-    call_command('sitetree_resync_apps', 'sitetree.tests')
+    call_command('sitetree_resync_apps', 'sitetree.tests.testapp')
     out, _ = capsys.readouterr()
 
     assert 'Sitetrees found in' in out
