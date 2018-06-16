@@ -6,7 +6,7 @@ import pytest
 from .common import strip_tags
 
 
-def test_dynamic_only(render_template_tag, mock_template_context, monkeypatch):
+def test_dynamic_only(template_render_tag, template_context, monkeypatch):
     from sitetree.toolbox import compose_dynamic_tree, register_dynamic_trees, tree, item
 
     # If DYNAMIC_ONLY is not set, pytest-django will tell: "Database access not allowed" on any DB access attempt.
@@ -16,13 +16,12 @@ def test_dynamic_only(render_template_tag, mock_template_context, monkeypatch):
             item('dynamic1_1', '/dynamic1_1_url', url_as_pattern=False, sort_order=2),
         ])]), reset_cache=True)
 
-    result = strip_tags(render_template_tag('sitetree', 'sitetree_tree from "dynamic1"', mock_template_context()))
+    result = strip_tags(template_render_tag('sitetree', 'sitetree_tree from "dynamic1"', template_context()))
 
     assert 'dynamic1_1' in result
 
 
-@pytest.mark.django_db
-def test_dynamic_basic(render_template_tag, mock_template_context):
+def test_dynamic_basic(template_render_tag, template_context):
 
     from sitetree.toolbox import compose_dynamic_tree, register_dynamic_trees, tree, item, get_dynamic_trees
     from sitetree.sitetreeapp import _IDX_ORPHAN_TREES
@@ -39,14 +38,14 @@ def test_dynamic_basic(render_template_tag, mock_template_context):
     ]
 
     register_dynamic_trees(*trees, reset_cache=True)  # new less-brackets style
-    result = strip_tags(render_template_tag('sitetree', 'sitetree_tree from "dynamic1"', mock_template_context()))
+    result = strip_tags(template_render_tag('sitetree', 'sitetree_tree from "dynamic1"', template_context()))
 
     assert 'dynamic1_1|dynamic1_2' in result
     assert 'dynamic2_1' not in result
 
     register_dynamic_trees(trees)
 
-    result = strip_tags(render_template_tag('sitetree', 'sitetree_tree from "dynamic1"', mock_template_context()))
+    result = strip_tags(template_render_tag('sitetree', 'sitetree_tree from "dynamic1"', template_context()))
     assert 'dynamic1_1|dynamic1_2' in result
     assert 'dynamic2_1' not in result
 
@@ -57,8 +56,7 @@ def test_dynamic_basic(render_template_tag, mock_template_context):
     _DYNAMIC_TREES.clear()
 
 
-@pytest.mark.django_db
-def test_dynamic_attach(render_template_tag, mock_template_context, common_tree):
+def test_dynamic_attach(template_render_tag, template_context, common_tree):
 
     from sitetree.toolbox import compose_dynamic_tree, register_dynamic_trees, tree, item
 
@@ -74,7 +72,7 @@ def test_dynamic_attach(render_template_tag, mock_template_context, common_tree)
         ])], target_tree_alias='mytree', parent_tree_item_alias='ruweb'),
 
     ])
-    result = strip_tags(render_template_tag('sitetree', 'sitetree_tree from "mytree"', mock_template_context()))
+    result = strip_tags(template_render_tag('sitetree', 'sitetree_tree from "mytree"', template_context()))
 
     assert 'Web|dynamic2_1|dynamic2_2' in result
     assert 'China|dynamic1_1|dynamic1_2' in result
@@ -83,14 +81,13 @@ def test_dynamic_attach(render_template_tag, mock_template_context, common_tree)
     _DYNAMIC_TREES.clear()
 
 
-@pytest.mark.django_db
-def test_dynamic_attach_from_module(render_template_tag, mock_template_context, settings):
+def test_dynamic_attach_from_module(template_render_tag, template_context, settings):
 
     from sitetree.toolbox import compose_dynamic_tree, register_dynamic_trees
 
     register_dynamic_trees(compose_dynamic_tree('sitetree.tests', include_trees=['dynamic4']))
 
-    result = strip_tags(render_template_tag('sitetree', 'sitetree_tree from "dynamic4"', mock_template_context()))
+    result = strip_tags(template_render_tag('sitetree', 'sitetree_tree from "dynamic4"', template_context()))
 
     assert 'dynamic4_1' in result
 

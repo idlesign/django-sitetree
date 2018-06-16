@@ -3,7 +3,6 @@ languages:
   Python: true
 
 exclude_paths:
-- "sitetree/runtests.py"
 - "sitetree/tests.py"
 - "sitetree/tests/*"
 - "sitetree/migrations/*"

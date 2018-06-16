@@ -8,8 +8,7 @@ from sitetree.settings import ALIAS_TRUNK
 from .common import strip_tags
 
 
-@pytest.mark.django_db
-def test_stress(render_template_tag, mock_template_context, build_tree, common_tree):
+def test_stress(template_render_tag, template_context, build_tree, common_tree):
 
     build_tree(
         {'alias': 'othertree'},
@@ -19,18 +18,18 @@ def test_stress(render_template_tag, mock_template_context, build_tree, common_t
         ]}],
     )
 
-    context = mock_template_context(context_dict={'myvar': 'myval'}, request_path='/contacts/russia/web/private/')
+    context = template_context(context_dict={'myvar': 'myval'}, request='/contacts/russia/web/private/')
 
-    title = render_template_tag('sitetree', 'sitetree_page_title from "mytree"', context)
-    title_other = render_template_tag('sitetree', 'sitetree_page_title from "othertree"', context)
+    title = template_render_tag('sitetree', 'sitetree_page_title from "mytree"', context)
+    title_other = template_render_tag('sitetree', 'sitetree_page_title from "othertree"', context)
 
-    hint = render_template_tag('sitetree', 'sitetree_page_hint from "mytree"', context)
-    description = render_template_tag('sitetree', 'sitetree_page_description from "mytree"', context)
-    tree = strip_tags(render_template_tag('sitetree', 'sitetree_tree from "mytree"', context))
-    breadcrumbs = strip_tags(render_template_tag('sitetree', 'sitetree_breadcrumbs from "mytree"', context))
+    hint = template_render_tag('sitetree', 'sitetree_page_hint from "mytree"', context)
+    description = template_render_tag('sitetree', 'sitetree_page_description from "mytree"', context)
+    tree = strip_tags(template_render_tag('sitetree', 'sitetree_tree from "mytree"', context))
+    breadcrumbs = strip_tags(template_render_tag('sitetree', 'sitetree_breadcrumbs from "mytree"', context))
 
-    menu = render_template_tag('sitetree', 'sitetree_menu from "mytree" include "%s"' % ALIAS_TRUNK, context)
-    menu_other = render_template_tag('sitetree', 'sitetree_menu from "othertree" include "%s"' % ALIAS_TRUNK, context)
+    menu = template_render_tag('sitetree', 'sitetree_menu from "mytree" include "%s"' % ALIAS_TRUNK, context)
+    menu_other = template_render_tag('sitetree', 'sitetree_menu from "othertree" include "%s"' % ALIAS_TRUNK, context)
 
     assert title == 'Private'
     assert title_other == 'Other title'
@@ -49,7 +48,7 @@ def test_stress(render_template_tag, mock_template_context, build_tree, common_t
                    'Russia|Web|Public|Private|Australia|Darwin|China'
 
 
-def test_lazy_title(mock_template_context):
+def test_lazy_title(template_context):
 
     from sitetree.sitetreeapp import LazyTitle, get_sitetree
 
@@ -57,6 +56,6 @@ def test_lazy_title(mock_template_context):
 
     title = LazyTitle('here{% no_way %}there')
 
-    get_sitetree().current_page_context = mock_template_context()
+    get_sitetree().current_page_context = template_context()
 
     assert title == 'herethere'
