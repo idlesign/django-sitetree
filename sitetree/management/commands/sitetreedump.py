@@ -31,7 +31,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
 
-        if VERSION >= (1, 11):
+        if VERSION > (1, 11):
             # Before that args already set with nargs='*'.
             parser.add_argument('args', metavar='tree', nargs='?', help='Tree aliases.', default=[])
 
