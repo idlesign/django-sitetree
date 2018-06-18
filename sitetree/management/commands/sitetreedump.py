@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import DEFAULT_DB_ALIAS
 
 from sitetree.utils import get_tree_model, get_tree_item_model
-from sitetree.compat import CommandOption, options_getter
+from sitetree.compat import CommandOption, options_getter, VERSION
 
 
 MODEL_TREE_CLASS = get_tree_model()
@@ -30,7 +30,11 @@ class Command(BaseCommand):
     args = '[tree_alias tree_alias ...]'
 
     def add_arguments(self, parser):
-        parser.add_argument('args', metavar='tree', nargs='?', help='Tree aliases.', default=[])
+
+        if VERSION >= (1, 11):
+            # Before that args already set with nargs='*'.
+            parser.add_argument('args', metavar='tree', nargs='?', help='Tree aliases.', default=[])
+
         get_options(parser.add_argument)
 
     def handle(self, *aliases, **options):
