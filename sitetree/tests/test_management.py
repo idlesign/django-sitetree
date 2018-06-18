@@ -5,19 +5,18 @@ from json import loads
 
 import pytest
 
-from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.core.serializers.base import DeserializationError
 
 
-def test_sitetreeload(tmpdir, capsys):
+def test_sitetreeload(tmpdir, capsys, command_run):
     from sitetree.models import Tree, TreeItem
 
     def load(treedump, command_kwargs=None):
         f = tmpdir.join('somefile.json')
         f.write(treedump)
         command_kwargs = command_kwargs or {}
-        call_command('sitetreeload', '%s' % f, **command_kwargs)
+        command_run('sitetreeload', ['%s' % f], command_kwargs)
 
     treedump = (
         '['
@@ -57,16 +56,16 @@ def test_sitetreeload(tmpdir, capsys):
     assert 'does not exist.' in err
 
 
-def test_sitetreedump(capsys, common_tree):
+def test_sitetreedump(capsys, common_tree, command_run):
 
-    call_command('sitetreedump')
+    command_run('sitetreedump')
 
     out, _ = capsys.readouterr()
     out = loads(out)
 
     assert len(out) == len(common_tree)
 
-    call_command('sitetreedump', 'notree')
+    command_run('sitetreedump', ['notree'])
 
     out, _ = capsys.readouterr()
     out = loads(out)
@@ -74,10 +73,10 @@ def test_sitetreedump(capsys, common_tree):
     assert out == []
 
 
-def test_sitetreedump(capsys):
+def test_sitetree_resync_apps(capsys, command_run):
     from sitetree.models import TreeItem
 
-    call_command('sitetree_resync_apps', 'sitetree.tests.testapp')
+    command_run('sitetree_resync_apps', ['sitetree.tests.testapp'])
     out, _ = capsys.readouterr()
 
     assert 'Sitetrees found in' in out
