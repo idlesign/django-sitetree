@@ -1,5 +1,13 @@
 from django import VERSION
 
+try:
+    from django.template.base import TokenType
+    TOKEN_BLOCK = TokenType.BLOCK
+    TOKEN_TEXT = TokenType.TEXT
+    TOKEN_VAR = TokenType.VAR
+except ImportError:
+    from django.template.base import TOKEN_BLOCK, TOKEN_TEXT, TOKEN_VAR
+
 
 class CommandOption(object):
     """Command line option wrapper."""

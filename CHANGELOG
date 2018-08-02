@@ -2,6 +2,11 @@ django-sitetree changelog
 =========================
 
 
+Unreleased
+----------
++ Improved Django 2.1 compatiblity.
+
+
 v1.10.0
 -------
 + Added Bootstrap 3 deep menu template (with nested dropdowns).

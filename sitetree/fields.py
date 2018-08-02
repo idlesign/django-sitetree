@@ -1,9 +1,10 @@
 from django import VERSION
 from django import template
-from django.template.base import Parser, Token, TOKEN_BLOCK
+from django.template.base import Parser, Token
 from django.forms import ChoiceField
 from django.utils.safestring import mark_safe
 
+from .compat import TOKEN_BLOCK
 from .templatetags.sitetree import sitetree_tree
 from .utils import get_tree_model, get_tree_item_model
 from .settings import ITEMS_FIELD_ROOT_ID

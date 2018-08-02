@@ -11,8 +11,8 @@ from django.conf import settings
 from django.core.cache import cache
 from django.db.models import signals
 from django.template.base import (
-    FilterExpression, Lexer, Parser, Token, Variable, VariableDoesNotExist, TOKEN_BLOCK, UNKNOWN_SOURCE, TOKEN_TEXT,
-    TOKEN_VAR, VARIABLE_TAG_START)
+    FilterExpression, Lexer, Parser, Token, Variable, VariableDoesNotExist, UNKNOWN_SOURCE,
+    VARIABLE_TAG_START)
 from django.template.defaulttags import url as url_tag
 from django.template.loader import get_template
 from django.utils import six
@@ -20,6 +20,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.http import urlquote
 from django.utils.translation import get_language
 
+from .compat import TOKEN_BLOCK, TOKEN_TEXT, TOKEN_VAR
 from .exceptions import SiteTreeError
 from .settings import (
     ALIAS_TRUNK, ALIAS_THIS_CHILDREN, ALIAS_THIS_SIBLINGS, ALIAS_THIS_PARENT_SIBLINGS, ALIAS_THIS_ANCESTOR_CHILDREN,
