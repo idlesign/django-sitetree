@@ -148,7 +148,7 @@ def test_urlpattern_resolve(monkeypatch, template_render_tag, template_context, 
     context = template_context({'australia_var': 'пробапера'})  # non-ascii
     result = template_render_tag('sitetree', 'sitetree_tree from "mytree"', context)
 
-    assert '"/contacts/australia/australia_var/"' in result
+    assert '"/contacts/australia/%D0%BF%D1%80%D0%BE%D0%B1%D0%B0%D0%BF%D0%B5%D1%80%D0%B0/"' in result
 
 
 def test_sitetree_tree(template_render_tag, template_context, common_tree):
