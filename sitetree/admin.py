@@ -124,6 +124,20 @@ class TreeItemAdmin(admin.ModelAdmin):
 
         return super(TreeItemAdmin, self).formfield_for_manytomany(db_field, request=request, **kwargs)
 
+    def _redirect(self, request, response):
+        """Generic redirect for item editor."""
+
+        if '_addanother' in request.POST:
+            return HttpResponseRedirect('../item_add/')
+
+        elif '_save' in request.POST:
+            return HttpResponseRedirect('../')
+
+        elif '_continue' in request.POST:
+            return response
+
+        return HttpResponseRedirect('')
+
     def response_add(self, request, obj, post_url_continue=None, **kwargs):
         """Redirects to the appropriate items' 'continue' page on item add.
 
@@ -133,7 +147,8 @@ class TreeItemAdmin(admin.ModelAdmin):
         """
         if post_url_continue is None:
             post_url_continue = '../item_%s/' % obj.pk
-        return super(TreeItemAdmin, self).response_add(request, obj, post_url_continue)
+
+        return self._redirect(request, super(TreeItemAdmin, self).response_add(request, obj, post_url_continue))
 
     def response_change(self, request, obj, **kwargs):
         """Redirects to the appropriate items' 'add' page on item change.
@@ -142,15 +157,7 @@ class TreeItemAdmin(admin.ModelAdmin):
         should make some changes to redirection process.
 
         """
-        response = super(TreeItemAdmin, self).response_change(request, obj)
-        if '_addanother' in request.POST:
-            return HttpResponseRedirect('../item_add/')
-        elif '_save' in request.POST:
-            return HttpResponseRedirect('../')
-        elif '_continue' in request.POST:
-            return response
-        else:
-            return HttpResponseRedirect('')
+        return self._redirect(request, super(TreeItemAdmin, self).response_change(request, obj))
 
     def get_form(self, request, obj=None, **kwargs):
         """Returns modified form for TreeItem model.

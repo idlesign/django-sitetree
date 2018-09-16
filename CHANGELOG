@@ -9,6 +9,7 @@ Unreleased
 + Allow custom widget for parent field in admin.
 + Dynamic tree() function now accepts custom keyword arguments.
 + Improved suppport for national characters in URIs.
+* Admin: fixed redirect on new item save (closes #231).
 
 
 v1.11.0
