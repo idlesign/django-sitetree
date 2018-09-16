@@ -527,15 +527,19 @@ class SiteTree(object):
         # Prepare items by ids cache if needed.
         if caching_required:
             # We need this extra pass to avoid future problems on items depth calculation.
+            cache_update = cache_.update_entry_value
             for item in sitetree:
-                cache_.update_entry_value('items_by_ids', alias, {item.id: item})
+                cache_update('items_by_ids', alias, {item.id: item})
+
+        url = self.url
+        calculate_item_depth = self.calculate_item_depth
 
         for item in sitetree:
             if caching_required:
                 item.has_children = False
 
                 if not hasattr(item, 'depth'):
-                    item.depth = self.calculate_item_depth(alias, item.id)
+                    item.depth = calculate_item_depth(alias, item.id)
                 item.depth_range = range(item.depth)
 
                 # Resolve item permissions.
@@ -548,7 +552,7 @@ class SiteTree(object):
                         ['%s.%s' % (perm.content_type.app_label, perm.codename) for perm in permissions_src])
 
             # Contextual properties.
-            item.url_resolved = self.url(item)
+            item.url_resolved = url(item)
             item.title_resolved = LazyTitle(item.title) if VARIABLE_TAG_START in item.title else item.title
             item.is_current = False
             item.in_current_branch = False
@@ -643,9 +647,10 @@ class SiteTree(object):
         :rtype: str|unicode
         """
         context = context or self.current_page_context
+        resolve_var = self.resolve_var
 
         if not isinstance(sitetree_item, MODEL_TREE_ITEM_CLASS):
-            sitetree_item = self.resolve_var(sitetree_item, context)
+            sitetree_item = resolve_var(sitetree_item, context)
 
         resolved_url = self._items_urls.get(sitetree_item)
         if resolved_url is not None:
@@ -661,7 +666,7 @@ class SiteTree(object):
                 view_path = url.split(' ')
                 # We should try to resolve URL parameters from site tree item.
                 for view_argument in view_path[1:]:
-                    resolved = self.resolve_var(view_argument)
+                    resolved = resolve_var(view_argument)
                     # We enclose arg in double quotes as already resolved.
                     all_arguments.append('"%s"' % resolved)
 
@@ -815,9 +820,11 @@ class SiteTree(object):
             else:
                 parent_aliases.append(branch_id)
 
+        check_access = self.check_access
+
         menu_items = []
         for item in sitetree_items:
-            if not item.hidden and item.inmenu and self.check_access(item, context):
+            if not item.hidden and item.inmenu and check_access(item, context):
                 if item.parent is None:
                     if parent_isnull:
                         menu_items.append(item)
@@ -988,10 +995,14 @@ class SiteTree(object):
         :param list tree_items:
         :param str|unicode navigation_type: sitetree, breadcrumbs, menu
         """
+        get_children = self.get_children
+        filter_items = self.filter_items
+        apply_hook = self.apply_hook
+
         for tree_item in tree_items:
-            children = self.get_children(tree_alias, tree_item)
-            children = self.filter_items(children, navigation_type)
-            children = self.apply_hook(children, '%s.has_children' % navigation_type)
+            children = get_children(tree_alias, tree_item)
+            children = filter_items(children, navigation_type)
+            children = apply_hook(children, '%s.has_children' % navigation_type)
             tree_item.has_children = len(children) > 0
 
     def filter_items(self, items, navigation_type=None):
