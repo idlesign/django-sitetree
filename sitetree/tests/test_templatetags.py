@@ -1,5 +1,6 @@
 #! -*- encoding: utf-8 -*-
 from __future__ import unicode_literals
+
 import pytest
 from django.template.base import TemplateSyntaxError
 from django.utils.translation import activate, deactivate_all
@@ -13,6 +14,9 @@ def test_items_hook(template_render_tag, template_context, common_tree):
 
     from sitetree.toolbox import register_items_hook
 
+    with pytest.raises(SiteTreeError):
+        register_items_hook(lambda: [])
+
     def my_processor(tree_items, tree_sender):
         for item in tree_items:
             item.hint = 'hooked_hint_%s' % item.title
@@ -24,6 +28,23 @@ def test_items_hook(template_render_tag, template_context, common_tree):
     assert 'hooked_hint_Darwin' in result
     assert 'hooked_hint_Australia' in result
     assert 'hooked_hint_China' in result
+
+    # hook with context
+
+    def my_processor(tree_items, tree_sender, context):
+        prefix = context.__class__.__name__
+
+        for item in tree_items:
+            item.hint = prefix + item.title
+
+        return tree_items
+
+    register_items_hook(my_processor)
+    result = template_render_tag('sitetree', 'sitetree_tree from "mytree"', template_context())
+
+    assert 'ContextDarwin' in result
+    assert 'ContextAustralia' in result
+    assert 'ContextChina' in result
 
     register_items_hook(None)  # Reset.
 

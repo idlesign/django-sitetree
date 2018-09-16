@@ -4,6 +4,7 @@ import warnings
 from collections import defaultdict
 from copy import deepcopy
 from functools import partial
+from inspect import getargspec
 from threading import local
 
 from django import VERSION
@@ -44,6 +45,9 @@ MODEL_TREE_ITEM_CLASS = get_tree_item_model()
 
 _ITEMS_PROCESSOR = None
 """Stores tree items processor callable or None."""
+
+_ITEMS_PROCESSOR_ARGS_LEN = 0
+"""Number of arguments accepted by items processor."""
 
 _I18N_TREES = []
 """Stores aliases of trees supporting internationalization."""
@@ -115,7 +119,15 @@ def register_items_hook(func):
     :param func:
     """
     global _ITEMS_PROCESSOR
+    global _ITEMS_PROCESSOR_ARGS_LEN
+
     _ITEMS_PROCESSOR = func
+
+    if func:
+        args_len = len(getargspec(func).args)
+        if args_len not in {2, 3}:
+            raise SiteTreeError('`register_items_hook()` expects a function with two or three arguments.')
+        _ITEMS_PROCESSOR_ARGS_LEN = args_len
 
 
 def register_i18n_trees(aliases):
@@ -836,8 +848,7 @@ class SiteTree(object):
         self.update_has_children(tree_alias, menu_items, 'menu')
         return menu_items
 
-    @classmethod
-    def apply_hook(cls, items, sender):
+    def apply_hook(self, items, sender):
         """Applies item processing hook, registered with ``register_item_hook()``
         to items supplied, and returns processed list.
 
@@ -847,10 +858,15 @@ class SiteTree(object):
         :param str|unicode sender: menu, breadcrumbs, sitetree, {type}.children, {type}.has_children
         :rtype: list
         """
-        if _ITEMS_PROCESSOR is None:
+        processor = _ITEMS_PROCESSOR
+
+        if processor is None:
             return items
 
-        return _ITEMS_PROCESSOR(tree_items=items, tree_sender=sender)
+        if _ITEMS_PROCESSOR_ARGS_LEN == 2:
+            return processor(tree_items=items, tree_sender=sender)
+
+        return processor(tree_items=items, tree_sender=sender, context=self.current_page_context)
 
     def check_access(self, item, context):
         """Checks whether a current user has an access to a certain item.
