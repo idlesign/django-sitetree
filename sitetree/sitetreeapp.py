@@ -25,7 +25,7 @@ from .compat import TOKEN_BLOCK, TOKEN_TEXT, TOKEN_VAR
 from .exceptions import SiteTreeError
 from .settings import (
     ALIAS_TRUNK, ALIAS_THIS_CHILDREN, ALIAS_THIS_SIBLINGS, ALIAS_THIS_PARENT_SIBLINGS, ALIAS_THIS_ANCESTOR_CHILDREN,
-    UNRESOLVED_ITEM_MARKER, RAISE_ITEMS_ERRORS_ON_DEBUG, CACHE_TIMEOUT, DYNAMIC_ONLY)
+    UNRESOLVED_ITEM_MARKER, RAISE_ITEMS_ERRORS_ON_DEBUG, CACHE_TIMEOUT, DYNAMIC_ONLY, ADMIN_APP_NAME)
 from .utils import get_tree_model, get_tree_item_model, import_app_sitetree_module, generate_id_for
 
 if False:  # pragma: nocover
@@ -487,7 +487,7 @@ class SiteTree(object):
             if current_app is None:  # Try from global context dict.
                 current_app = context.get('current_app', '')
 
-            is_admin = current_app == 'admin'
+            is_admin = current_app == ADMIN_APP_NAME
             self._current_app_is_admin = is_admin
 
         return is_admin

@@ -14,6 +14,7 @@ UNRESOLVED_ITEM_MARKER = getattr(settings, 'SITETREE_UNRESOLVED_ITEM_MARKER', u'
 """This string is place instead of item URL if actual URL cannot be resolved."""
 
 RAISE_ITEMS_ERRORS_ON_DEBUG = getattr(settings, 'SITETREE_RAISE_ITEMS_ERRORS_ON_DEBUG', True)
+"""Whether to raise exceptions in DEBUG mode if current page item is unresolved."""
 
 DYNAMIC_ONLY = getattr(settings, 'SITETREE_DYNAMIC_ONLY', False)
 """Whether to query DB for static trees items or use dynamic only."""
@@ -29,6 +30,10 @@ CACHE_TIMEOUT = getattr(settings, 'SITETREE_CACHE_TIMEOUT', 31536000)
 Cache is only invalidated on sitetree or sitetree item change.
 
 """
+
+ADMIN_APP_NAME = getattr(settings, 'SITETREE_ADMIN_APP_NAME', 'admin')
+"""Admin application name. In cases custom admin application is used."""
+
 
 # Reserved tree items aliases.
 ALIAS_TRUNK = 'trunk'
