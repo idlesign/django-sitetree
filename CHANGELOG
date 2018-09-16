@@ -2,6 +2,11 @@ django-sitetree changelog
 =========================
 
 
+Unreleased
+----------
++ Dynamic tree() function now accepts custom keyword arguments.
+
+
 v1.11.0
 -------
 + Improved Django 2.1 compatiblity.

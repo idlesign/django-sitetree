@@ -88,7 +88,7 @@ Given the example model given above, you can now use the extra fields when defin
                    in_sitetree=False,
                    css_class='book-edit')
           ])
-      ]),
+      ], title='My books tree'),
       # ... You can define more than one tree for your app.
     )
 

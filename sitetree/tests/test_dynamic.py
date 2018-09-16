@@ -67,7 +67,7 @@ def test_dynamic_attach(template_render_tag, template_context, template_strip_ta
         compose_dynamic_tree([tree('dynamic2', items=[
             item('dynamic2_1', '/dynamic2_1_url', url_as_pattern=False),
             item('dynamic2_2', '/dynamic2_2_url', url_as_pattern=False),
-        ])], target_tree_alias='mytree', parent_tree_item_alias='ruweb'),
+        ], title='some_title')], target_tree_alias='mytree', parent_tree_item_alias='ruweb'),
 
     ])
     result = template_strip_tags(template_render_tag('sitetree', 'sitetree_tree from "mytree"', template_context()))

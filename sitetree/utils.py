@@ -22,6 +22,8 @@ def tree(alias, title='', items=None, **kwargs):
     :param str|unicode alias:
     :param str|unicode title:
     :param iterable items: dynamic sitetree items objects created by `item` function.
+    :param kwargs: Additional arguments to pass to tree item initializer.
+
     :rtype: TreeBase
     """
     tree_obj = get_tree_model()(alias=alias, title=title, **kwargs)
