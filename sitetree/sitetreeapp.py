@@ -662,11 +662,6 @@ class SiteTree(object):
                 # We should try to resolve URL parameters from site tree item.
                 for view_argument in view_path[1:]:
                     resolved = self.resolve_var(view_argument)
-                    # In case of non-ascii data we leave variable unresolved.
-                    if isinstance(resolved, six.text_type):
-                        if resolved.encode('ascii', 'ignore').decode('ascii') != resolved:
-                            resolved = view_argument
-
                     # We enclose arg in double quotes as already resolved.
                     all_arguments.append('"%s"' % resolved)
 
