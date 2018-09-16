@@ -16,7 +16,7 @@ def generate_id_for(obj):
     return id(obj)
 
 
-def tree(alias, title='', items=None):
+def tree(alias, title='', items=None, **kwargs):
     """Dynamically creates and returns a sitetree.
 
     :param str|unicode alias:
@@ -24,7 +24,7 @@ def tree(alias, title='', items=None):
     :param iterable items: dynamic sitetree items objects created by `item` function.
     :rtype: TreeBase
     """
-    tree_obj = get_tree_model()(alias=alias, title=title)
+    tree_obj = get_tree_model()(alias=alias, title=title, **kwargs)
     tree_obj.id = generate_id_for(tree_obj)
     tree_obj.is_dynamic = True
 
