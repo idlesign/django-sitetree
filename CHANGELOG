@@ -2,8 +2,8 @@ django-sitetree changelog
 =========================
 
 
-Unreleased
-----------
+v1.12.0
+-------
 + 'register_items_hook()' can handle functions accepting 'context' argument.
 + Added SITETREE_ADMIN_APP_NAME setting support for custom admin apps.
 + Allow custom widget for parent field in admin.
