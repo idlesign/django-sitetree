@@ -682,7 +682,7 @@ class SiteTree(object):
                     # We enclose arg in double quotes as already resolved.
                     all_arguments.append('"%s"' % resolved)
 
-                view_path = view_path[0].strip('"\' ')
+            view_path = view_path[0].strip('"\'')
 
             url_pattern = "'%s' %s" % (view_path, ' '.join(all_arguments))
 

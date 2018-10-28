@@ -48,3 +48,35 @@ def test_model_tree_item():
 
     with pytest.raises(Exception):
         TreeItem(tree=tree1, alias='only').save()  # Unique alias within tree
+
+
+def test_sitetree_url():
+    """ Few simple tests to ensure SiteTree.url function works properly """
+    from sitetree.models import Tree, TreeItem
+    from sitetree.sitetreeapp import get_sitetree
+    tree1 = Tree(alias='test')
+    tree1.save()
+    st = get_sitetree()
+
+    item = TreeItem(tree=tree1, alias='other', url='foo', pk=1)
+    assert st.url(item) == "foo"
+
+    item = TreeItem(tree=tree1, alias='other', url='foo/bar', pk=2)
+    assert st.url(item) == "foo/bar"
+
+    item = TreeItem(tree=tree1, alias='other', url='contacts_china \'2\'', urlaspattern=True, pk=3)
+    assert st.url(item) == "/contacts/australia/2/"
+
+    item = TreeItem(tree=tree1, alias='other', url='contacts_china 2', urlaspattern=True, pk=4)
+    assert st.url(item) == "/contacts/australia/2/"
+
+    item = TreeItem(tree=tree1, alias='other', url='contacts_china', urlaspattern=True, pk=6)
+    assert st.url(item) == "#unresolved"
+
+    # Test that any of the symbols inserted as url don't break the app
+    item = TreeItem(tree=tree1, alias='other', url='!contacts_china$%^čř%*#$@=!§¨`°"', urlaspattern=True, pk=7)
+    assert st.url(item) == "#unresolved"
+
+    # Test for bug #257
+    item = TreeItem(tree=tree1, alias='other', url="contacts_ch'ina", urlaspattern=True, pk=8)
+    assert st.url(item) == "#unresolved"
