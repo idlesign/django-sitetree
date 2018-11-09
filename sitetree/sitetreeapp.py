@@ -200,7 +200,7 @@ def register_dynamic_trees(trees, *args, **kwargs):
         trees = [trees]
         trees.extend(args)
 
-    for tree in trees:
+    for tree in trees or []:
         if tree is not None and tree['sitetrees'] is not None:
             if tree['tree'] is None:
                 # Register trees as they are defined in app.
