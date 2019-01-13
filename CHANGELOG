@@ -2,6 +2,11 @@ django-sitetree changelog
 =========================
 
 
+Unreleased
+----------
+! Dropped QA for Python 3.4.
+
+
 v1.12.0
 -------
 + 'register_items_hook()' can handle functions accepting 'context' argument.
