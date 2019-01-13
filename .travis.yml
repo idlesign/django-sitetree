@@ -3,7 +3,6 @@ language: python
 python:
   - 3.6
   - 3.5
-  - 2.7
 
 env:
   - DJANGO="Django>=2.1,<2.2"
@@ -28,11 +27,6 @@ matrix:
    - python: 3.5
      env: DJANGO="Django>=1.7,<1.8"
 
-   - python: 2.7
-     env: DJANGO="Django>=2.1,<2.2"
-
-   - python: 2.7
-     env: DJANGO="Django>=2.0,<2.1"
  
 after_success:
   coveralls
