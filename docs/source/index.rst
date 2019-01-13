@@ -38,7 +38,7 @@ Requirements
 ----
 
 1. Python 2.7+, 3.5+
-2. Django 1.7+
+2. Django 1.8+
 3. Auth Django contrib package
 4. Admin site Django contrib package (optional)
 
