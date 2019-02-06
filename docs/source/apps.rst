@@ -25,7 +25,7 @@ Let's suppose you have `books` application and want do define a sitetree for it.
           # Then define items and their children with `item` function.
           item('Books', 'books-listing', children=[
               item('Book named "{{ book.title }}"', 'books-details', in_menu=False, in_sitetree=False),
-              item('Add a book', 'books-add'),
+              item('Add a book', 'books-add', access_by_perms=['booksapp.allow_add']),
               item('Edit "{{ book.title }}"', 'books-edit', in_menu=False, in_sitetree=False)
           ])
       ]),

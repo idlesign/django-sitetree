@@ -43,34 +43,58 @@ def tree(alias, title='', items=None, **kwargs):
     return tree_obj
 
 
-def item(title, url, children=None, url_as_pattern=True, hint='', alias='', description='',
-         in_menu=True, in_breadcrumbs=True, in_sitetree=True,
-         access_loggedin=False, access_guest=False,
-         access_by_perms=None, perms_mode_all=True, **kwargs):
+def item(
+    title, url, children=None, url_as_pattern=True, hint='', alias='', description='',
+    in_menu=True, in_breadcrumbs=True, in_sitetree=True,
+    access_loggedin=False, access_guest=False,
+    access_by_perms=None, perms_mode_all=True, **kwargs):
     """Dynamically creates and returns a sitetree item object.
 
     :param str|unicode title:
+
     :param str|unicode url:
+
     :param list, set children: a list of children for tree item. Children should also be created by `item` function.
+
     :param bool url_as_pattern: consider URL as a name of a named URL
+
     :param str|unicode hint: hints are usually shown to users
+
     :param str|unicode alias: item name to address it from templates
+
     :param str|unicode description: additional information on item (usually is not shown to users)
+
     :param bool in_menu: show this item in menus
+
     :param bool in_breadcrumbs: show this item in breadcrumbs
+
     :param bool in_sitetree: show this item in sitetrees
+
     :param bool access_loggedin: show item to logged in users only
+
     :param bool access_guest: show item to guest users only
-    :param list|str||unicode|int, Permission access_by_perms: restrict access to users with these permissions
+
+    :param list|str||unicode|int, Permission access_by_perms: restrict access to users with these permissions.
+
+        This can be set to one or a list of permission names, IDs or Permission instances.
+
+        Permission names are more portable and should be in a form `<app_label>.<perm_codename>`, e.g.:
+            my_app.allow_save
+
+
     :param bool perms_mode_all: permissions set interpretation rule:
                 True - user should have all the permissions;
                 False - user should have any of chosen permissions.
+
     :rtype: TreeItemBase
+
     """
-    item_obj = get_tree_item_model()(title=title, url=url, urlaspattern=url_as_pattern,
-                                   hint=hint, alias=alias, description=description, inmenu=in_menu,
-                                   insitetree=in_sitetree, inbreadcrumbs=in_breadcrumbs,
-                                   access_loggedin=access_loggedin, access_guest=access_guest, **kwargs)
+    item_obj = get_tree_item_model()(
+        title=title, url=url, urlaspattern=url_as_pattern,
+        hint=hint, alias=alias, description=description, inmenu=in_menu,
+        insitetree=in_sitetree, inbreadcrumbs=in_breadcrumbs,
+        access_loggedin=access_loggedin, access_guest=access_guest,
+        **kwargs)
 
     item_obj.id = generate_id_for(item_obj)
     item_obj.is_dynamic = True
