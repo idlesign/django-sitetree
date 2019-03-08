@@ -19,12 +19,12 @@ Now you can use the following template tags:
 
 .. _making-tree:
 
-Making tree
------------
+Making a tree
+-------------
 
 Taken from `StackOverflow <http://stackoverflow.com/questions/4766807/how-to-use-django-sitetree/4887916#4887916>`_.
 
-In this tutorial we create sitetree that could handle URI like */categoryname/entryname*.
+In this tutorial we create a sitetree that could handle URI like */categoryname/entryname*.
 
 ------------
 
@@ -34,13 +34,13 @@ To create a tree:
 2. Click +Add near 'Site Trees';
 3. Enter alias for your sitetree, e.g. 'maintree'. You'll address your tree by this alias in template tags;
 4. Push 'Add Site Tree Item';
-5. Create first item::
+5. Create the first item::
 
     Parent - As it is root item that would have no parent.
     Title - Let it be 'My site'.
     URL - This URL is static, so put here '/'.
 
-6. Create second item (that one would handle 'categoryname' from your 'categoryname/entryname')::
+6. Create a second item (that one would handle 'categoryname' from your 'categoryname/entryname')::
 
     Parent - Choose 'My site' item from step 5.
     Title - Put here 'Category #{{ category.id }}'.
@@ -48,7 +48,7 @@ To create a tree:
     
     In 'Additional settings': check 'URL as Pattern' checkbox.
 
-7. Create third item (that one would handle 'entryname' from your 'categoryname/entryname')::
+7. Create a third item (that one would handle 'entryname' from your 'categoryname/entryname')::
 
     Parent - Choose 'Category #{{ category.id }}' item from step 6.
     Title - Put here 'Entry #{{ entry.id }}'.
@@ -56,7 +56,7 @@ To create a tree:
 
     In 'Additional settings': check 'URL as Pattern' checkbox.
 
-8. Put '{% load sitetree %}' into yor template to have access to sitetree tags.
+8. Put '{% load sitetree %}' into your template to have access to sitetree tags.
 9. Put '{% sitetree_menu from "maintree" include "trunk" %}' into your template to render menu from tree trunk.
 10. Put '{% sitetree_breadcrumbs from "maintree" %}' into your template to render breadcrumbs.
 
