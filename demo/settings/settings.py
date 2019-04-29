@@ -23,8 +23,15 @@ INSTALLED_APPS = [
 
     'sitetree',
 
+    'guardian',
+
     'demo',
 ]
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',  # This is the default.
+    'guardian.backends.ObjectPermissionBackend',
+)
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
