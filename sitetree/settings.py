@@ -1,6 +1,9 @@
 from django.conf import settings
 
 
+SITETREE_CLS = getattr(settings, 'SITETREE_CLS', None)
+"""Allows deep tree handling customization. Accepts sitetreeap.SiteTree subclass."""
+
 MODEL_TREE = getattr(settings, 'SITETREE_MODEL_TREE', 'sitetree.Tree')
 """Path to a tree model (app.class)."""
 

@@ -41,7 +41,7 @@ Example:
 
 .. note::
 
-    You might also be interested in using :ref:`Tree hooks <tree-hooks>`.
+    You might also be interested in using :ref:`Tree handler customization <tree-custom>`.
 
 
 Inlines override example

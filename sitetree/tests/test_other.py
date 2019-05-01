@@ -57,3 +57,10 @@ def test_lazy_title(template_context):
     get_sitetree().current_page_context = template_context()
 
     assert title == 'herethere'
+
+
+def test_customized_tree_handler(template_context):
+
+    from sitetree.sitetreeapp import get_sitetree
+
+    assert get_sitetree().customized  # see MySiteTree

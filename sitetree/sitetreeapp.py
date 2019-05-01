@@ -16,7 +16,7 @@ from django.template.base import (
     VARIABLE_TAG_START)
 from django.template.defaulttags import url as url_tag
 from django.template.loader import get_template
-from django.utils import six
+from django.utils import six, module_loading
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.http import urlquote
 from django.utils.translation import get_language
@@ -25,11 +25,12 @@ from .compat import TOKEN_BLOCK, TOKEN_TEXT, TOKEN_VAR
 from .exceptions import SiteTreeError
 from .settings import (
     ALIAS_TRUNK, ALIAS_THIS_CHILDREN, ALIAS_THIS_SIBLINGS, ALIAS_THIS_PARENT_SIBLINGS, ALIAS_THIS_ANCESTOR_CHILDREN,
-    UNRESOLVED_ITEM_MARKER, RAISE_ITEMS_ERRORS_ON_DEBUG, CACHE_TIMEOUT, DYNAMIC_ONLY, ADMIN_APP_NAME)
+    UNRESOLVED_ITEM_MARKER, RAISE_ITEMS_ERRORS_ON_DEBUG, CACHE_TIMEOUT, DYNAMIC_ONLY, ADMIN_APP_NAME, SITETREE_CLS)
 from .utils import get_tree_model, get_tree_item_model, import_app_sitetree_module, generate_id_for
 
 if False:  # pragma: nocover
     from django.template import Context
+    from django.contrib.auth.models import User
     from .models import TreeItemBase
 
 
@@ -71,13 +72,14 @@ _UNSET = set()  # Sentinel
 
 def get_sitetree():
     """Returns SiteTree (thread-singleton) object, implementing utility methods.
+    This can return the built-in or a customized (see SITETREE_CLS setting) sitetree handler.
 
     :rtype: SiteTree
     """
     sitetree = getattr(_THREAD_LOCAL, _THREAD_SITETREE, None)
 
     if sitetree is None:
-        sitetree = SiteTree()
+        sitetree = _SITETREE_CLS()
         setattr(_THREAD_LOCAL, _THREAD_SITETREE, sitetree)
 
     return sitetree
@@ -85,6 +87,10 @@ def get_sitetree():
 
 def register_items_hook(func):
     """Registers a hook callable to process tree items right before they are passed to templates.
+
+    .. deprecated:: 1.13.0
+       Items hooking with `register_items_hook` is deprecated, please use `SITETREE_CLS`
+       setting customization instead and override .apply_hook() method.
 
     Callable should be able to:
 
@@ -118,6 +124,11 @@ def register_items_hook(func):
 
     :param func:
     """
+    warnings.warn(
+        'Items hooking with `register_items_hook` is deprecated, '
+        'please use `SITETREE_CLS` settings customization instead.',
+        DeprecationWarning, 2)
+
     global _ITEMS_PROCESSOR
     global _ITEMS_PROCESSOR_ARGS_LEN
 
@@ -372,6 +383,8 @@ class Cache(object):
 class SiteTree(object):
     """Main logic handler."""
 
+    cache_cls = Cache  # Allow customizations.
+
     def __init__(self):
         self.init(context=None)
 
@@ -380,7 +393,7 @@ class SiteTree(object):
 
         :param Context|None context:
         """
-        self.cache = Cache()
+        self.cache = self.cache_cls()
         self.current_page_context = context
         self.current_request = context.get('request', None) if context else None
         self.current_lang = get_language()
@@ -849,10 +862,12 @@ class SiteTree(object):
         return menu_items
 
     def apply_hook(self, items, sender):
-        """Applies item processing hook, registered with ``register_item_hook()``
-        to items supplied, and returns processed list.
+        """Applies a custom items processing hook to items supplied, and returns processed list.
+        Suitable for items filtering and other manipulations.
 
         Returns initial items list if no hook is registered.
+
+        .. note:: Use `SITETREE_CLS` setting customization and override this method.
 
         :param list items:
         :param str|unicode sender: menu, breadcrumbs, sitetree, {type}.children, {type}.has_children
@@ -890,7 +905,7 @@ class SiteTree(object):
             user_perms = self._current_user_permissions
 
             if user_perms is _UNSET:
-                user_perms = set(context['user'].get_all_permissions())
+                user_perms = self.get_permissions(context['user'], item)
                 self._current_user_permissions = user_perms
 
             if item.access_perm_type == MODEL_TREE_ITEM_CLASS.PERM_TYPE_ALL:
@@ -901,6 +916,15 @@ class SiteTree(object):
                     return False
 
         return True
+
+    def get_permissions(self, user, item):
+        """Returns a set of user and group level permissions for a given user.
+
+        :param User user:
+        :param TreeItemBase item:
+        :rtype: set
+        """
+        return user.get_all_permissions()
 
     def breadcrumbs(self, tree_alias, context):
         """Builds and returns breadcrumb trail structure for 'sitetree_breadcrumbs' tag.
@@ -1085,7 +1109,7 @@ class SiteTree(object):
 
         If no context specified page context' is considered as context.
 
-        :param str|unicode varname:
+        :param str|unicode|FilterExpression varname:
         :param Context context:
         :return:
         """
@@ -1102,3 +1126,6 @@ class SiteTree(object):
                 varname = varname
 
         return varname
+
+
+_SITETREE_CLS = module_loading.import_string(SITETREE_CLS) if SITETREE_CLS else SiteTree
