@@ -4,7 +4,7 @@ import warnings
 from collections import defaultdict
 from copy import deepcopy
 from functools import partial
-from inspect import getargspec
+from inspect import getfullargspec
 from threading import local
 
 from django import VERSION
@@ -135,7 +135,7 @@ def register_items_hook(func):
     _ITEMS_PROCESSOR = func
 
     if func:
-        args_len = len(getargspec(func).args)
+        args_len = len(getfullargspec(func).args)
         if args_len not in {2, 3}:
             raise SiteTreeError('`register_items_hook()` expects a function with two or three arguments.')
         _ITEMS_PROCESSOR_ARGS_LEN = args_len
