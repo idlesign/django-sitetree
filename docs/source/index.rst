@@ -56,7 +56,7 @@ Table of Contents
     management
     templatesmod
     tagsadv
-    hooks
+    customization
     admin
     forms
     models
