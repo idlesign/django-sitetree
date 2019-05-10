@@ -13,9 +13,9 @@ or god knows what else.
 *django-sitetree* can facilitate on that as it allows tree handler customization
 with the help of `SITETREE_CLS` setting.
 
-1. Subclass `sitetreeapp.SiteTree` and place that class into a separate module for convenience.
-2. Override methods you need for customization (usually `.apply_hook()`).
-3. Define `SITETREE_CLS` in `settings.py` of your project, showing it a dotted path to subclass.
+1. Subclass ``sitetreeapp.SiteTree`` and place that class into a separate module for convenience.
+2. You may now overwrite ``.apply_hook()`` to manipulate tree items before render, or any other methods to customize handler to your exact needs.
+3. Define ``SITETREE_CLS`` in ``settings.py`` of your project, showing it a dotted path to subclass.
 
 
 Example:
