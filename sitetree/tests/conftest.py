@@ -6,9 +6,7 @@ pytest_plugins = configure_djangoapp_plugin(
     settings=dict(
         SITETREE_CLS='sitetree.tests.testapp.mysitetree.MySiteTree',
     ),
-    extend_INSTALLED_APPS=[
-        'django.contrib.admin',
-    ],
+    admin_contrib=True,
 )
 
 

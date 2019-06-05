@@ -58,6 +58,10 @@ def test_dynamic_attach(template_render_tag, template_context, template_strip_ta
 
     from sitetree.toolbox import compose_dynamic_tree, register_dynamic_trees, tree, item
 
+    children = [
+        item('dynamic2_2_child', '/dynamic2_2_url_child', url_as_pattern=False),
+    ]
+
     register_dynamic_trees([
         compose_dynamic_tree([tree('dynamic1', items=[
             item('dynamic1_1', '/dynamic1_1_url', url_as_pattern=False),
@@ -66,7 +70,7 @@ def test_dynamic_attach(template_render_tag, template_context, template_strip_ta
 
         compose_dynamic_tree([tree('dynamic2', items=[
             item('dynamic2_1', '/dynamic2_1_url', url_as_pattern=False),
-            item('dynamic2_2', '/dynamic2_2_url', url_as_pattern=False),
+            item('dynamic2_2', '/dynamic2_2_url', url_as_pattern=False, children=children),
         ], title='some_title')], target_tree_alias='mytree', parent_tree_item_alias='ruweb'),
 
     ])
