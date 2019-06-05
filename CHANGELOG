@@ -4,9 +4,11 @@ django-sitetree changelog
 
 Unreleased
 ----------
+! Deprecated 'register_items_hook()' function.
 ! Dropped QA for Django 1.7.
 ! Dropped QA for Python 2.
 ! Dropped QA for Python 3.4.
++ Added 'SITETREE_CLS' setting support for deep tree handler customizations.
 
 
 v1.12.0
