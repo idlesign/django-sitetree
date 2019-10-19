@@ -7,15 +7,15 @@ What to do if a time comes and you need some fancy stuff done to tree items that
 .. _tree-custom:
 
 It might be that you need some special tree items ordering in a menu, or you want to render
-in a huge site tree with all articles titles that are described by one tree item in Django admin,
+a huge site tree with all articles titles that are described by one tree item in Django admin,
 or god knows what else.
 
 *django-sitetree* can facilitate on that as it allows tree handler customization
 with the help of `SITETREE_CLS` setting.
 
 1. Subclass ``sitetreeapp.SiteTree`` and place that class into a separate module for convenience.
-2. You may now overwrite ``.apply_hook()`` to manipulate tree items before render, or any other methods to customize handler to your exact needs.
-3. Define ``SITETREE_CLS`` in ``settings.py`` of your project, showing it a dotted path to subclass.
+2. You may now override ``.apply_hook()`` to manipulate tree items before render, or any other method to customize handler to your exact needs.
+3. Define ``SITETREE_CLS`` in ``settings.py`` of your project, showing it a dotted path to the subclass.
 
 
 Example:
