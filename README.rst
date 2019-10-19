@@ -8,7 +8,7 @@ http://github.com/idlesign/django-sitetree
 
 ----
 
-|release| |lic| |ci| |coverage| |health|
+|release| |lic| |ci| |coverage|
 
 .. |release| image:: https://img.shields.io/pypi/v/django-sitetree.svg
     :target: https://pypi.python.org/pypi/django-sitetree
@@ -21,9 +21,6 @@ http://github.com/idlesign/django-sitetree
 
 .. |coverage| image:: https://img.shields.io/coveralls/idlesign/django-sitetree/master.svg
     :target: https://coveralls.io/r/idlesign/django-sitetree
-
-.. |health| image:: https://landscape.io/github/idlesign/django-sitetree/master/landscape.svg?style=flat
-    :target: https://landscape.io/github/idlesign/django-sitetree/master
 
 
 What's that
