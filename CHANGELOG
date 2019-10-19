@@ -2,6 +2,11 @@ django-sitetree changelog
 =========================
 
 
+Unreleased
+----------
+* Fixed customized exception handling template using sitetree masking initial exception.
+
+
 v1.13.0
 -------
 ! Deprecated 'register_items_hook()' function.

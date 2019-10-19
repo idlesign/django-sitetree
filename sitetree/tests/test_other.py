@@ -64,3 +64,10 @@ def test_customized_tree_handler(template_context):
     from sitetree.sitetreeapp import get_sitetree
 
     assert get_sitetree().customized  # see MySiteTree
+
+
+def test_techincal_view_exception_unmasked(request_client, settings):
+    # We expect that customized 500 template using sitetree is handled as expected.
+    client = request_client(raise_exceptions=False)
+    response = client.get('/raiser/')
+    assert response.content == b'\n\n<ul>\n\t\n</ul>'

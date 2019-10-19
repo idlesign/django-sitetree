@@ -20,7 +20,7 @@ def test_admin_tree_item_basic(request_get, common_tree):
     form = admin.get_form(request_get())
 
     known_url_names = form.known_url_names
-    assert set(known_url_names) == {'contacts_china', 'contacts_australia'}
+    assert set(known_url_names) == {'contacts_china', 'contacts_australia', 'raiser'}
 
 
 def test_admin_tree_item_move(common_tree):

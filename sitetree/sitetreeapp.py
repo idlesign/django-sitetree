@@ -5,6 +5,7 @@ from collections import defaultdict
 from copy import deepcopy
 from functools import partial
 from inspect import getfullargspec
+from sys import exc_info
 from threading import local
 
 from django import VERSION
@@ -733,6 +734,13 @@ class SiteTree(object):
         request = context.get('request', None)
 
         if request is None:
+
+            if any(exc_info()):
+                # Probably we're in a technical
+                # exception handling view. So we won't mask
+                # the initial exception with the one below.
+                return None, None
+
             raise SiteTreeError(
                 'Sitetree requires "django.core.context_processors.request" template context processor to be active. '
                 'If it is, check that your view pushes request data into the template.')
