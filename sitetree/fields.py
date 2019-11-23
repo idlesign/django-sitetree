@@ -26,10 +26,23 @@ class TreeItemChoiceField(ChoiceField):
     template = 'admin/sitetree/tree/tree_combo.html'
     root_title = '---------'
 
-    def __init__(self, tree, required=True, widget=None, label=None, initial=None, help_text=None, *args, **kwargs):
+    def __init__(self, tree=None, required=True, widget=None, label=None, initial=None, help_text=None, *args, **kwargs):
+
         super(TreeItemChoiceField, self).__init__(
             required=required, widget=widget, label=label, initial=initial,
             help_text=help_text, *args, **kwargs)
+
+        self.tree = None
+        self.choices_init(tree)
+
+    def choices_init(self, tree):
+        """Initialize choices for the given tree.
+
+        :param tree:
+
+        """
+        if not tree:
+            return
 
         if isinstance(tree, MODEL_TREE_CLASS):
             tree = tree.alias

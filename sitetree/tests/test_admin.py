@@ -13,6 +13,33 @@ def get_item_admin():
     return admin
 
 
+def test_parent_choices(request_client, build_tree, user_create, template_strip_tags):
+
+    build_tree(
+        {'alias': 'tree1'},
+        [{
+            'title': 'one', 'url': '/one/', 'children': [
+                {'title': 'subone', 'url': '/subone/'}
+            ]
+        }]
+    )
+
+    build_tree(
+        {'alias': 'tree2'},
+        [{
+            'title': 'some', 'url': '/some/', 'children': [
+                {'title': 'other', 'url': '/other/'}
+            ]
+        }]
+    )
+
+    client = request_client(user=user_create(superuser=True))
+    result = client.get(('admin:sitetree_treeitem_change', dict(item_id=2, tree_id=1)))
+    stripped = template_strip_tags(result.content.decode())
+    assert '|---------|one|&nbsp;&nbsp;&nbsp;&nbsp;|- subone' in stripped
+    assert '|---------|some|&nbsp;&nbsp;&nbsp;&nbsp;|- other' not in stripped
+
+
 def test_admin_tree_item_basic(request_get, common_tree):
 
     admin = get_item_admin()

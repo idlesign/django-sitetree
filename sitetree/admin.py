@@ -1,5 +1,6 @@
 from django.conf import settings as django_settings
 from django import VERSION as django_version
+from django import forms
 try:
     from django.urls import get_urlconf, get_resolver
 except ImportError:
@@ -88,9 +89,18 @@ def override_item_admin(admin_class):
     _reregister_tree_admin()
 
 
+class TreeItemForm(forms.ModelForm):
+    """Item form with swapped parent field."""
+
+    parent = TreeItemChoiceField()
+
+
 class TreeItemAdmin(admin.ModelAdmin):
 
+    form = TreeItemForm
+
     exclude = ('tree', 'sort_order')
+
     fieldsets = (
         (_('Basic settings'), {
             'fields': ('parent', 'title', 'url',)
@@ -108,6 +118,7 @@ class TreeItemAdmin(admin.ModelAdmin):
             'fields': ('hint', 'description', 'alias', 'urlaspattern')
         }),
     )
+
     filter_horizontal = ('access_permissions',)
     change_form_template = 'admin/sitetree/treeitem/change_form.html'
     delete_confirmation_template = 'admin/sitetree/treeitem/delete_confirmation.html'
@@ -166,17 +177,9 @@ class TreeItemAdmin(admin.ModelAdmin):
         """
         if obj is not None and obj.parent is not None:
             self.previous_parent = obj.parent
-            previous_parent_id = self.previous_parent.id
-        else:
-            previous_parent_id = None
 
-        my_choice_field = TreeItemChoiceField(self.tree, initial=previous_parent_id)
         form = super(TreeItemAdmin, self).get_form(request, obj, **kwargs)
-        my_choice_field.label = form.base_fields['parent'].label
-        my_choice_field.help_text = form.base_fields['parent'].help_text
-        my_choice_field.widget = form.base_fields['parent'].widget
-        # Replace 'parent' TreeItem field with new appropriate one
-        form.base_fields['parent'] = my_choice_field
+        form.base_fields['parent'].choices_init(self.tree)
 
         # Try to resolve all currently registered url names including those in namespaces.
         if not getattr(self, 'known_url_names', False):
@@ -194,6 +197,7 @@ class TreeItemAdmin(admin.ModelAdmin):
             'seems to be invalid. Currently registered URL pattern names and parameters: ')
         form.known_url_names = self.known_url_names
         form.known_url_rules = self.known_url_rules
+
         return form
 
     def _stack_known_urls(self, reverse_dict, ns=None):

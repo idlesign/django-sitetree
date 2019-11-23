@@ -2,6 +2,11 @@ django-sitetree changelog
 =========================
 
 
+Unreleased
+----------
+* Fixed a regression in Admin not filtering Parent item choices (see #266).
+
+
 v1.13.1 [2019-10-19]
 --------------------
 * Fixed customized exception handling template using sitetree masking initial exception.
