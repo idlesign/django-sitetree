@@ -2,8 +2,8 @@ django-sitetree changelog
 =========================
 
 
-Unreleased
-----------
+v1.13.2 [2019-11-23]
+--------------------
 * Fixed a regression in Admin not filtering Parent item choices (see #266).
 
 
