@@ -1,2 +1,2 @@
-Django==2.1.2
+Django==2.1.11
 django-sitetree==1.11
