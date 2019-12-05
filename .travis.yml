@@ -3,11 +3,13 @@ dist: xenial
 language: python
 
 python:
+  - 3.8
   - 3.7
   - 3.6
   - 3.5
 
 env:
+  - DJANGO="Django>=3.0,<3.1"
   - DJANGO="Django>=2.2,<2.3"
   - DJANGO="Django>=2.1,<2.2"
   - DJANGO="Django>=2.0,<2.1"
@@ -20,6 +22,22 @@ install:
   - pip install -U coverage coveralls $DJANGO
 
 script: coverage run -a --source=sitetree setup.py test
+
+matrix:
+
+  exclude:
+
+   - python: 3.8
+     env: DJANGO="Django>=1.10,<1.11"
+
+   - python: 3.8
+     env: DJANGO="Django>=1.9,<1.10"
+
+   - python: 3.8
+     env: DJANGO="Django>=1.8.6,<1.9"
+
+   - python: 3.5
+     env: DJANGO="Django>=3.0,<3.1"
 
 
 after_success:

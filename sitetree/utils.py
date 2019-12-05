@@ -3,7 +3,6 @@ from importlib import import_module
 from django.apps import apps
 from django.contrib.auth.models import Permission
 from django.core.exceptions import ImproperlyConfigured
-from django.utils import six
 from django.utils.module_loading import module_has_submodule
 
 apps_get_model = apps.get_model
@@ -107,7 +106,7 @@ def item(
             access_by_perms = [access_by_perms]
 
         for perm in access_by_perms:
-            if isinstance(perm, six.string_types):
+            if isinstance(perm, str):
                 # Get permission object from string
                 try:
                     app, codename = perm.split('.')
