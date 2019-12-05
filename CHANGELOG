@@ -2,6 +2,11 @@ django-sitetree changelog
 =========================
 
 
+Unreleased
+----------
+! Add Django 3.0 compatibility. Effectively deprecates Py2 support.
+
+
 v1.13.2 [2019-11-23]
 --------------------
 * Fixed a regression in Admin not filtering Parent item choices (see #266).
