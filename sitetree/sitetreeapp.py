@@ -17,8 +17,7 @@ from django.template.base import (
     VARIABLE_TAG_START)
 from django.template.defaulttags import url as url_tag
 from django.template.loader import get_template
-from django.utils import six, module_loading
-from django.utils.encoding import python_2_unicode_compatible
+from django.utils import module_loading
 from django.utils.http import urlquote
 from django.utils.translation import get_language
 
@@ -265,7 +264,7 @@ def compose_dynamic_tree(src, target_tree_alias=None, parent_tree_item_alias=Non
             'tree': target_tree_alias,
             'parent_item': parent_tree_item_alias}
 
-    if isinstance(src, six.string_types):
+    if isinstance(src, str):
         # Considered to be an application name.
         try:
             module = import_app_sitetree_module(src)
@@ -279,7 +278,6 @@ def compose_dynamic_tree(src, target_tree_alias=None, parent_tree_item_alias=Non
     return result()
 
 
-@python_2_unicode_compatible
 class LazyTitle(object):
     """Lazily resolves any variable found in a title of an item.
     Produces resolved title as unicode representation."""

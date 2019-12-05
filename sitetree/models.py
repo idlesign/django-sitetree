@@ -1,6 +1,5 @@
 from django.contrib.auth.models import Permission
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from .settings import MODEL_TREE, TREE_ITEMS_ALIASES
@@ -19,7 +18,6 @@ class CharFieldNullable(models.CharField):
         return self.to_python(value)
 
 
-@python_2_unicode_compatible
 class TreeBase(models.Model):
 
     title = models.CharField(
@@ -41,7 +39,6 @@ class TreeBase(models.Model):
         return self.alias
 
 
-@python_2_unicode_compatible
 class TreeItemBase(models.Model):
 
     PERM_TYPE_ANY = 1

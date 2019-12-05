@@ -6,7 +6,6 @@ try:
 except ImportError:
     from django.core.urlresolvers import get_urlconf, get_resolver
 from django.utils.translation import ugettext_lazy as _
-from django.utils import six
 from django.http import HttpResponseRedirect
 from django.contrib import admin
 from django.contrib.admin.sites import NotRegistered
@@ -202,7 +201,7 @@ class TreeItemAdmin(admin.ModelAdmin):
 
     def _stack_known_urls(self, reverse_dict, ns=None):
         for url_name, url_rules in reverse_dict.items():
-            if isinstance(url_name, six.string_types):
+            if isinstance(url_name, str):
                 if ns is not None:
                     url_name = '%s:%s' % (ns, url_name)
                 self.known_url_names.append(url_name)
