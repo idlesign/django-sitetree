@@ -3,7 +3,7 @@ SiteTree template tags
 
 To use template tags available in SiteTree you should add **{% load sitetree %}** tag to the top of chosen template.
 
-Tree tag argument (part in double quotes, following '**from**' word) of SiteTree tags should containt tree alias.
+Tree tag argument (part in double quotes, following '**from**' word) of SiteTree tags should contain the tree alias.
 
 **Hints:**
 
