@@ -2,6 +2,11 @@ django-sitetree changelog
 =========================
 
 
+Unreleased
+----------
+* Updated German translation.
+
+
 v1.14.0 [2019-12-05]
 --------------------
 + Add Django 3.0 compatibility. Effectively deprecates Py2 support.
