@@ -1,6 +1,6 @@
 from django.contrib.auth.models import Permission
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from .settings import MODEL_TREE, TREE_ITEMS_ALIASES
 
@@ -27,7 +27,7 @@ class TreeBase(models.Model):
         help_text=_('Short name to address site tree from templates.<br /><b>Note:</b> change with care.'),
         unique=True, db_index=True)
 
-    class Meta(object):
+    class Meta:
         abstract = True
         verbose_name = _('Site Tree')
         verbose_name_plural = _('Site Trees')
@@ -135,7 +135,7 @@ class TreeItemBase(models.Model):
             self.sort_order = self.id
             self.save()
 
-    class Meta(object):
+    class Meta:
         abstract = True
         verbose_name = _('Site Tree Item')
         verbose_name_plural = _('Site Tree Items')

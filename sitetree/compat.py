@@ -1,5 +1,3 @@
-from django import VERSION
-
 try:
     from django.template.base import TokenType
     TOKEN_BLOCK = TokenType.BLOCK
@@ -9,7 +7,7 @@ except ImportError:
     from django.template.base import TOKEN_BLOCK, TOKEN_TEXT, TOKEN_VAR
 
 
-class CommandOption(object):
+class CommandOption:
     """Command line option wrapper."""
 
     def __init__(self, *args, **kwargs):
@@ -25,21 +23,10 @@ def options_getter(command_options):
     """
     def get_options(option_func=None):
         from optparse import make_option
-        from django.core.management.base import BaseCommand
 
         func = option_func or make_option
-
         options = tuple([func(*option.args, **option.kwargs) for option in command_options])
 
-        if option_func is None:
-            if VERSION < (1, 8):
-                result = BaseCommand.option_list + options
-            else:
-                result = []
-
-        else:
-            result = options
-
-        return result
+        return [] if option_func is None else options
 
     return get_options

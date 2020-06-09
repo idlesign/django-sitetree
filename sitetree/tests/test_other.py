@@ -1,8 +1,3 @@
-#! -*- encoding: utf-8 -*-
-from __future__ import unicode_literals
-
-import pytest
-
 from sitetree.settings import ALIAS_TRUNK
 
 

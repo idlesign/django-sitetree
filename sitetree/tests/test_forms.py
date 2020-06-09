@@ -1,7 +1,3 @@
-#! -*- encoding: utf-8 -*-
-from __future__ import unicode_literals
-
-import pytest
 
 
 def test_form(common_tree):

@@ -1,4 +1,3 @@
-from django import VERSION
 from django import template
 from django.template.base import Parser, Token
 from django.forms import ChoiceField
@@ -55,7 +54,7 @@ class TreeItemChoiceField(ChoiceField):
         tree_token = u'sitetree_tree from "%s" template "%s"' % (self.tree, self.template)
 
         context_kwargs = {'current_app': 'admin'}
-        context = template.Context(context_kwargs) if VERSION >= (1, 8) else template.Context(**context_kwargs)
+        context = template.Context(context_kwargs)
         context.update({'request': object()})
 
         choices_str = sitetree_tree(

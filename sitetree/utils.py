@@ -5,9 +5,9 @@ from django.contrib.auth.models import Permission
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.module_loading import module_has_submodule
 
-apps_get_model = apps.get_model
+from . import settings
 
-from sitetree import settings
+apps_get_model = apps.get_model
 
 
 def generate_id_for(obj):

@@ -1,26 +1,16 @@
-from django.conf import settings as django_settings
-from django import VERSION as django_version
 from django import forms
-try:
-    from django.urls import get_urlconf, get_resolver
-except ImportError:
-    from django.core.urlresolvers import get_urlconf, get_resolver
-from django.utils.translation import ugettext_lazy as _
-from django.http import HttpResponseRedirect
-from django.contrib import admin
-from django.contrib.admin.sites import NotRegistered
-from django.contrib import messages
+from django.conf import settings as django_settings
 from django.conf.urls import url
+from django.contrib import admin
+from django.contrib import messages
+from django.contrib.admin.sites import NotRegistered
+from django.http import HttpResponseRedirect
+from django.urls import get_urlconf, get_resolver
+from django.utils.translation import gettext_lazy as _
 
-DJANGO_POST_19 = django_version >= (1, 9, 0)
-
-if not DJANGO_POST_19:
-    from django.conf.urls import patterns as patterns_func
-
-from .settings import MODEL_TREE, MODEL_TREE_ITEM
 from .fields import TreeItemChoiceField
+from .settings import MODEL_TREE, MODEL_TREE_ITEM
 from .utils import get_tree_model, get_tree_item_model, get_app_n_model
-
 
 SMUGGLER_INSTALLED = 'smuggler' in django_settings.INSTALLED_APPS
 
@@ -128,7 +118,7 @@ class TreeItemAdmin(admin.ModelAdmin):
         # Avoid a major performance hit resolving permission names which
         # triggers a content_type load:
         if db_field.name == 'access_permissions':
-            objects = db_field.remote_field.model.objects if DJANGO_POST_19 else db_field.rel.to.objects
+            objects = db_field.remote_field.model.objects
             qs = kwargs.get('queryset', objects)
             kwargs['queryset'] = qs.select_related('content_type')
 
@@ -316,15 +306,14 @@ class TreeAdmin(admin.ModelAdmin):
         self.tree_admin = _ITEM_ADMIN()(MODEL_TREE_ITEM_CLASS, admin.site)
 
     def render_change_form(self, request, context, **kwargs):
-        context['icon_ext'] = '.svg' if DJANGO_POST_19 else '.gif'
-        context['django19'] = DJANGO_POST_19
+        context['icon_ext'] = '.svg'
         return super(TreeAdmin, self).render_change_form(request, context, **kwargs)
 
     def get_urls(self):
         """Manages not only TreeAdmin URLs but also TreeItemAdmin URLs."""
         urls = super(TreeAdmin, self).get_urls()
 
-        prefix_change = 'change/' if DJANGO_POST_19 else ''
+        prefix_change = 'change/'
 
         sitetree_urls = [
             url(r'^change/$', redirects_handler, name=get_tree_item_url_name('changelist')),
@@ -347,10 +336,6 @@ class TreeAdmin(admin.ModelAdmin):
             url(r'^(?P<tree_id>\d+)/%sitem_(?P<item_id>\d+)/move_(?P<direction>(up|down))/$' % prefix_change,
                 self.admin_site.admin_view(self.tree_admin.item_move), name=get_tree_item_url_name('move')),
         ]
-
-        if not DJANGO_POST_19:
-            sitetree_urls = patterns_func('', *sitetree_urls)
-
         if SMUGGLER_INSTALLED:
             sitetree_urls += (url(r'^dump_all/$', self.admin_site.admin_view(self.dump_view), name='sitetree_dump'),)
 

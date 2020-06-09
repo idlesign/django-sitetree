@@ -1,20 +1,15 @@
-from __future__ import unicode_literals
-
 import warnings
 from collections import defaultdict
 from copy import deepcopy
-from functools import partial
 from inspect import getfullargspec
 from sys import exc_info
 from threading import local
 
-from django import VERSION
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import signals
 from django.template.base import (
-    FilterExpression, Lexer, Parser, Token, Variable, VariableDoesNotExist, UNKNOWN_SOURCE,
-    VARIABLE_TAG_START)
+    FilterExpression, Lexer, Parser, Token, Variable, VariableDoesNotExist, VARIABLE_TAG_START)
 from django.template.defaulttags import url as url_tag
 from django.template.loader import get_template
 from django.utils import module_loading
@@ -32,13 +27,6 @@ if False:  # pragma: nocover
     from django.template import Context
     from django.contrib.auth.models import User
     from .models import TreeItemBase
-
-
-if VERSION >= (1, 9, 0):
-    get_lexer = partial(Lexer)
-else:
-    get_lexer = partial(Lexer, origin=UNKNOWN_SOURCE)
-
 
 MODEL_TREE_CLASS = get_tree_model()
 MODEL_TREE_ITEM_CLASS = get_tree_item_model()
@@ -64,9 +52,6 @@ _IDX_TPL = '%s|:|%s'
 
 _THREAD_LOCAL = local()
 _THREAD_SITETREE = 'sitetree'
-
-_CONTEXT_FLATTEN = VERSION >= (1, 11)
-
 _UNSET = set()  # Sentinel
 
 
@@ -278,7 +263,7 @@ def compose_dynamic_tree(src, target_tree_alias=None, parent_tree_item_alias=Non
     return result()
 
 
-class LazyTitle(object):
+class LazyTitle:
     """Lazily resolves any variable found in a title of an item.
     Produces resolved title as unicode representation."""
 
@@ -289,7 +274,7 @@ class LazyTitle(object):
         self.title = title
 
     def __str__(self):
-        my_lexer = get_lexer(self.title)
+        my_lexer = Lexer(self.title)
         my_tokens = my_lexer.tokenize()
 
         # Deliberately strip off template tokens that are not text or variable.
@@ -304,7 +289,7 @@ class LazyTitle(object):
         return self.__str__() == other
 
 
-class Cache(object):
+class Cache:
     """Contains cache-related stuff."""
 
     def __init__(self):
@@ -379,7 +364,7 @@ class Cache(object):
         self.cache[entry_name][key] = value
 
 
-class SiteTree(object):
+class SiteTree:
     """Main logic handler."""
 
     cache_cls = Cache  # Allow customizations.
@@ -1016,7 +1001,7 @@ class SiteTree(object):
 
         context.push()
         context['sitetree_items'] = tree_items
-        rendered = my_template.render(context.flatten() if _CONTEXT_FLATTEN else context)
+        rendered = my_template.render(context.flatten())
         context.pop()
 
         return rendered

@@ -1,10 +1,6 @@
-#! -*- encoding: utf-8 -*-
-from __future__ import unicode_literals
 from json import loads
 
-
 import pytest
-
 from django.core.management.base import CommandError
 from django.core.serializers.base import DeserializationError
 

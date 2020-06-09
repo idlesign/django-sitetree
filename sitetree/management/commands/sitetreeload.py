@@ -1,7 +1,6 @@
 from collections import defaultdict
 
 import sys
-from django import VERSION
 from django.core import serializers
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
@@ -13,8 +12,6 @@ from sitetree.utils import get_tree_model, get_tree_item_model
 
 MODEL_TREE_CLASS = get_tree_model()
 MODEL_TREE_ITEM_CLASS = get_tree_item_model()
-
-VER_LESS_18 = VERSION < (1, 8)
 
 
 get_options = options_getter((
@@ -63,9 +60,6 @@ class Command(BaseCommand):
         cursor = connection.cursor()
 
         self.style = no_style()
-
-        if VER_LESS_18:
-            transaction.enter_transaction_management(using=using)
 
         loaded_object_count = 0
 
@@ -168,10 +162,6 @@ class Command(BaseCommand):
                 import traceback
                 fixture.close()
 
-                if VER_LESS_18:
-                    transaction.rollback(using=using)
-                    transaction.leave_transaction_management(using=using)
-
                 self.stderr.write(
                     self.style.ERROR('Fixture `%s` import error: %s\n' % (
                         fixture_file, ''.join(traceback.format_exception(*sys.exc_info()))
@@ -187,9 +177,5 @@ class Command(BaseCommand):
                 self.stdout.write('Resetting DB sequences ...\n')
                 for line in sequence_sql:
                     cursor.execute(line)
-
-        if VER_LESS_18:
-            transaction.commit(using=using)
-            transaction.leave_transaction_management(using=using)
 
         connection.close()

@@ -12,7 +12,6 @@ class TreeItemForm(forms.Form):
         - `tree_item`: ID of an initial tree item
 
     """
-
     choice_field_class = TreeItemChoiceField
 
     def __init__(self, *args, **kwargs):

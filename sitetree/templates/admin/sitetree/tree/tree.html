@@ -5,13 +5,8 @@
 
 <style type="text/css">
     .ctl { width: 14px; height: 12px; display: inline-block;}
-    {% if django19 %}
     .arr_up { background: url('{{ STATIC_URL }}admin/img/sorting-icons.svg') 0 -28px no-repeat; }
     .arr_dn { background: url('{{ STATIC_URL }}admin/img/sorting-icons.svg') 0px -56px no-repeat; }
-    {% else %}
-    .arr_up { background: url('{{ STATIC_URL }}admin/img/sorting-icons.gif') -5px -50px no-repeat; }
-    .arr_dn { background: url('{{ STATIC_URL }}admin/img/sorting-icons.gif') -5px -94px no-repeat; }
-    {% endif %}
 </style>
 {% for item in sitetree_items %}
 	<tr>
