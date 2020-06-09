@@ -4,6 +4,8 @@ django-sitetree changelog
 
 Unreleased
 ----------
+! Dropped support for Django<2.0.
+! Dropped support for Python 2 and 3.5.
 * Updated German translation.
 
 
