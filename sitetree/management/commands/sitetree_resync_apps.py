@@ -37,23 +37,23 @@ class Command(BaseCommand):
         tree_modules = import_project_sitetree_modules()
 
         if not tree_modules:
-            self.stdout.write('No sitetrees found in project apps (searched in %%app%%/%s.py).\n' % APP_MODULE_NAME)
+            self.stdout.write(f'No sitetrees found in project apps (searched in %app%/{APP_MODULE_NAME}.py).\n')
 
         for module in tree_modules:
             sitetrees = getattr(module, 'sitetrees', None)
             app = module.__dict__['__package__']
             if not apps or app in apps:
                 if sitetrees is not None:
-                    self.stdout.write('Sitetrees found in `%s` app ...\n' % app)
+                    self.stdout.write(f'Sitetrees found in `{app}` app ...\n')
                     for tree in sitetrees:
-                        self.stdout.write('  Processing `%s` tree ...\n' % tree.alias)
+                        self.stdout.write(f'  Processing `{tree.alias}` tree ...\n')
                         # Delete trees with the same name beforehand.
                         MODEL_TREE_CLASS.objects.filter(alias=tree.alias).using(using).delete()
                         # Drop id to let the DB handle it.
                         tree.id = None
                         tree.save(using=using)
                         for item in tree.dynamic_items:
-                            self.stdout.write('    Adding `%s` tree item ...\n' % item.title)
+                            self.stdout.write(f'    Adding `{item.title}` tree item ...\n')
                             # Drop id to let the DB handle it.
                             item.id = None
                             if item.parent is not None:
@@ -65,6 +65,7 @@ class Command(BaseCommand):
                             # has been saved
                             if hasattr(item.access_permissions, 'set'):
                                 item.access_permissions.set(item.permissions)
+
                             else:
                                 item.access_permissions = item.permissions
 

@@ -51,7 +51,7 @@ def test_import_project_sitetree_modules():
 def get_permission_and_name():
     from django.contrib.auth.models import Permission
     perm = Permission.objects.all()[0]
-    perm_name = '%s.%s' % (perm.content_type.app_label, perm.codename)
+    perm_name = f'{perm.content_type.app_label}.{perm.codename}'
     return perm, perm_name
 
 

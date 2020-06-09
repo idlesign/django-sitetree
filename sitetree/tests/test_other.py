@@ -21,8 +21,8 @@ def test_stress(template_render_tag, template_context, template_strip_tags, buil
     tree = template_strip_tags(template_render_tag('sitetree', 'sitetree_tree from "mytree"', context))
     breadcrumbs = template_strip_tags(template_render_tag('sitetree', 'sitetree_breadcrumbs from "mytree"', context))
 
-    menu = template_render_tag('sitetree', 'sitetree_menu from "mytree" include "%s"' % ALIAS_TRUNK, context)
-    menu_other = template_render_tag('sitetree', 'sitetree_menu from "othertree" include "%s"' % ALIAS_TRUNK, context)
+    menu = template_render_tag('sitetree', f'sitetree_menu from "mytree" include "{ALIAS_TRUNK}"', context)
+    menu_other = template_render_tag('sitetree', f'sitetree_menu from "othertree" include "{ALIAS_TRUNK}"', context)
 
     assert title == 'Private'
     assert title_other == 'Other title'

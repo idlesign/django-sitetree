@@ -45,7 +45,7 @@ def build_tree():
                 for permission in access_permissions:
                     item.access_permissions.add(Permission.objects.get(codename=permission))
 
-                items_map['%s' % item.url] = item
+                items_map[f'{item.url}'] = item
 
                 children and attach_items(tree, children, parent=item)
 

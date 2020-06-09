@@ -131,13 +131,14 @@ def item(
                     app, codename = perm.split('.')
                 except ValueError:
                     raise ValueError(
-                        'Wrong permission string format: supplied - `%s`; '
-                        'expected - `<app_name>.<permission_name>`.' % perm)
+                        f'Wrong permission string format: supplied - `{perm}`; '
+                        'expected - `<app_name>.<permission_name>`.')
 
                 try:
                     perm = Permission.objects.get(codename=codename, content_type__app_label=app)
+
                 except Permission.DoesNotExist:
-                    raise ValueError('Permission `%s.%s` does not exist.' % (app, codename))
+                    raise ValueError(f'Permission `{app}.{codename}` does not exist.')
 
             elif not isinstance(perm, (int, Permission)):
                 raise ValueError('Permissions must be given as strings, ints, or `Permission` instances.')
@@ -168,7 +169,7 @@ def import_app_sitetree_module(app: str) -> Optional[ModuleType]:
     module = import_module(app)
 
     try:
-        sub_module = import_module('%s.%s' % (app, module_name))
+        sub_module = import_module(f'{app}.{module_name}')
         return sub_module
 
     except ImportError:
@@ -204,7 +205,7 @@ def get_app_n_model(settings_entry_name: str) -> Tuple[str, str]:
 
     except ValueError:
         raise ImproperlyConfigured(
-            '`SITETREE_%s` must have the following format: `app_name.model_name`.' % settings_entry_name)
+            f'`SITETREE_{settings_entry_name}` must have the following format: `app_name.model_name`.')
 
     return app_name, model_name
 
@@ -225,7 +226,7 @@ def get_model_class(settings_entry_name: str):
 
     if model is None:
         raise ImproperlyConfigured(
-            '`SITETREE_%s` refers to model `%s` that has not been installed.' % (settings_entry_name, model_name))
+            f'`SITETREE_{settings_entry_name}` refers to model `{model_name}` that has not been installed.')
 
     return model
 

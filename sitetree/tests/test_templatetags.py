@@ -16,7 +16,7 @@ def test_items_hook(template_render_tag, template_context, common_tree):
 
     def my_processor(tree_items, tree_sender):
         for item in tree_items:
-            item.hint = 'hooked_hint_%s' % item.title
+            item.hint = f'hooked_hint_{item.title}'
         return tree_items
 
     register_items_hook(my_processor)
@@ -228,14 +228,14 @@ def test_sitetree_breadcrumbs(template_render_tag, template_context, common_tree
 def check_page_attr_tag(realm, value, settings, monkeypatch, template_render_tag, template_context):
 
     with pytest.raises(TemplateSyntaxError):  # Invalid tag arguments.
-        template_render_tag('sitetree', 'sitetree_page_%s' % realm)
+        template_render_tag('sitetree', f'sitetree_page_{realm}')
 
     context = template_context(request='/contacts/russia/')
-    result = template_render_tag('sitetree', 'sitetree_page_%s from "mytree"' % realm, context)
+    result = template_render_tag('sitetree', f'sitetree_page_{realm} from "mytree"', context)
 
     assert result == value
 
-    result = template_render_tag('sitetree', 'sitetree_page_%s from "mytree" as somevar' % realm, context)
+    result = template_render_tag('sitetree', f'sitetree_page_{realm} from "mytree" as somevar', context)
 
     assert result == ''
     assert context.get('somevar') == value
@@ -243,19 +243,19 @@ def check_page_attr_tag(realm, value, settings, monkeypatch, template_render_tag
     settings.DEBUG = True
 
     with pytest.raises(SiteTreeError) as e:
-        template_render_tag('sitetree', 'sitetree_page_%s from "mytree"' % realm)
+        template_render_tag('sitetree', f'sitetree_page_{realm} from "mytree"')
 
-    assert 'django.core.context_processors.request' in '%s' % e.value
+    assert 'django.core.context_processors.request' in f'{e.value}'
 
     context = template_context(request='/unknown_url/')
 
     with pytest.raises(SiteTreeError) as e:
-        template_render_tag('sitetree', 'sitetree_page_%s from "mytree"' % realm, context)
+        template_render_tag('sitetree', f'sitetree_page_{realm} from "mytree"', context)
 
-    assert 'Unable to resolve current sitetree item' in '%s' % e.value
+    assert 'Unable to resolve current sitetree item' in f'{e.value}'
 
     monkeypatch.setattr('sitetree.sitetreeapp.RAISE_ITEMS_ERRORS_ON_DEBUG', False)
-    result = template_render_tag('sitetree', 'sitetree_page_%s from "mytree"' % realm, context)
+    result = template_render_tag('sitetree', f'sitetree_page_{realm} from "mytree"', context)
 
     assert result == ''
 
@@ -295,7 +295,7 @@ def test_sitetree_url(template_render_tag, template_context, common_tree):
 def test_sitetree_menu(template_render_tag, template_context, common_tree):
 
     result = template_render_tag(
-        'sitetree', 'sitetree_menu from "notree" include "%s"' % ALIAS_TRUNK, template_context())  # non-existing tree
+        'sitetree', f'sitetree_menu from "notree" include "{ALIAS_TRUNK}"', template_context())  # non-existing tree
 
     assert result.strip() == '<ul>\n\t\n</ul>'
 
@@ -305,20 +305,20 @@ def test_sitetree_menu(template_render_tag, template_context, common_tree):
     item_ruweb = common_tree['/contacts/russia/web/']
 
     context = template_context(request='/')
-    result = template_render_tag('sitetree', 'sitetree_menu from "mytree" include "%s"' % item_ruweb.alias, context)
+    result = template_render_tag('sitetree', f'sitetree_menu from "mytree" include "{item_ruweb.alias}"', context)
 
     assert '"/contacts/russia/web/"' not in result
     assert '"/contacts/russia/web/public/"' in result
     assert '"/contacts/russia/web/private/"' in result
 
-    result = template_render_tag('sitetree', 'sitetree_menu from "mytree" include "%s"' % item_ruweb.id, context)
+    result = template_render_tag('sitetree', f'sitetree_menu from "mytree" include "{item_ruweb.id}"', context)
 
     assert '"/contacts/russia/web/"' not in result
     assert '"/contacts/russia/web/public/"' in result
     assert '"/contacts/russia/web/private/"' in result
 
     context = template_context(request='/contacts/russia/web/')
-    result = template_render_tag('sitetree', 'sitetree_menu from "mytree" include "%s"' % ALIAS_TRUNK, context)
+    result = template_render_tag('sitetree', f'sitetree_menu from "mytree" include "{ALIAS_TRUNK}"', context)
 
     assert '"/users/moderators/"' in result
     assert '"/articles/cats/ugly/"' in result
@@ -331,7 +331,7 @@ def test_sitetree_menu(template_render_tag, template_context, common_tree):
     assert 'class="current_branch">Home' in result
 
     context = template_context(request='/articles/')
-    result = template_render_tag('sitetree', 'sitetree_menu from "mytree" include "%s"' % ALIAS_THIS_CHILDREN, context)
+    result = template_render_tag('sitetree', f'sitetree_menu from "mytree" include "{ALIAS_THIS_CHILDREN}"', context)
 
     assert '"/articles/"' not in result
     assert '"/articles/cats/"' in result
@@ -340,7 +340,7 @@ def test_sitetree_menu(template_render_tag, template_context, common_tree):
 
     context = template_context(request='/articles/cats/bad/')
     result = template_render_tag(
-        'sitetree', 'sitetree_menu from "mytree" include "%s"' % ALIAS_THIS_SIBLINGS, context)
+        'sitetree', f'sitetree_menu from "mytree" include "{ALIAS_THIS_SIBLINGS}"', context)
 
     assert '"/articles/cats/"' not in result
     assert '"/articles/cats/good/"' in result
@@ -349,7 +349,7 @@ def test_sitetree_menu(template_render_tag, template_context, common_tree):
 
     context = template_context(request='/contacts/russia/web/public/')
     result = template_render_tag(
-        'sitetree', 'sitetree_menu from "mytree" include "%s"' % ALIAS_THIS_PARENT_SIBLINGS, context)
+        'sitetree', f'sitetree_menu from "mytree" include "{ALIAS_THIS_PARENT_SIBLINGS}"', context)
 
     assert '"/contacts/russia/"' not in result
     assert '"/contacts/russia/web/"' in result
@@ -358,7 +358,7 @@ def test_sitetree_menu(template_render_tag, template_context, common_tree):
 
     context = template_context(request='/contacts/russia/web/public/')
     result = template_render_tag(
-        'sitetree', 'sitetree_menu from "mytree" include "%s"' % ALIAS_THIS_ANCESTOR_CHILDREN, context)
+        'sitetree', f'sitetree_menu from "mytree" include "{ALIAS_THIS_ANCESTOR_CHILDREN}"', context)
 
     assert '"/home/"' not in result
     assert '"/contacts/russia/web/public/"' in result

@@ -12,7 +12,7 @@ def test_sitetreeload(tmpdir, capsys, command_run):
         f = tmpdir.join('somefile.json')
         f.write(treedump)
         command_kwargs = command_kwargs or {}
-        command_run('sitetreeload', ['%s' % f], command_kwargs)
+        command_run('sitetreeload', [f'{f}'], command_kwargs)
 
     treedump = (
         '['

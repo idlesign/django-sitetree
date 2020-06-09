@@ -215,7 +215,7 @@ class SimpleNode(template.Node):
             return cls(tree_alias, as_var)
 
         raise template.TemplateSyntaxError(
-            '%r tag requires at least two arguments. E.g. {%% %s %%}.' % (tokens[0], error_hint))
+            f'{tokens[0]} tag requires at least two arguments. E.g. {{% {error_hint} %}}.')
 
     @classmethod
     def get_as_var(cls, tokens):

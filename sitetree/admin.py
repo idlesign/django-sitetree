@@ -32,7 +32,7 @@ def get_model_url_name(model_nfo: Tuple[str, str], page: str, with_namespace: bo
     prefix = ''
     if with_namespace:
         prefix = 'admin:'
-    return ('%s%s_%s' % (prefix, '%s_%s' % model_nfo, page)).lower()
+    return (f'{prefix}%s_{page}' % '%s_%s' % model_nfo).lower()
 
 
 def get_tree_url_name(page: str, with_namespace: bool = False) -> str:
@@ -154,7 +154,7 @@ class TreeItemAdmin(admin.ModelAdmin):
 
         """
         if post_url_continue is None:
-            post_url_continue = '../item_%s/' % obj.pk
+            post_url_continue = f'../item_{obj.pk}/'
 
         return self._redirect(request, super().response_add(request, obj, post_url_continue))
 
@@ -205,9 +205,9 @@ class TreeItemAdmin(admin.ModelAdmin):
         for url_name, url_rules in reverse_dict.items():
             if isinstance(url_name, str):
                 if ns is not None:
-                    url_name = '%s:%s' % (ns, url_name)
+                    url_name = f'{ns}:{url_name}'
                 self.known_url_names.append(url_name)
-                self.known_url_rules.append('<b>%s</b> %s' % (url_name, ' '.join(url_rules[0][0][1])))
+                self.known_url_rules.append(f"<b>{url_name}</b> {' '.join(url_rules[0][0][1])}")
 
     def get_tree(self, request: HttpRequest, tree_id: Optional[int], item_id: Optional[int] = None) -> 'TreeBase':
         """Fetches Tree for current or given TreeItem."""
@@ -332,22 +332,22 @@ class TreeAdmin(admin.ModelAdmin):
         sitetree_urls = [
             url(r'^change/$', redirects_handler, name=get_tree_item_url_name('changelist')),
 
-            url(r'^((?P<tree_id>\d+)/)?%sitem_add/$' % prefix_change,
+            url(fr'^((?P<tree_id>\d+)/)?{prefix_change}item_add/$',
                 self.admin_site.admin_view(self.tree_admin.item_add), name=get_tree_item_url_name('add')),
 
-            url(r'^(?P<tree_id>\d+)/%sitem_(?P<item_id>\d+)/$' % prefix_change,
+            url(fr'^(?P<tree_id>\d+)/{prefix_change}item_(?P<item_id>\d+)/$',
                 self.admin_site.admin_view(self.tree_admin.item_edit), name=get_tree_item_url_name('change')),
 
-            url(r'^%sitem_(?P<item_id>\d+)/$' % prefix_change,
+            url(fr'^{prefix_change}item_(?P<item_id>\d+)/$',
                 self.admin_site.admin_view(self.tree_admin.item_edit), name=get_tree_item_url_name('change')),
 
-            url(r'^((?P<tree_id>\d+)/)?%sitem_(?P<item_id>\d+)/delete/$' % prefix_change,
+            url(fr'^((?P<tree_id>\d+)/)?{prefix_change}item_(?P<item_id>\d+)/delete/$',
                 self.admin_site.admin_view(self.tree_admin.item_delete), name=get_tree_item_url_name('delete')),
 
-            url(r'^((?P<tree_id>\d+)/)?%sitem_(?P<item_id>\d+)/history/$' % prefix_change,
+            url(fr'^((?P<tree_id>\d+)/)?{prefix_change}item_(?P<item_id>\d+)/history/$',
                 self.admin_site.admin_view(self.tree_admin.item_history), name=get_tree_item_url_name('history')),
 
-            url(r'^(?P<tree_id>\d+)/%sitem_(?P<item_id>\d+)/move_(?P<direction>(up|down))/$' % prefix_change,
+            url(fr'^(?P<tree_id>\d+)/{prefix_change}item_(?P<item_id>\d+)/move_(?P<direction>(up|down))/$',
                 self.admin_site.admin_view(self.tree_admin.item_move), name=get_tree_item_url_name('move')),
         ]
         if SMUGGLER_INSTALLED:

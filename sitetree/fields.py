@@ -63,7 +63,7 @@ class TreeItemChoiceField(ChoiceField):
 
     def _build_choices(self):
         """Build choices list runtime using 'sitetree_tree' tag"""
-        tree_token = 'sitetree_tree from "%s" template "%s"' % (self.tree, self.template)
+        tree_token = f'sitetree_tree from "{self.tree}" template "{self.template}"'
 
         context_kwargs = {'current_app': 'admin'}
         context = template.Context(context_kwargs)

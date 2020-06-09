@@ -101,7 +101,7 @@ def register_items_hook(func: Callable):
             if tree_sender == 'menu.children':
                 # Lets add 'Hooked: ' to resolved titles of every item.
                 for item in tree_items:
-                    item.title_resolved = 'Hooked: %s' % item.title_resolved
+                    item.title_resolved = f'Hooked: {item.title_resolved}'
             # Return items list mutated or not.
             return tree_items
 
@@ -267,7 +267,7 @@ def compose_dynamic_tree(
 
         except ImportError as e:
             if settings.DEBUG:
-                warnings.warn('Unable to register dynamic sitetree(s) for `%s` application: %s. ' % (src, e))
+                warnings.warn(f'Unable to register dynamic sitetree(s) for `{src}` application: {e}. ')
             return {}
 
     return result(src)
@@ -413,7 +413,7 @@ class SiteTree:
             return alias
 
         current_language_code = self.current_lang
-        i18n_tree_alias = '%s_%s' % (alias, current_language_code)
+        i18n_tree_alias = f'{alias}_{current_language_code}'
         trees_count = self.cache.get_entry('tree_aliases', i18n_tree_alias)
 
         if trees_count is False:
@@ -575,7 +575,7 @@ class SiteTree:
                         else item.access_permissions.all())
 
                     item.perms = set(
-                        ['%s.%s' % (perm.content_type.app_label, perm.codename) for perm in permissions_src])
+                        [f'{perm.content_type.app_label}.{perm.codename}' for perm in permissions_src])
 
             # Contextual properties.
             item.url_resolved = url(item)
@@ -694,18 +694,18 @@ class SiteTree:
                 for view_argument in view_path[1:]:
                     resolved = resolve_var(view_argument)
                     # We enclose arg in double quotes as already resolved.
-                    all_arguments.append('"%s"' % resolved)
+                    all_arguments.append(f'"{resolved}"')
 
                 view_path = view_path[0].strip('"\' ')
 
-            url_pattern = "'%s' %s" % (view_path, ' '.join(all_arguments))
+            url_pattern = f"'{view_path}' {' '.join(all_arguments)}"
 
         else:
-            url_pattern = '%s' % sitetree_item.url
+            url_pattern = f'{sitetree_item.url}'
 
         if sitetree_item.urlaspattern:
             # Form token to pass to Django 'url' tag.
-            url_token = 'url %s as item.url_resolved' % url_pattern
+            url_token = f'url {url_pattern} as item.url_resolved'
             url_tag(
                 Parser(None),
                 Token(token_type=TOKEN_BLOCK, contents=url_token)
@@ -784,8 +784,8 @@ class SiteTree:
         if current_item is None:
             if settings.DEBUG and RAISE_ITEMS_ERRORS_ON_DEBUG:
                 raise SiteTreeError(
-                    'Unable to resolve current sitetree item to get a `%s` for current page. Check whether '
-                    'there is an appropriate sitetree item defined for current URL.' % attr_name)
+                    f'Unable to resolve current sitetree item to get a `{attr_name}` for current page. Check whether '
+                    'there is an appropriate sitetree item defined for current URL.')
 
             return ''
 
@@ -1022,7 +1022,7 @@ class SiteTree:
 
         tree_items = self.get_children(tree_alias, parent_item)
         tree_items = self.filter_items(tree_items, navigation_type)
-        tree_items = self.apply_hook(tree_items, '%s.children' % navigation_type)
+        tree_items = self.apply_hook(tree_items, f'{navigation_type}.children')
         self.update_has_children(tree_alias, tree_items, navigation_type)
 
         my_template = get_template(use_template)
@@ -1062,7 +1062,7 @@ class SiteTree:
         for tree_item in tree_items:
             children = get_children(tree_alias, tree_item)
             children = filter_items(children, navigation_type)
-            children = apply_hook(children, '%s.has_children' % navigation_type)
+            children = apply_hook(children, f'{navigation_type}.has_children')
             tree_item.has_children = len(children) > 0
 
     def filter_items(self, items: List['TreeItemBase'], navigation_type: str = None) -> List['TreeItemBase']:
@@ -1089,7 +1089,7 @@ class SiteTree:
             if not check_access(item, context):
                 continue
 
-            if not getattr(item, 'in%s' % navigation_type, True):  # Hidden for current nav type
+            if not getattr(item, f'in{navigation_type}', True):  # Hidden for current nav type
                 continue
 
             items_filtered.append(item)

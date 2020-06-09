@@ -51,8 +51,8 @@ class Command(BaseCommand):
             try:
                 items_into_tree = MODEL_TREE_CLASS.objects.get(alias=items_into_tree)
             except ObjectDoesNotExist:
-                raise CommandError('Target tree alised by `%s` does not exist. Please create it before import.' %
-                                   items_into_tree)
+                raise CommandError(
+                    f'Target tree aliased `{items_into_tree}` does not exist. Please create it before import.')
             else:
                 mode = 'append'
 
@@ -69,7 +69,7 @@ class Command(BaseCommand):
 
         for fixture_file in fixture_files:
 
-            self.stdout.write('Loading fixture from `%s` ...\n' % fixture_file)
+            self.stdout.write(f'Loading fixture from `{fixture_file}` ...\n')
 
             fixture = open(fixture_file, 'r')
 
@@ -107,7 +107,7 @@ class Command(BaseCommand):
 
                 for tree in trees:
 
-                    self.stdout.write('\nImporting tree `%s` ...\n' % tree.alias)
+                    self.stdout.write(f'\nImporting tree `{tree.alias}` ...\n')
                     orig_tree_id = tree.id
 
                     if items_into_tree is None:
@@ -125,7 +125,7 @@ class Command(BaseCommand):
 
                     for tree_item in tree_items[orig_tree_id]:
                         parent_ahead = False
-                        self.stdout.write('Importing item `%s` ...\n' % tree_item.title)
+                        self.stdout.write(f'Importing item `{tree_item.title}` ...\n')
                         tree_item.tree_id = tree.id
                         orig_item_id = tree_item.id
 
@@ -163,9 +163,9 @@ class Command(BaseCommand):
                 fixture.close()
 
                 self.stderr.write(
-                    self.style.ERROR('Fixture `%s` import error: %s\n' % (
-                        fixture_file, ''.join(traceback.format_exception(*sys.exc_info()))
-                    ))
+                    self.style.ERROR(
+                        f"Fixture `{fixture_file}` import error: "
+                        f"{''.join(traceback.format_exception(*sys.exc_info()))}\n")
                 )
 
             fixture.close()
