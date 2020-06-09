@@ -1,4 +1,6 @@
 from importlib import import_module
+from types import ModuleType
+from typing import Any, Sequence, Type, Union, List, Optional, Tuple
 
 from django.apps import apps
 from django.contrib.auth.models import Permission
@@ -7,23 +9,28 @@ from django.utils.module_loading import module_has_submodule
 
 from . import settings
 
+if False:  # pragma: nocover
+    from .models import TreeItemBase, TreeBase  # noqa
+
+
+TypePermission = Union[str, int, Permission]
+
 apps_get_model = apps.get_model
 
 
-def generate_id_for(obj):
+def generate_id_for(obj: Any):
     """Generates and returns a unique identifier for the given object."""
     return id(obj)
 
 
-def tree(alias, title='', items=None, **kwargs):
+def tree(alias: str, title: str = '', items: Sequence['TreeItemBase'] = None, **kwargs) -> 'TreeBase':
     """Dynamically creates and returns a sitetree.
 
-    :param str|unicode alias:
-    :param str|unicode title:
-    :param iterable items: dynamic sitetree items objects created by `item` function.
+    :param alias:
+    :param title:
+    :param items: dynamic sitetree items objects created by `item` function.
     :param kwargs: Additional arguments to pass to tree item initializer.
 
-    :rtype: TreeBase
     """
     tree_obj = get_tree_model()(alias=alias, title=title, **kwargs)
     tree_obj.id = generate_id_for(tree_obj)
@@ -31,6 +38,7 @@ def tree(alias, title='', items=None, **kwargs):
 
     if items is not None:
         tree_obj.dynamic_items = []
+
         def traverse(items):
             for item in items:
                 item.tree = tree_obj
@@ -39,41 +47,54 @@ def tree(alias, title='', items=None, **kwargs):
                     traverse(item.dynamic_children)
 
         traverse(items)
+
     return tree_obj
 
 
 def item(
-    title, url, children=None, url_as_pattern=True, hint='', alias='', description='',
-    in_menu=True, in_breadcrumbs=True, in_sitetree=True,
-    access_loggedin=False, access_guest=False,
-    access_by_perms=None, perms_mode_all=True, **kwargs):
+        title: str,
+        url: str,
+        children: Sequence['TreeItemBase'] = None,
+        url_as_pattern: bool = True,
+        hint: str = '',
+        alias: str = '',
+        description: str = '',
+        in_menu: bool = True,
+        in_breadcrumbs: bool = True,
+        in_sitetree: bool = True,
+        access_loggedin: bool = False,
+        access_guest: bool = False,
+        access_by_perms: Union[TypePermission, List[TypePermission]] = None,
+        perms_mode_all: bool = True,
+        **kwargs
+) -> 'TreeItemBase':
     """Dynamically creates and returns a sitetree item object.
 
-    :param str|unicode title:
+    :param title:
 
-    :param str|unicode url:
+    :param url:
 
-    :param list, set children: a list of children for tree item. Children should also be created by `item` function.
+    :param children: children for tree item. Children should also be created by `item` function.
 
-    :param bool url_as_pattern: consider URL as a name of a named URL
+    :param url_as_pattern: consider URL as a name of a named URL
 
-    :param str|unicode hint: hints are usually shown to users
+    :param hint: hints are usually shown to users
 
-    :param str|unicode alias: item name to address it from templates
+    :param alias: item name to address it from templates
 
-    :param str|unicode description: additional information on item (usually is not shown to users)
+    :param description: additional information on item (usually is not shown to users)
 
-    :param bool in_menu: show this item in menus
+    :param in_menu: show this item in menus
 
-    :param bool in_breadcrumbs: show this item in breadcrumbs
+    :param in_breadcrumbs: show this item in breadcrumbs
 
-    :param bool in_sitetree: show this item in sitetrees
+    :param in_sitetree: show this item in sitetrees
 
-    :param bool access_loggedin: show item to logged in users only
+    :param access_loggedin: show item to logged in users only
 
-    :param bool access_guest: show item to guest users only
+    :param access_guest: show item to guest users only
 
-    :param list|str||unicode|int, Permission access_by_perms: restrict access to users with these permissions.
+    :param access_by_perms: restrict access to users with these permissions.
 
         This can be set to one or a list of permission names, IDs or Permission instances.
 
@@ -81,11 +102,9 @@ def item(
             my_app.allow_save
 
 
-    :param bool perms_mode_all: permissions set interpretation rule:
+    :param perms_mode_all: permissions set interpretation rule:
                 True - user should have all the permissions;
                 False - user should have any of chosen permissions.
-
-    :rtype: TreeItemBase
 
     """
     item_obj = get_tree_item_model()(
@@ -139,62 +158,68 @@ def item(
     return item_obj
 
 
-def import_app_sitetree_module(app):
+def import_app_sitetree_module(app: str) -> Optional[ModuleType]:
     """Imports sitetree module from a given app.
 
-    :param str|unicode app: Application name
-    :return: module|None
+    :param app: Application name
+
     """
     module_name = settings.APP_MODULE_NAME
     module = import_module(app)
+
     try:
         sub_module = import_module('%s.%s' % (app, module_name))
         return sub_module
+
     except ImportError:
         if module_has_submodule(module, module_name):
             raise
         return None
 
 
-def import_project_sitetree_modules():
+def import_project_sitetree_modules() -> List[ModuleType]:
     """Imports sitetrees modules from packages (apps).
     Returns a list of submodules.
 
-    :rtype: list
     """
     from django.conf import settings as django_settings
+
     submodules = []
     for app in django_settings.INSTALLED_APPS:
         module = import_app_sitetree_module(app)
         if module is not None:
             submodules.append(module)
+
     return submodules
 
 
-def get_app_n_model(settings_entry_name):
+def get_app_n_model(settings_entry_name: str) -> Tuple[str, str]:
     """Returns tuple with application and tree[item] model class names.
 
-    :param str|unicode settings_entry_name:
-    :rtype: tuple
+    :param settings_entry_name:
+
     """
     try:
         app_name, model_name = getattr(settings, settings_entry_name).split('.')
+
     except ValueError:
         raise ImproperlyConfigured(
             '`SITETREE_%s` must have the following format: `app_name.model_name`.' % settings_entry_name)
+
     return app_name, model_name
 
 
-def get_model_class(settings_entry_name):
+def get_model_class(settings_entry_name: str):
     """Returns a certain sitetree model as defined in the project settings.
 
-    :param str|unicode settings_entry_name:
-    :rtype: TreeItemBase|TreeBase
+    :param settings_entry_name:
+
     """
     app_name, model_name = get_app_n_model(settings_entry_name)
 
     try:
         model = apps_get_model(app_name, model_name)
+
     except (LookupError, ValueError):
         model = None
 
@@ -205,17 +230,11 @@ def get_model_class(settings_entry_name):
     return model
 
 
-def get_tree_model():
-    """Returns the Tree model, set for the project.
-
-    :rtype: TreeBase
-    """
+def get_tree_model() -> Type['TreeBase']:
+    """Returns the Tree model, set for the project."""
     return get_model_class('MODEL_TREE')
 
 
-def get_tree_item_model():
-    """Returns the TreeItem model, set for the project.
-
-    :rtype: TreeItemBase
-    """
+def get_tree_item_model() -> Type['TreeItemBase']:
+    """Returns the TreeItem model, set for the project."""
     return get_model_class('MODEL_TREE_ITEM')

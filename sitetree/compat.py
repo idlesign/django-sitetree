@@ -1,3 +1,5 @@
+from typing import Callable
+
 try:
     from django.template.base import TokenType
     TOKEN_BLOCK = TokenType.BLOCK
@@ -21,7 +23,7 @@ def options_getter(command_options):
     :param tuple command_options: tuple with `CommandOption` objects.
 
     """
-    def get_options(option_func=None):
+    def get_options(option_func: Callable = None):
         from optparse import make_option
 
         func = option_func or make_option

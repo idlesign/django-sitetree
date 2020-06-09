@@ -4,12 +4,13 @@ from copy import deepcopy
 from inspect import getfullargspec
 from sys import exc_info
 from threading import local
+from typing import Callable, List, Optional, Dict, Union, Sequence, Any, Tuple
 
 from django.conf import settings
 from django.core.cache import cache
-from django.db.models import signals
+from django.db.models import signals, QuerySet
 from django.template.base import (
-    FilterExpression, Lexer, Parser, Token, Variable, VariableDoesNotExist, VARIABLE_TAG_START)
+    FilterExpression, Lexer, Parser, Token, Variable, VariableDoesNotExist, VARIABLE_TAG_START, Context)
 from django.template.defaulttags import url as url_tag
 from django.template.loader import get_template
 from django.utils import module_loading
@@ -24,42 +25,42 @@ from .settings import (
 from .utils import get_tree_model, get_tree_item_model, import_app_sitetree_module, generate_id_for
 
 if False:  # pragma: nocover
-    from django.template import Context
-    from django.contrib.auth.models import User
-    from .models import TreeItemBase
+    from django.contrib.auth.models import User  # noqa
+    from .models import TreeItemBase, TreeBase
+
+TypeDynamicTrees = Dict[str, Union[Dict[str, List['TreeBase']], List['TreeBase']]]
 
 MODEL_TREE_CLASS = get_tree_model()
 MODEL_TREE_ITEM_CLASS = get_tree_item_model()
 
 
-_ITEMS_PROCESSOR = None
+_ITEMS_PROCESSOR: Optional[Callable] = None
 """Stores tree items processor callable or None."""
 
-_ITEMS_PROCESSOR_ARGS_LEN = 0
+_ITEMS_PROCESSOR_ARGS_LEN: int = 0
 """Number of arguments accepted by items processor."""
 
-_I18N_TREES = []
+_I18N_TREES: List[str] = []
 """Stores aliases of trees supporting internationalization."""
 
-_DYNAMIC_TREES = {}
+_DYNAMIC_TREES: TypeDynamicTrees = {}
 """Holds trees dynamically loaded from project apps."""
 
-_IDX_ORPHAN_TREES = 'orphans'
+_IDX_ORPHAN_TREES: str = 'orphans'
 """Dictionary index in `_DYNAMIC_TREES` for orphaned trees list."""
 
-_IDX_TPL = '%s|:|%s'
+_IDX_TPL: str = '%s|:|%s'
 """Name template used as dictionary index in `_DYNAMIC_TREES`."""
 
 _THREAD_LOCAL = local()
-_THREAD_SITETREE = 'sitetree'
+_THREAD_SITETREE: str = 'sitetree'
 _UNSET = set()  # Sentinel
 
 
-def get_sitetree():
+def get_sitetree() -> 'SiteTree':
     """Returns SiteTree (thread-singleton) object, implementing utility methods.
     This can return the built-in or a customized (see SITETREE_CLS setting) sitetree handler.
 
-    :rtype: SiteTree
     """
     sitetree = getattr(_THREAD_LOCAL, _THREAD_SITETREE, None)
 
@@ -70,7 +71,7 @@ def get_sitetree():
     return sitetree
 
 
-def register_items_hook(func):
+def register_items_hook(func: Callable):
     """Registers a hook callable to process tree items right before they are passed to templates.
 
     .. deprecated:: 1.13.0
@@ -126,7 +127,7 @@ def register_items_hook(func):
         _ITEMS_PROCESSOR_ARGS_LEN = args_len
 
 
-def register_i18n_trees(aliases):
+def register_i18n_trees(aliases: List[str]):
     """Registers aliases of internationalized sitetrees.
     Internationalized sitetrees are those, which are dubbed by other trees having
     locale identifying suffixes in their aliases.
@@ -150,12 +151,17 @@ def register_i18n_trees(aliases):
         register_i18n_trees(['my_tree', 'my_another_tree'])
 
     :param aliases:
+
     """
     global _I18N_TREES
     _I18N_TREES = aliases
 
 
-def register_dynamic_trees(trees, *args, **kwargs):
+def register_dynamic_trees(
+        trees: Union[List['TreeBase'], Dict[str, List['TreeBase']]],
+        *args,
+        **kwargs
+):
     """Registers dynamic trees to be available for `sitetree` runtime.
     Expects `trees` to be an iterable with structures created with `compose_dynamic_tree()`.
 
@@ -218,28 +224,32 @@ def register_dynamic_trees(trees, *args, **kwargs):
         cache_.reset()
 
 
-def get_dynamic_trees():
+def get_dynamic_trees() -> TypeDynamicTrees:
     """Returns a dictionary with currently registered dynamic trees."""
     return _DYNAMIC_TREES
 
 
-def compose_dynamic_tree(src, target_tree_alias=None, parent_tree_item_alias=None, include_trees=None):
+def compose_dynamic_tree(
+        src: Union[str, Sequence['TreeBase'], Sequence['TreeItemBase']],
+        target_tree_alias: str = None,
+        parent_tree_item_alias: str = None,
+        include_trees: List[str] = None
+) -> dict:
     """Returns a structure describing a dynamic sitetree.utils
     The structure can be built from various sources,
 
-    :param str|iterable src: If a string is passed to `src`, it'll be treated as the name of an app,
+    :param src: If a string is passed to `src`, it'll be treated as the name of an app,
         from where one want to import sitetrees definitions. `src` can be an iterable
         of tree definitions (see `sitetree.toolbox.tree()` and `item()` functions).
 
-    :param str|unicode target_tree_alias: Static tree alias to attach items from dynamic trees to.
+    :param target_tree_alias: Static tree alias to attach items from dynamic trees to.
 
-    :param str|unicode parent_tree_item_alias: Tree item alias from a static tree to attach items from dynamic trees to.
+    :param parent_tree_item_alias: Tree item alias from a static tree to attach items from dynamic trees to.
 
-    :param list include_trees: Sitetree aliases to filter `src`.
+    :param include_trees: Sitetree aliases to filter `src`.
 
-    :rtype: dict
     """
-    def result(sitetrees=src):
+    def result(sitetrees):
         if include_trees is not None:
             sitetrees = [tree for tree in sitetrees if tree.alias in include_trees]
 
@@ -258,19 +268,19 @@ def compose_dynamic_tree(src, target_tree_alias=None, parent_tree_item_alias=Non
         except ImportError as e:
             if settings.DEBUG:
                 warnings.warn('Unable to register dynamic sitetree(s) for `%s` application: %s. ' % (src, e))
-            return None
+            return {}
 
-    return result()
+    return result(src)
 
 
 class LazyTitle:
     """Lazily resolves any variable found in a title of an item.
-    Produces resolved title as unicode representation."""
+    Produces resolved title as unicode representation.
 
-    def __init__(self, title):
-        """
-        :param str|unicode title:
-        """
+    """
+    __slots__ = ['title']
+
+    def __init__(self, title: str):
         self.title = title
 
     def __str__(self):
@@ -293,7 +303,7 @@ class Cache:
     """Contains cache-related stuff."""
 
     def __init__(self):
-        self.cache = None
+        self.cache: dict = {}
 
         cache_empty = self.empty
         # Listen for signals from the models.
@@ -302,6 +312,7 @@ class Cache:
         signals.post_delete.connect(cache_empty, sender=MODEL_TREE_ITEM_CLASS)
         # Listen to the changes in item permissions table.
         signals.m2m_changed.connect(cache_empty, sender=MODEL_TREE_ITEM_CLASS.access_permissions)
+
         self.init()
 
     @classmethod
@@ -333,33 +344,35 @@ class Cache:
 
         kwargs.get('init', True) and self.init()
 
-    def get_entry(self, entry_name, key):
+    def get_entry(self, entry_name: str, key) -> Any:
         """Returns cache entry parameter value by its name.
 
-        :param str|unicode entry_name:
+        :param entry_name:
         :param key:
-        :return:
+
         """
         return self.cache[entry_name].get(key, False)
 
-    def update_entry_value(self, entry_name, key, value):
+    def update_entry_value(self, entry_name: str, key: str, value: Any):
         """Updates cache entry parameter with new data.
 
-        :param str|unicode entry_name:
+        :param entry_name:
         :param key:
         :param value:
+
         """
         if key not in self.cache[entry_name]:
             self.cache[entry_name][key] = {}
 
         self.cache[entry_name][key].update(value)
 
-    def set_entry(self, entry_name, key, value):
+    def set_entry(self, entry_name: str, key: str, value: Any):
         """Replaces entire cache entry parameter data by its name with new data.
 
-        :param str|unicode entry_name:
+        :param entry_name:
         :param key:
         :param value:
+
         """
         self.cache[entry_name][key] = value
 
@@ -372,10 +385,11 @@ class SiteTree:
     def __init__(self):
         self.init(context=None)
 
-    def init(self, context):
+    def init(self, context: Optional[Context]):
         """Initializes sitetree to handle new request.
 
-        :param Context|None context:
+        :param context:
+
         """
         self.cache = self.cache_cls()
         self.current_page_context = context
@@ -387,13 +401,13 @@ class SiteTree:
         self._items_urls = {}  # Resolved urls are cache for a request.
         self._current_items = {}
 
-    def resolve_tree_i18n_alias(self, alias):
+    def resolve_tree_i18n_alias(self, alias: str) -> str:
         """Resolves internationalized tree alias.
         Verifies whether a separate sitetree is available for currently active language.
         If so, returns i18n alias. If not, returns the initial alias.
 
-        :param str|unicode alias:
-        :rtype: str|unicode
+        :param alias:
+
         """
         if alias not in _I18N_TREES:
             return alias
@@ -412,16 +426,19 @@ class SiteTree:
         return alias
 
     @staticmethod
-    def attach_dynamic_tree_items(tree_alias, src_tree_items):
+    def attach_dynamic_tree_items(
+            tree_alias: str,
+            src_tree_items: Union[Sequence['TreeItemBase'], QuerySet]
+    ) -> List['TreeItemBase']:
         """Attaches dynamic sitetrees items registered with `register_dynamic_trees()`
         to an initial (source) items list.
 
-        :param str|unicode tree_alias:
-        :param list src_tree_items:
-        :rtype: list
+        :param tree_alias:
+        :param src_tree_items:
+
         """
         if not _DYNAMIC_TREES:
-            return src_tree_items
+            return list(src_tree_items)
 
         # This guarantees that a dynamic source stays intact,
         # no matter how dynamic sitetrees are attached.
@@ -448,7 +465,8 @@ class SiteTree:
 
                 for tree in trees[idx]:
                     tree.alias = tree_alias
-                    for dyn_item in tree.dynamic_items:
+
+                    for dyn_item in tree.dynamic_items:  # noqa dynamic attr
                         if dyn_item.parent is None:
                             dyn_item.parent = static_item
                         # Unique IDs are required for the same trees attached
@@ -462,16 +480,15 @@ class SiteTree:
                 trees = deepcopy(_DYNAMIC_TREES)
                 for tree in trees[idx]:
                     tree.alias = tree_alias
-                    items.extend(tree.dynamic_items)
+                    items.extend(tree.dynamic_items)  # noqa dynamic attr
 
         return items
 
-    def current_app_is_admin(self):
-        """Returns boolean whether current application is Admin contrib.
+    def current_app_is_admin(self) -> bool:
+        """Returns boolean whether current application is Admin contrib."""
 
-        :rtype: bool
-        """
         is_admin = self._current_app_is_admin
+
         if is_admin is None:
             context = self.current_page_context
 
@@ -489,13 +506,13 @@ class SiteTree:
 
         return is_admin
 
-    def get_sitetree(self, alias):
+    def get_sitetree(self, alias: str) -> Tuple[str, List['TreeItemBase']]:
         """Gets site tree items from the given site tree.
         Caches result to dictionary.
         Returns (tree alias, tree items) tuple.
 
-        :param str|unicode alias:
-        :rtype: tuple
+        :param alias:
+
         """
         cache_ = self.cache
         get_cache_entry = cache_.get_entry
@@ -575,39 +592,40 @@ class SiteTree:
 
         return alias, sitetree
 
-    def calculate_item_depth(self, tree_alias, item_id, depth=0):
+    def calculate_item_depth(self, tree_alias: str, item_id: int, depth: int = 0):
         """Calculates depth of the item in the tree.
 
-        :param str|unicode tree_alias:
-        :param int item_id:
-        :param int depth:
-        :rtype: int
+        :param tree_alias:
+        :param item_id:
+        :param depth:
+
         """
         item = self.get_item_by_id(tree_alias, item_id)
 
         if hasattr(item, 'depth'):
             depth = item.depth + depth
+
         else:
             if item.parent is not None:
                 depth = self.calculate_item_depth(tree_alias, item.parent.id, depth + 1)
 
         return depth
 
-    def get_item_by_id(self, tree_alias, item_id):
+    def get_item_by_id(self, tree_alias: str, item_id: int) -> 'TreeItemBase':
         """Get the item from the tree by its ID.
 
-        :param str|unicode tree_alias:
-        :param int item_id:
-        :rtype: TreeItemBase
+        :param tree_alias:
+        :param item_id:
+
         """
         return self.cache.get_entry('items_by_ids', tree_alias)[item_id]
 
-    def get_tree_current_item(self, tree_alias):
+    def get_tree_current_item(self, tree_alias: str) -> Optional['TreeItemBase']:
         """Resolves current tree item of 'tree_alias' tree matching current
         request path against URL of given tree item.
 
-        :param str|unicode tree_alias:
-        :rtype: TreeItemBase
+        :param tree_alias:
+
         """
         current_item = self._current_items.get(tree_alias, _UNSET)
 
@@ -616,7 +634,7 @@ class SiteTree:
             if current_item is not None:
                 current_item.is_current = True  # Could be reset by .get_sitetree()
 
-            return current_item
+            return current_item  # noqa
 
         current_item = None
 
@@ -645,15 +663,14 @@ class SiteTree:
 
         return current_item
 
-    def url(self, sitetree_item, context=None):
+    def url(self, sitetree_item: Union['TreeItemBase', FilterExpression], context: Context = None) -> str:
         """Resolves item's URL.
 
-        :param TreeItemBase sitetree_item: TreeItemBase heir object, 'url' property of which
+        :param sitetree_item: TreeItemBase heir object, 'url' property of which
             is processed as URL pattern or simple URL.
 
-        :param Context context:
+        :param context:
 
-        :rtype: str|unicode
         """
         context = context or self.current_page_context
         resolve_var = self.resolve_var
@@ -703,16 +720,20 @@ class SiteTree:
 
         return resolved_url
 
-    def init_tree(self, tree_alias, context):
+    def init_tree(
+            self,
+            tree_alias: str,
+            context: Context
+    ) -> Tuple[Optional[str], Optional[List['TreeItemBase']]]:
         """Initializes sitetree in memory.
 
         Returns tuple with resolved tree alias and items on success.
 
         On fail returns (None, None).
 
-        :param str|unicode tree_alias:
-        :param Context context:
-        :rtype: tuple
+        :param tree_alias:
+        :param context:
+
         """
         request = context.get('request', None)
 
@@ -740,22 +761,22 @@ class SiteTree:
 
         return tree_alias, sitetree_items
 
-    def get_current_page_title(self, tree_alias, context):
+    def get_current_page_title(self, tree_alias: str, context: Context) -> str:
         """Returns resolved from sitetree title for current page.
 
-        :param str|unicode tree_alias:
-        :param Context context:
-        :rtype: str|unicode
+        :param tree_alias:
+        :param context:
+
         """
         return self.get_current_page_attr('title_resolved', tree_alias, context)
 
-    def get_current_page_attr(self, attr_name, tree_alias, context):
+    def get_current_page_attr(self, attr_name: str, tree_alias: str, context: Context) -> str:
         """Returns an arbitrary attribute of a sitetree item resolved as current for current page.
 
-        :param str|unicode attr_name:
-        :param str|unicode tree_alias:
-        :param Context context:
-        :rtype: str|unicode
+        :param attr_name:
+        :param tree_alias:
+        :param context:
+
         """
         tree_alias, sitetree_items = self.init_tree(tree_alias, context)
         current_item = self.get_tree_current_item(tree_alias)
@@ -770,12 +791,12 @@ class SiteTree:
 
         return getattr(current_item, attr_name, '')
 
-    def get_ancestor_level(self, current_item, depth=1):
+    def get_ancestor_level(self, current_item: 'TreeItemBase', depth: int = 1) -> 'TreeItemBase':
         """Returns ancestor of level `deep` recursively
 
-        :param TreeItemBase current_item:
-        :param int depth:
-        :rtype: TreeItemBase
+        :param current_item:
+        :param depth:
+
         """
         if current_item.parent is None:
             return current_item
@@ -785,18 +806,18 @@ class SiteTree:
 
         return self.get_ancestor_level(current_item.parent, depth=depth-1)
 
-    def menu(self, tree_alias, tree_branches, context):
+    def menu(self, tree_alias: str, tree_branches: str, context: Context) -> List['TreeItemBase']:
         """Builds and returns menu structure for 'sitetree_menu' tag.
 
-        :param str|unicode tree_alias:
-        :param str|unicode tree_branches:
-        :param Context context:
-        :rtype: list|str
+        :param tree_alias:
+        :param tree_branches:
+        :param context:
+
         """
         tree_alias, sitetree_items = self.init_tree(tree_alias, context)
 
         if not sitetree_items:
-            return ''
+            return []
 
         tree_branches = self.resolve_var(tree_branches)
 
@@ -850,9 +871,10 @@ class SiteTree:
 
         menu_items = self.apply_hook(menu_items, 'menu')
         self.update_has_children(tree_alias, menu_items, 'menu')
+
         return menu_items
 
-    def apply_hook(self, items, sender):
+    def apply_hook(self, items: List['TreeItemBase'], sender: str) -> List['TreeItemBase']:
         """Applies a custom items processing hook to items supplied, and returns processed list.
         Suitable for items filtering and other manipulations.
 
@@ -860,9 +882,9 @@ class SiteTree:
 
         .. note:: Use `SITETREE_CLS` setting customization and override this method.
 
-        :param list items:
-        :param str|unicode sender: menu, breadcrumbs, sitetree, {type}.children, {type}.has_children
-        :rtype: list
+        :param items:
+        :param sender: menu, breadcrumbs, sitetree, {type}.children, {type}.has_children
+
         """
         processor = _ITEMS_PROCESSOR
 
@@ -874,12 +896,12 @@ class SiteTree:
 
         return processor(tree_items=items, tree_sender=sender, context=self.current_page_context)
 
-    def check_access(self, item, context):
+    def check_access(self, item: 'TreeItemBase', context: Context) -> bool:
         """Checks whether a current user has an access to a certain item.
 
-        :param TreeItemBase item:
-        :param Context context:
-        :rtype: bool
+        :param item:
+        :param context:
+
         """
         if hasattr(self.current_request.user.is_authenticated, '__call__'):
             authenticated = self.current_request.user.is_authenticated()
@@ -900,34 +922,34 @@ class SiteTree:
                 self._current_user_permissions = user_perms
 
             if item.access_perm_type == MODEL_TREE_ITEM_CLASS.PERM_TYPE_ALL:
-                if len(item.perms) != len(item.perms.intersection(user_perms)):
+                if len(item.perms) != len(item.perms.intersection(user_perms)):  # noqa dynamic attr
                     return False
             else:
-                if not len(item.perms.intersection(user_perms)):
+                if not len(item.perms.intersection(user_perms)):  # noqa dynamic attr
                     return False
 
         return True
 
-    def get_permissions(self, user, item):
+    def get_permissions(self, user: 'User', item: 'TreeItemBase') -> set:
         """Returns a set of user and group level permissions for a given user.
 
-        :param User user:
-        :param TreeItemBase item:
-        :rtype: set
+        :param user:
+        :param item:
+
         """
         return user.get_all_permissions()
 
-    def breadcrumbs(self, tree_alias, context):
+    def breadcrumbs(self, tree_alias: str, context: Context) -> List['TreeItemBase']:
         """Builds and returns breadcrumb trail structure for 'sitetree_breadcrumbs' tag.
 
-        :param str|unicode tree_alias:
-        :param Context context:
-        :rtype: list|str
+        :param tree_alias:
+        :param context:
+
         """
         tree_alias, sitetree_items = self.init_tree(tree_alias, context)
 
         if not sitetree_items:
-            return ''
+            return []
 
         current_item = self.get_tree_current_item(tree_alias)
 
@@ -958,17 +980,17 @@ class SiteTree:
 
         return items
 
-    def tree(self, tree_alias, context):
+    def tree(self, tree_alias: str, context:  Context) -> List['TreeItemBase']:
         """Builds and returns tree structure for 'sitetree_tree' tag.
 
-        :param str|unicode tree_alias:
-        :param Context context:
-        :rtype: list|str
+        :param tree_alias:
+        :param context:
+
         """
         tree_alias, sitetree_items = self.init_tree(tree_alias, context)
 
         if not sitetree_items:
-            return ''
+            return []
 
         tree_items = self.filter_items(self.get_children(tree_alias, None), 'sitetree')
         tree_items = self.apply_hook(tree_items, 'sitetree')
@@ -976,14 +998,20 @@ class SiteTree:
 
         return tree_items
 
-    def children(self, parent_item, navigation_type, use_template, context):
+    def children(
+            self,
+            parent_item: 'TreeItemBase',
+            navigation_type: str,
+            use_template: str,
+            context: Context
+    ) -> str:
         """Builds and returns site tree item children structure for 'sitetree_children' tag.
 
-        :param TreeItemBase parent_item:
-        :param str|unicode navigation_type: menu, sitetree
-        :param str|unicode use_template:
-        :param Context context:
-        :rtype: list
+        :param parent_item:
+        :param navigation_type: menu, sitetree
+        :param use_template:
+        :param context:
+
         """
         # Resolve parent item and current tree alias.
         parent_item = self.resolve_var(parent_item, context)
@@ -1006,12 +1034,12 @@ class SiteTree:
 
         return rendered
 
-    def get_children(self, tree_alias, item):
+    def get_children(self, tree_alias: str, item: Optional['TreeItemBase']) -> List['TreeItemBase']:
         """Returns item's children.
 
-        :param str|unicode tree_alias:
-        :param TreeItemBase|None item:
-        :rtype: list
+        :param tree_alias:
+        :param item:
+
         """
         if not self.current_app_is_admin():
             # We do not need i18n for a tree rendered in Admin dropdown.
@@ -1019,12 +1047,13 @@ class SiteTree:
 
         return self.cache.get_entry('parents', tree_alias)[item]
 
-    def update_has_children(self, tree_alias, tree_items, navigation_type):
+    def update_has_children(self, tree_alias: str, tree_items: List['TreeItemBase'], navigation_type: str):
         """Updates 'has_children' attribute for tree items inplace.
 
-        :param str|unicode tree_alias:
-        :param list tree_items:
-        :param str|unicode navigation_type: sitetree, breadcrumbs, menu
+        :param tree_alias:
+        :param tree_items:
+        :param navigation_type: sitetree, breadcrumbs, menu
+
         """
         get_children = self.get_children
         filter_items = self.filter_items
@@ -1036,14 +1065,14 @@ class SiteTree:
             children = apply_hook(children, '%s.has_children' % navigation_type)
             tree_item.has_children = len(children) > 0
 
-    def filter_items(self, items, navigation_type=None):
+    def filter_items(self, items: List['TreeItemBase'], navigation_type: str = None) -> List['TreeItemBase']:
         """Filters sitetree item's children if hidden and by navigation type.
 
         NB: We do not apply any filters to sitetree in admin app.
 
-        :param list items:
-        :param str|unicode navigation_type: sitetree, breadcrumbs, menu
-        :rtype: list
+        :param items:
+        :param navigation_type: sitetree, breadcrumbs, menu
+
         """
         if self.current_app_is_admin():
             return items
@@ -1067,12 +1096,12 @@ class SiteTree:
 
         return items_filtered
 
-    def get_ancestor_item(self, tree_alias, base_item):
+    def get_ancestor_item(self, tree_alias: str, base_item: 'TreeItemBase') -> 'TreeItemBase':
         """Climbs up the site tree to resolve root item for chosen one.
 
-        :param str|unicode tree_alias:
-        :param TreeItemBase base_item:
-        :rtype: TreeItemBase
+        :param tree_alias:
+        :param base_item:
+
         """
         parent = None
 
@@ -1084,30 +1113,36 @@ class SiteTree:
 
         return parent
 
-    def tree_climber(self, tree_alias, base_item):
+    def tree_climber(self, tree_alias: str, base_item: 'TreeItemBase'):
         """Climbs up the site tree to mark items of current branch.
 
-        :param str|unicode tree_alias:
-        :param TreeItemBase base_item:
+        :param tree_alias:
+        :param base_item:
+
         """
         if base_item is not None:
             base_item.in_current_branch = True
             if hasattr(base_item, 'parent') and base_item.parent is not None:
                 self.tree_climber(tree_alias, self.get_item_by_id(tree_alias, base_item.parent.id))
 
-    def resolve_var(self, varname, context=None):
+    def resolve_var(
+            self,
+            varname: Union[str, 'TreeItemBase', FilterExpression],
+            context: Context = None
+    ) -> Any:
         """Resolves name as a variable in a given context.
 
-        If no context specified page context' is considered as context.
+        If no context specified page context is considered as context.
 
-        :param str|unicode|FilterExpression varname:
-        :param Context context:
-        :return:
+        :param varname:
+        :param context:
+
         """
         context = context or self.current_page_context
 
         if isinstance(varname, FilterExpression):
             varname = varname.resolve(context)
+
         else:
             varname = varname.strip()
 

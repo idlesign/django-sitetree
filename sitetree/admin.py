@@ -1,16 +1,22 @@
+from typing import Tuple, Type, Optional
+
 from django import forms
 from django.conf import settings as django_settings
 from django.conf.urls import url
 from django.contrib import admin
 from django.contrib import messages
 from django.contrib.admin.sites import NotRegistered
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpRequest, HttpResponse
 from django.urls import get_urlconf, get_resolver
 from django.utils.translation import gettext_lazy as _
 
 from .fields import TreeItemChoiceField
 from .settings import MODEL_TREE, MODEL_TREE_ITEM
 from .utils import get_tree_model, get_tree_item_model, get_app_n_model
+
+if False:  # pragma: nocover
+    from .models import TreeItemBase, TreeBase  # noqa
+
 
 SMUGGLER_INSTALLED = 'smuggler' in django_settings.INSTALLED_APPS
 
@@ -21,7 +27,7 @@ _TREE_ADMIN = lambda: TreeAdmin
 _ITEM_ADMIN = lambda: TreeItemAdmin
 
 
-def get_model_url_name(model_nfo, page, with_namespace=False):
+def get_model_url_name(model_nfo: Tuple[str, str], page: str, with_namespace: bool = False) -> str:
     """Returns a URL for a given Tree admin page type."""
     prefix = ''
     if with_namespace:
@@ -29,12 +35,12 @@ def get_model_url_name(model_nfo, page, with_namespace=False):
     return ('%s%s_%s' % (prefix, '%s_%s' % model_nfo, page)).lower()
 
 
-def get_tree_url_name(page, with_namespace=False):
+def get_tree_url_name(page: str, with_namespace: bool = False) -> str:
     """Returns a URL for a given Tree admin page type."""
     return get_model_url_name(get_app_n_model('MODEL_TREE'), page, with_namespace)
 
 
-def get_tree_item_url_name(page, with_namespace=False):
+def get_tree_item_url_name(page: str, with_namespace: bool = False) -> str:
     """Returns a URL for a given Tree Item admin page type."""
     return get_model_url_name(get_app_n_model('MODEL_TREE_ITEM'), page, with_namespace)
 
@@ -51,12 +57,14 @@ def _reregister_tree_admin():
     """Forces unregistration of tree admin class with following re-registration."""
     try:
         admin.site.unregister(MODEL_TREE_CLASS)
+
     except NotRegistered:
         pass
+
     admin.site.register(MODEL_TREE_CLASS, _TREE_ADMIN())
 
 
-def override_tree_admin(admin_class):
+def override_tree_admin(admin_class: Type['TreeAdmin']):
     """Sets a class that should be used instead of TreeAdmin
     to represent trees in the Admin interface.
     Note that the class must inherit from TreeAdmin.
@@ -67,7 +75,7 @@ def override_tree_admin(admin_class):
     _reregister_tree_admin()
 
 
-def override_item_admin(admin_class):
+def override_item_admin(admin_class: Type['TreeItemAdmin']):
     """Sets a class that should be used instead of TreeItemAdmin
     to represent tree items in the Admin interface.
     Note that the class must inherit from TreeItemAdmin.
@@ -124,7 +132,7 @@ class TreeItemAdmin(admin.ModelAdmin):
 
         return super(TreeItemAdmin, self).formfield_for_manytomany(db_field, request=request, **kwargs)
 
-    def _redirect(self, request, response):
+    def _redirect(self, request: HttpRequest, response: HttpResponse) -> HttpResponse:
         """Generic redirect for item editor."""
 
         if '_addanother' in request.POST:
@@ -174,16 +182,20 @@ class TreeItemAdmin(admin.ModelAdmin):
         if not getattr(self, 'known_url_names', False):
             self.known_url_names = []
             self.known_url_rules = []
+
             resolver = get_resolver(get_urlconf())
+
             for ns, (url_prefix, ns_resolver) in resolver.namespace_dict.items():
                 if ns != 'admin':
                     self._stack_known_urls(ns_resolver.reverse_dict, ns)
+
             self._stack_known_urls(resolver.reverse_dict)
             self.known_url_rules = sorted(self.known_url_rules)
 
         form.known_url_names_hint = _(
             'You are seeing this warning because "URL as Pattern" option is active and pattern entered above '
             'seems to be invalid. Currently registered URL pattern names and parameters: ')
+
         form.known_url_names = self.known_url_names
         form.known_url_rules = self.known_url_rules
 
@@ -197,38 +209,38 @@ class TreeItemAdmin(admin.ModelAdmin):
                 self.known_url_names.append(url_name)
                 self.known_url_rules.append('<b>%s</b> %s' % (url_name, ' '.join(url_rules[0][0][1])))
 
-    def get_tree(self, request, tree_id, item_id=None):
+    def get_tree(self, request: HttpRequest, tree_id: Optional[int], item_id: Optional[int] = None) -> 'TreeBase':
         """Fetches Tree for current or given TreeItem."""
         if tree_id is None:
             tree_id = self.get_object(request, item_id).tree_id
+
         self.tree = MODEL_TREE_CLASS._default_manager.get(pk=tree_id)
         self.tree.verbose_name_plural = self.tree._meta.verbose_name_plural
         self.tree.urls = _TREE_URLS
+
         return self.tree
 
-    def item_add(self, request, tree_id):
+    def item_add(self, request: HttpRequest, tree_id: int) -> HttpResponse:
         tree = self.get_tree(request, tree_id)
         return self.add_view(request, extra_context={'tree': tree})
 
-    def item_edit(self, request, item_id, tree_id=None):
+    def item_edit(self, request: HttpRequest, item_id: int, tree_id: int = None) -> HttpResponse:
         tree = self.get_tree(request, tree_id, item_id)
         return self.change_view(request, item_id, extra_context={'tree': tree})
 
-    def item_delete(self, request, item_id, tree_id=None):
+    def item_delete(self, request: HttpRequest, item_id: int, tree_id: int = None) -> HttpResponse:
         tree = self.get_tree(request, tree_id, item_id)
         return self.delete_view(request, item_id, extra_context={'tree': tree})
 
-    def item_history(self, request, item_id, tree_id=None):
+    def item_history(self, request: HttpRequest, item_id: int, tree_id: int = None) -> HttpResponse:
         tree = self.get_tree(request, tree_id, item_id)
         return self.history_view(request, item_id, extra_context={'tree': tree})
 
-    def item_move(self, request, tree_id, item_id, direction):
+    def item_move(self, request: HttpRequest, tree_id: int, item_id: int, direction: str) -> HttpResponse:
         """Moves item up or down by swapping 'sort_order' field values of neighboring items."""
         current_item = MODEL_TREE_ITEM_CLASS._default_manager.get(pk=item_id)
-        if direction == 'up':
-            sort_order = 'sort_order'
-        else:
-            sort_order = '-sort_order'
+
+        sort_order = 'sort_order' if direction == 'up' else '-sort_order'
 
         siblings = MODEL_TREE_ITEM_CLASS._default_manager.filter(
             parent=current_item.parent,
@@ -254,7 +266,7 @@ class TreeItemAdmin(admin.ModelAdmin):
 
         return HttpResponseRedirect('../../')
 
-    def save_model(self, request, obj, form, change):
+    def save_model(self, request: HttpRequest, obj: 'TreeItemBase', form, change: bool):
         """Saves TreeItem model under certain Tree.
         Handles item's parent assignment exception.
 
@@ -265,6 +277,7 @@ class TreeItemAdmin(admin.ModelAdmin):
                 obj.parent = self.previous_parent
                 messages.warning(
                     request, _("Item's parent left unchanged. Item couldn't be parent to itself."), '', True)
+
         obj.tree = self.tree
         obj.save()
 
@@ -280,6 +293,7 @@ def redirects_handler(*args, **kwargs):
     if 'delete' in path:
         # Weird enough 'delete' is not handled by TreeItemAdmin::response_change().
         shift += '../'
+
     elif 'history' in path:
         if 'item_id' not in kwargs:
             # Encountered request from history page to return to tree layout page.
@@ -342,11 +356,11 @@ class TreeAdmin(admin.ModelAdmin):
         return sitetree_urls + urls
 
     @classmethod
-    def dump_view(cls, request):
+    def dump_view(cls, request: HttpRequest) -> HttpResponse:
         """Dumps sitetrees with items using django-smuggler.
 
         :param request:
-        :return:
+
         """
         from smuggler.views import dump_to_response
         return dump_to_response(request, [MODEL_TREE, MODEL_TREE_ITEM], filename_prefix='sitetrees')

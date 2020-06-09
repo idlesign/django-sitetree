@@ -5,5 +5,5 @@ from django.utils.translation import gettext_lazy as _
 class SitetreeConfig(AppConfig):
     """Sitetree configuration."""
 
-    name = 'sitetree'
-    verbose_name = _('Site Trees')
+    name: str = 'sitetree'
+    verbose_name: str = _('Site Trees')

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from django import template
 from django.template.base import Parser, Token
 from django.forms import ChoiceField
@@ -7,6 +9,9 @@ from .compat import TOKEN_BLOCK
 from .templatetags.sitetree import sitetree_tree
 from .utils import get_tree_model, get_tree_item_model
 from .settings import ITEMS_FIELD_ROOT_ID
+
+if False:  # pragma: nocover
+    from .models import TreeItemBase, TreeBase  # noqa
 
 
 MODEL_TREE_CLASS = get_tree_model()
@@ -21,12 +26,19 @@ class TreeItemChoiceField(ChoiceField):
     Use `initial` kwarg to set initial sitetree item by its ID.
 
     """
+    template: str = 'admin/sitetree/tree/tree_combo.html'
+    root_title: str = '---------'
 
-    template = 'admin/sitetree/tree/tree_combo.html'
-    root_title = '---------'
-
-    def __init__(self, tree=None, required=True, widget=None, label=None, initial=None, help_text=None, *args, **kwargs):
-
+    def __init__(
+            self,
+            tree: 'TreeBase' = None,
+            required: bool = True,
+            widget=None,
+            label=None,
+            initial=None,
+            help_text=None,
+            *args, **kwargs
+    ):
         super(TreeItemChoiceField, self).__init__(
             required=required, widget=widget, label=label, initial=initial,
             help_text=help_text, *args, **kwargs)
@@ -34,7 +46,7 @@ class TreeItemChoiceField(ChoiceField):
         self.tree = None
         self.choices_init(tree)
 
-    def choices_init(self, tree):
+    def choices_init(self, tree: Optional['TreeBase']):
         """Initialize choices for the given tree.
 
         :param tree:
@@ -51,7 +63,7 @@ class TreeItemChoiceField(ChoiceField):
 
     def _build_choices(self):
         """Build choices list runtime using 'sitetree_tree' tag"""
-        tree_token = u'sitetree_tree from "%s" template "%s"' % (self.tree, self.template)
+        tree_token = 'sitetree_tree from "%s" template "%s"' % (self.tree, self.template)
 
         context_kwargs = {'current_app': 'admin'}
         context = template.Context(context_kwargs)
