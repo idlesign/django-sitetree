@@ -143,7 +143,7 @@ class TreeItemBase(models.Model):
         if id_ and self.sort_order == 0:
             self.sort_order = id_
         
-        super(TreeItemBase, self).save(force_insert, force_update, **kwargs)
+        super().save(force_insert, force_update, **kwargs)
 
         # Set item's sort order to its primary key if not already set.
         if self.sort_order == 0:

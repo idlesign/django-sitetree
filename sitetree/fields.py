@@ -39,7 +39,7 @@ class TreeItemChoiceField(ChoiceField):
             help_text=None,
             *args, **kwargs
     ):
-        super(TreeItemChoiceField, self).__init__(
+        super().__init__(
             required=required, widget=widget, label=label, initial=initial,
             help_text=help_text, *args, **kwargs)
 

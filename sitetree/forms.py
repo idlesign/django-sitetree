@@ -17,7 +17,7 @@ class TreeItemForm(forms.Form):
     def __init__(self, *args, **kwargs):
         tree = kwargs.pop('tree', None)
         tree_item = kwargs.pop('tree_item', None)
-        super(TreeItemForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # autocomplete off - deals with Firefox form caching
         # https://bugzilla.mozilla.org/show_bug.cgi?id=46845

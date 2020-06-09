@@ -130,7 +130,7 @@ class TreeItemAdmin(admin.ModelAdmin):
             qs = kwargs.get('queryset', objects)
             kwargs['queryset'] = qs.select_related('content_type')
 
-        return super(TreeItemAdmin, self).formfield_for_manytomany(db_field, request=request, **kwargs)
+        return super().formfield_for_manytomany(db_field, request=request, **kwargs)
 
     def _redirect(self, request: HttpRequest, response: HttpResponse) -> HttpResponse:
         """Generic redirect for item editor."""
@@ -156,7 +156,7 @@ class TreeItemAdmin(admin.ModelAdmin):
         if post_url_continue is None:
             post_url_continue = '../item_%s/' % obj.pk
 
-        return self._redirect(request, super(TreeItemAdmin, self).response_add(request, obj, post_url_continue))
+        return self._redirect(request, super().response_add(request, obj, post_url_continue))
 
     def response_change(self, request, obj, **kwargs):
         """Redirects to the appropriate items' 'add' page on item change.
@@ -165,7 +165,7 @@ class TreeItemAdmin(admin.ModelAdmin):
         should make some changes to redirection process.
 
         """
-        return self._redirect(request, super(TreeItemAdmin, self).response_change(request, obj))
+        return self._redirect(request, super().response_change(request, obj))
 
     def get_form(self, request, obj=None, **kwargs):
         """Returns modified form for TreeItem model.
@@ -175,7 +175,7 @@ class TreeItemAdmin(admin.ModelAdmin):
         if obj is not None and obj.parent is not None:
             self.previous_parent = obj.parent
 
-        form = super(TreeItemAdmin, self).get_form(request, obj, **kwargs)
+        form = super().get_form(request, obj, **kwargs)
         form.base_fields['parent'].choices_init(self.tree)
 
         # Try to resolve all currently registered url names including those in namespaces.
@@ -316,16 +316,16 @@ class TreeAdmin(admin.ModelAdmin):
         if SMUGGLER_INSTALLED:
             self.change_list_template = 'admin/sitetree/tree/change_list_.html'
 
-        super(TreeAdmin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.tree_admin = _ITEM_ADMIN()(MODEL_TREE_ITEM_CLASS, admin.site)
 
     def render_change_form(self, request, context, **kwargs):
         context['icon_ext'] = '.svg'
-        return super(TreeAdmin, self).render_change_form(request, context, **kwargs)
+        return super().render_change_form(request, context, **kwargs)
 
     def get_urls(self):
         """Manages not only TreeAdmin URLs but also TreeItemAdmin URLs."""
-        urls = super(TreeAdmin, self).get_urls()
+        urls = super().get_urls()
 
         prefix_change = 'change/'
 
