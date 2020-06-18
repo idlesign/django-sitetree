@@ -918,7 +918,7 @@ class SiteTree:
             user_perms = self._current_user_permissions
 
             if user_perms is _UNSET:
-                user_perms = self.get_permissions(context['user'], item)
+                user_perms = self.get_permissions(self.current_request.user, item)
                 self._current_user_permissions = user_perms
 
             if item.access_perm_type == MODEL_TREE_ITEM_CLASS.PERM_TYPE_ALL:
