@@ -2,6 +2,11 @@ django-sitetree changelog
 =========================
 
 
+Unreleased
+----------
+* Fix regression preventing LazyTitle to be restored from cache.
+
+
 v1.15.0 [2020-06-20]
 --------------------
 ! Dropped support for Django<2.0.

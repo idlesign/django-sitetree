@@ -278,8 +278,6 @@ class LazyTitle:
     Produces resolved title as unicode representation.
 
     """
-    __slots__ = ['title']
-
     def __init__(self, title: str):
         self.title = title
 
