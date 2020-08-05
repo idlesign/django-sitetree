@@ -5,16 +5,17 @@ from inspect import getfullargspec
 from sys import exc_info
 from threading import local
 from typing import Callable, List, Optional, Dict, Union, Sequence, Any, Tuple
+from urllib.parse import quote
 
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import signals, QuerySet
 from django.template.base import (
-    FilterExpression, Lexer, Parser, Token, Variable, VariableDoesNotExist, VARIABLE_TAG_START, Context)
+    FilterExpression, Lexer, Parser, Token, Variable, VariableDoesNotExist, VARIABLE_TAG_START)
+from django.template.context import Context
 from django.template.defaulttags import url as url_tag
 from django.template.loader import get_template
 from django.utils import module_loading
-from django.utils.http import urlquote
 from django.utils.translation import get_language
 
 from .compat import TOKEN_BLOCK, TOKEN_TEXT, TOKEN_VAR
@@ -640,12 +641,14 @@ class SiteTree:
             self._current_items[tree_alias] = current_item
             return None
 
-        # urlquote is an attempt to support non-ascii in url.
         current_url = self.current_request.path
+
         if isinstance(current_url, str):
             current_url = current_url.encode('UTF-8')
+
         if current_url:
-            current_url = urlquote(current_url)
+            # url quote is an attempt to support non-ascii in url.
+            current_url = quote(current_url)
 
         for url_item, url in self._items_urls.items():
             # Iterate each as this dict may contains "current" items for various trees.
@@ -705,7 +708,7 @@ class SiteTree:
             # Form token to pass to Django 'url' tag.
             url_token = f'url {url_pattern} as item.url_resolved'
             url_tag(
-                Parser(None),
+                Parser([]),
                 Token(token_type=TOKEN_BLOCK, contents=url_token)
             ).render(context)
 

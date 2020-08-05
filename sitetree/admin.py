@@ -2,7 +2,7 @@ from typing import Tuple, Type, Optional
 
 from django import forms
 from django.conf import settings as django_settings
-from django.conf.urls import url
+from django.conf.urls import re_path
 from django.contrib import admin
 from django.contrib import messages
 from django.contrib.admin.sites import NotRegistered
@@ -330,28 +330,30 @@ class TreeAdmin(admin.ModelAdmin):
         prefix_change = 'change/'
 
         sitetree_urls = [
-            url(r'^change/$', redirects_handler, name=get_tree_item_url_name('changelist')),
+            re_path(r'^change/$', redirects_handler, name=get_tree_item_url_name('changelist')),
 
-            url(fr'^((?P<tree_id>\d+)/)?{prefix_change}item_add/$',
+            re_path(fr'^((?P<tree_id>\d+)/)?{prefix_change}item_add/$',
                 self.admin_site.admin_view(self.tree_admin.item_add), name=get_tree_item_url_name('add')),
 
-            url(fr'^(?P<tree_id>\d+)/{prefix_change}item_(?P<item_id>\d+)/$',
+            re_path(fr'^(?P<tree_id>\d+)/{prefix_change}item_(?P<item_id>\d+)/$',
                 self.admin_site.admin_view(self.tree_admin.item_edit), name=get_tree_item_url_name('change')),
 
-            url(fr'^{prefix_change}item_(?P<item_id>\d+)/$',
+            re_path(fr'^{prefix_change}item_(?P<item_id>\d+)/$',
                 self.admin_site.admin_view(self.tree_admin.item_edit), name=get_tree_item_url_name('change')),
 
-            url(fr'^((?P<tree_id>\d+)/)?{prefix_change}item_(?P<item_id>\d+)/delete/$',
+            re_path(fr'^((?P<tree_id>\d+)/)?{prefix_change}item_(?P<item_id>\d+)/delete/$',
                 self.admin_site.admin_view(self.tree_admin.item_delete), name=get_tree_item_url_name('delete')),
 
-            url(fr'^((?P<tree_id>\d+)/)?{prefix_change}item_(?P<item_id>\d+)/history/$',
+            re_path(fr'^((?P<tree_id>\d+)/)?{prefix_change}item_(?P<item_id>\d+)/history/$',
                 self.admin_site.admin_view(self.tree_admin.item_history), name=get_tree_item_url_name('history')),
 
-            url(fr'^(?P<tree_id>\d+)/{prefix_change}item_(?P<item_id>\d+)/move_(?P<direction>(up|down))/$',
+            re_path(fr'^(?P<tree_id>\d+)/{prefix_change}item_(?P<item_id>\d+)/move_(?P<direction>(up|down))/$',
                 self.admin_site.admin_view(self.tree_admin.item_move), name=get_tree_item_url_name('move')),
         ]
         if SMUGGLER_INSTALLED:
-            sitetree_urls += (url(r'^dump_all/$', self.admin_site.admin_view(self.dump_view), name='sitetree_dump'),)
+            sitetree_urls += (
+                re_path(r'^dump_all/$', self.admin_site.admin_view(self.dump_view), name='sitetree_dump'),
+            )
 
         return sitetree_urls + urls
 

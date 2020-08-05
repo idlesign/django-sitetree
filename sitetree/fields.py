@@ -70,7 +70,7 @@ class TreeItemChoiceField(ChoiceField):
         context.update({'request': object()})
 
         choices_str = sitetree_tree(
-            Parser(None), Token(token_type=TOKEN_BLOCK, contents=tree_token)
+            Parser([]), Token(token_type=TOKEN_BLOCK, contents=tree_token)
         ).render(context)
 
         tree_choices = [(ITEMS_FIELD_ROOT_ID, self.root_title)]
