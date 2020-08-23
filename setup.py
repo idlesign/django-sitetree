@@ -1,6 +1,8 @@
 import os
 import sys
-from setuptools import setup
+
+from setuptools import setup, find_packages
+
 from sitetree import VERSION
 
 f = open(os.path.join(os.path.dirname(__file__), 'README.rst'))
@@ -21,7 +23,7 @@ setup(
     author='Igor `idle sign` Starikov',
     author_email='idlesign@yandex.ru',
 
-    packages=['sitetree'],
+    packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
 

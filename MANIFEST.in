@@ -6,6 +6,7 @@ include CHANGELOG
 include docs/Makefile
 recursive-include docs *.rst
 recursive-include docs *.py
+recursive-include tests *
 
 recursive-include sitetree/locale *
 recursive-include sitetree/static *
