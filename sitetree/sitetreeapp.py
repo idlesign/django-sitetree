@@ -8,7 +8,7 @@ from typing import Callable, List, Optional, Dict, Union, Sequence, Any, Tuple
 from urllib.parse import quote
 
 from django.conf import settings
-from django.core.cache import cache
+from django.core.cache import caches
 from django.db.models import signals, QuerySet
 from django.template.base import (
     FilterExpression, Lexer, Parser, Token, Variable, VariableDoesNotExist, VARIABLE_TAG_START)
@@ -22,7 +22,7 @@ from .compat import TOKEN_BLOCK, TOKEN_TEXT, TOKEN_VAR
 from .exceptions import SiteTreeError
 from .settings import (
     ALIAS_TRUNK, ALIAS_THIS_CHILDREN, ALIAS_THIS_SIBLINGS, ALIAS_THIS_PARENT_SIBLINGS, ALIAS_THIS_ANCESTOR_CHILDREN,
-    UNRESOLVED_ITEM_MARKER, RAISE_ITEMS_ERRORS_ON_DEBUG, CACHE_TIMEOUT, DYNAMIC_ONLY, ADMIN_APP_NAME, SITETREE_CLS)
+    UNRESOLVED_ITEM_MARKER, RAISE_ITEMS_ERRORS_ON_DEBUG, CACHE_TIMEOUT, CACHE_NAME, DYNAMIC_ONLY, ADMIN_APP_NAME, SITETREE_CLS)
 from .utils import get_tree_model, get_tree_item_model, import_app_sitetree_module, generate_id_for
 
 if False:  # pragma: nocover
@@ -57,6 +57,7 @@ _THREAD_LOCAL = local()
 _THREAD_SITETREE: str = 'sitetree'
 _UNSET = set()  # Sentinel
 
+cache = caches[CACHE_NAME]
 
 def get_sitetree() -> 'SiteTree':
     """Returns SiteTree (thread-singleton) object, implementing utility methods.

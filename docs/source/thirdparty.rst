@@ -81,3 +81,23 @@ localize your tree items into different languages. This requires some work thoug
 That's how you made `sitetree` work with `modeltranslation`.
 
 Read `django-modeltranslation` documentation for more information on tuning.
+
+
+django-tenants
+---------------
+
+https://pypi.python.org/pypi/django-tenants/
+
+You should use a custom cache config to make it work, configure something like this on the django cache.
+
+.. code-block:: python
+    CACHES = {
+        ...
+        "sitetree_cache": {
+            "BACKEND": "django.core.cache.backends.dummy.DummyCache",
+            "KEY_FUNCTION": "django_tenants.cache.make_key",
+            "REVERSE_KEY_FUNCTION": "django_tenants.cache.reverse_key",
+        },
+    }
+
+    SITETREE_CACHE_NAME = "sitetree_cache"
