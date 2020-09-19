@@ -91,6 +91,7 @@ https://pypi.python.org/pypi/django-tenants/
 You should use a custom cache config to make it work, configure something like this on the django cache.
 
 .. code-block:: python
+
     CACHES = {
         ...
         "sitetree_cache": {
@@ -101,3 +102,4 @@ You should use a custom cache config to make it work, configure something like t
     }
 
     SITETREE_CACHE_NAME = "sitetree_cache"
+
