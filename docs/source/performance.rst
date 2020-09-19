@@ -40,5 +40,6 @@ To avoid performance hits on large sitetrees try to simplify them, and/or reduce
      that is known not playing well with multiple processes (which will eventually cause sitetree to render navigation
      in different states for different processes), so you're advised to use the other choices.
 
-     You can specify the cache backend to use, setting the SITETREE_CACHE_NAME on the django settings to specify the name 
+     You can specify the cache backend to use, setting the ``SITETREE_CACHE_NAME`` on the django settings to specify the name 
      of the cache to use.
+
