@@ -34,6 +34,9 @@ Cache is only invalidated on sitetree or sitetree item change.
 
 """
 
+CACHE_NAME: str = getattr(settings, 'SITETREE_CACHE_NAME', 'default')
+"""Sitetree cache name to use (Defined in django CACHES hash)."""
+
 ADMIN_APP_NAME: str = getattr(settings, 'SITETREE_ADMIN_APP_NAME', 'admin')
 """Admin application name. In cases custom admin application is used."""
 
