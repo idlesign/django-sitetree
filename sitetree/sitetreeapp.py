@@ -5,7 +5,6 @@ from inspect import getfullargspec
 from sys import exc_info
 from threading import local
 from typing import Callable, List, Optional, Dict, Union, Sequence, Any, Tuple
-from urllib.parse import quote
 
 from django.conf import settings
 from django.core.cache import caches
@@ -16,6 +15,7 @@ from django.template.context import Context
 from django.template.defaulttags import url as url_tag
 from django.template.loader import get_template
 from django.utils import module_loading
+from django.utils.encoding import iri_to_uri
 from django.utils.translation import get_language
 
 from .compat import TOKEN_BLOCK, TOKEN_TEXT, TOKEN_VAR
@@ -644,12 +644,9 @@ class SiteTree:
 
         current_url = self.current_request.path
 
-        if isinstance(current_url, str):
-            current_url = current_url.encode('UTF-8')
-
         if current_url:
             # url quote is an attempt to support non-ascii in url.
-            current_url = quote(current_url)
+            current_url = iri_to_uri(current_url)
 
         for url_item, url in self._items_urls.items():
             # Iterate each as this dict may contains "current" items for various trees.

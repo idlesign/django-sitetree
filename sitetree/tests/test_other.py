@@ -66,3 +66,23 @@ def test_techincal_view_exception_unmasked(request_client, settings):
     client = request_client(raise_exceptions=False)
     response = client.get('/raiser/')
     assert response.content == b'\n\n<ul>\n\t\n</ul>'
+
+
+def test_urlquote(request_client, build_tree, template_render_tag, template_strip_tags, template_context, request_get):
+
+    build_tree(
+        {'alias': 'bogustree'},
+        [{'title': 'HOME', 'url': '/', 'children': [
+            {'title': 'Reports', 'url': '/reports', 'children': [
+                {'title': 'Devices {{ grp }}', 'urlaspattern': True, 'url': 'devices_grp grp'},
+            ]},
+
+        ]}],
+    )
+
+    name = 'Устройство10x 45.9:(2)=S+5'  # handle both non-ascii and special chars as )(
+    context = template_context(context_dict={'grp': name}, request=f'/devices/{name}')
+    breadcrumbs = template_strip_tags(
+        template_render_tag('sitetree', 'sitetree_breadcrumbs from "bogustree"', context))
+
+    assert name in breadcrumbs

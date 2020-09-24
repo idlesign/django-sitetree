@@ -12,6 +12,7 @@ urlpatterns = [
     re_path(r'contacts/australia/(?P<value>[^/]+)/', lambda r, value: None, name='contacts_australia'),
     re_path(r'contacts/australia/(?P<value>\d+)/', lambda r, value: None, name='contacts_china'),
     re_path(r'raiser/', raise_exception, name='raiser'),
+    re_path(r'^devices/(?P<grp>([\w() 0-9a-zA-Z!*:.?+=_-])+)$', lambda r, value: None, name='devices_grp')
 ]
 
 handler500 = lambda request: server_error(request, template_name='my500.html')

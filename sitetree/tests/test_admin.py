@@ -10,7 +10,7 @@ def get_item_admin():
 
 def test_parent_choices(request_client, build_tree, user_create, template_strip_tags):
 
-    build_tree(
+    out = build_tree(
         {'alias': 'tree1'},
         [{
             'title': 'one', 'url': '/one/', 'children': [
@@ -27,10 +27,11 @@ def test_parent_choices(request_client, build_tree, user_create, template_strip_
             ]
         }]
     )
-
+    subone = out['/subone/']
     client = request_client(user=user_create(superuser=True))
-    result = client.get(('admin:sitetree_treeitem_change', dict(item_id=2, tree_id=1)))
+    result = client.get(('admin:sitetree_treeitem_change', dict(item_id=subone.id, tree_id=subone.tree_id)))
     stripped = template_strip_tags(result.content.decode())
+    print(result.content.decode())
     assert '|---------|one|&nbsp;&nbsp;&nbsp;&nbsp;|- subone' in stripped
     assert '|---------|some|&nbsp;&nbsp;&nbsp;&nbsp;|- other' not in stripped
 
@@ -42,7 +43,7 @@ def test_admin_tree_item_basic(request_get, common_tree):
     form = admin.get_form(request_get())
 
     known_url_names = form.known_url_names
-    assert set(known_url_names) == {'contacts_china', 'contacts_australia', 'raiser'}
+    assert set(known_url_names) == {'contacts_china', 'devices_grp', 'contacts_australia', 'raiser'}
 
 
 def test_admin_tree_item_move(common_tree):

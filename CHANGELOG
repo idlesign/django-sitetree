@@ -2,6 +2,11 @@ django-sitetree changelog
 =========================
 
 
+Unreleased
+----------
+* Fixed tree item resolution for URLs having special chars (see #288).
+
+
 v1.15.2 [2020-08-05]
 --------------------
 * Made Django 3.1 compatible.
