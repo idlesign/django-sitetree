@@ -10,19 +10,20 @@ from django.conf import settings
 from django.core.cache import caches
 from django.db.models import signals, QuerySet
 from django.template.base import (
-    FilterExpression, Lexer, Parser, Token, Variable, VariableDoesNotExist, VARIABLE_TAG_START)
+    FilterExpression, Lexer, Parser, Variable, VariableDoesNotExist, VARIABLE_TAG_START)
 from django.template.context import Context
-from django.template.defaulttags import url as url_tag
 from django.template.loader import get_template
+from django.urls import reverse, NoReverseMatch
 from django.utils import module_loading
 from django.utils.encoding import iri_to_uri
 from django.utils.translation import get_language
 
-from .compat import TOKEN_BLOCK, TOKEN_TEXT, TOKEN_VAR
+from .compat import TOKEN_TEXT, TOKEN_VAR
 from .exceptions import SiteTreeError
 from .settings import (
     ALIAS_TRUNK, ALIAS_THIS_CHILDREN, ALIAS_THIS_SIBLINGS, ALIAS_THIS_PARENT_SIBLINGS, ALIAS_THIS_ANCESTOR_CHILDREN,
-    UNRESOLVED_ITEM_MARKER, RAISE_ITEMS_ERRORS_ON_DEBUG, CACHE_TIMEOUT, CACHE_NAME, DYNAMIC_ONLY, ADMIN_APP_NAME, SITETREE_CLS)
+    UNRESOLVED_ITEM_MARKER, RAISE_ITEMS_ERRORS_ON_DEBUG, CACHE_TIMEOUT, CACHE_NAME, DYNAMIC_ONLY, ADMIN_APP_NAME,
+    SITETREE_CLS)
 from .utils import get_tree_model, get_tree_item_model, import_app_sitetree_module, generate_id_for
 
 if False:  # pragma: nocover
@@ -58,6 +59,7 @@ _THREAD_SITETREE: str = 'sitetree'
 _UNSET = set()  # Sentinel
 
 cache = caches[CACHE_NAME]
+
 
 def get_sitetree() -> 'SiteTree':
     """Returns SiteTree (thread-singleton) object, implementing utility methods.
@@ -393,10 +395,20 @@ class SiteTree:
         """
         self.cache = self.cache_cls()
         self.current_page_context = context
-        self.current_request = context.get('request', None) if context else None
         self.current_lang = get_language()
 
-        self._current_app_is_admin = None
+        request = context.get('request', None) if context else None
+
+        self.current_request = request
+
+        current_app = (
+            getattr(request, 'current_app', None) or
+            getattr(getattr(request, 'resolver_match', None), 'namespace', None) or
+            (context or {}).get('current_app', '')  # May be set by TreeItemChoiceField.
+        )
+
+        self._current_app_is_admin = current_app == ADMIN_APP_NAME
+        self._current_app = current_app
         self._current_user_permissions = _UNSET
         self._items_urls = {}  # Resolved urls are cache for a request.
         self._current_items = {}
@@ -486,25 +498,10 @@ class SiteTree:
 
     def current_app_is_admin(self) -> bool:
         """Returns boolean whether current application is Admin contrib."""
-
-        is_admin = self._current_app_is_admin
-
-        if is_admin is None:
-            context = self.current_page_context
-
-            current_app = getattr(
-                # Try from request.resolver_match.app_name
-                getattr(context.get('request', None), 'resolver_match', None), 'app_name',
-                # Try from global context obj.
-                getattr(context, 'current_app', None))
-
-            if current_app is None:  # Try from global context dict.
-                current_app = context.get('current_app', '')
-
-            is_admin = current_app == ADMIN_APP_NAME
-            self._current_app_is_admin = is_admin
-
-        return is_admin
+        warnings.warn(
+            'Accessing .current_app_is_admin() is deprecated.',
+            DeprecationWarning, 2)
+        return self._current_app_is_admin
 
     def get_sitetree(self, alias: str) -> Tuple[str, List['TreeItemBase']]:
         """Gets site tree items from the given site tree.
@@ -520,7 +517,7 @@ class SiteTree:
 
         caching_required = False
 
-        if not self.current_app_is_admin():
+        if not self._current_app_is_admin:
             # We do not need i18n for a tree rendered in Admin dropdown.
             alias = self.resolve_tree_i18n_alias(alias)
 
@@ -638,7 +635,7 @@ class SiteTree:
 
         current_item = None
 
-        if self.current_app_is_admin():
+        if self._current_app_is_admin:
             self._current_items[tree_alias] = current_item
             return None
 
@@ -691,29 +688,22 @@ class SiteTree:
                 view_path = url.split(' ')
                 # We should try to resolve URL parameters from site tree item.
                 for view_argument in view_path[1:]:
-                    resolved = resolve_var(view_argument)
-                    # We enclose arg in double quotes as already resolved.
-                    all_arguments.append(f'"{resolved}"')
+                    all_arguments.append(resolve_var(view_argument))
 
                 view_path = view_path[0].strip('"\' ')
 
-            url_pattern = f"'{view_path}' {' '.join(all_arguments)}"
+            try:
+                resolved_url = reverse(
+                    view_path,
+                    args=all_arguments,
+                    current_app=self._current_app
+                )
+
+            except NoReverseMatch:
+                resolved_url = UNRESOLVED_ITEM_MARKER
 
         else:
-            url_pattern = f'{sitetree_item.url}'
-
-        if sitetree_item.urlaspattern:
-            # Form token to pass to Django 'url' tag.
-            url_token = f'url {url_pattern} as item.url_resolved'
-            url_tag(
-                Parser([]),
-                Token(token_type=TOKEN_BLOCK, contents=url_token)
-            ).render(context)
-
-            resolved_url = context['item.url_resolved'] or UNRESOLVED_ITEM_MARKER
-
-        else:
-            resolved_url = url_pattern
+            resolved_url = f'{sitetree_item.url}'
 
         self._items_urls[sitetree_item] = resolved_url
 
@@ -1040,7 +1030,7 @@ class SiteTree:
         :param item:
 
         """
-        if not self.current_app_is_admin():
+        if not self._current_app_is_admin:
             # We do not need i18n for a tree rendered in Admin dropdown.
             tree_alias = self.resolve_tree_i18n_alias(tree_alias)
 
@@ -1073,7 +1063,7 @@ class SiteTree:
         :param navigation_type: sitetree, breadcrumbs, menu
 
         """
-        if self.current_app_is_admin():
+        if self._current_app_is_admin:
             return items
 
         items_filtered = []
