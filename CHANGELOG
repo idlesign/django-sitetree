@@ -4,6 +4,7 @@ django-sitetree changelog
 
 Unreleased
 ----------
++ Introduced 'SITETREE_CACHE_NAME' setting.
 * Fixed tree item resolution for URLs having special chars (see #288).
 * Improved URL resolution performance.
 
