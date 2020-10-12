@@ -5,6 +5,7 @@ django-sitetree changelog
 Unreleased
 ----------
 * Fixed tree item resolution for URLs having special chars (see #288).
+* Improved URL resolution performance.
 
 
 v1.15.2 [2020-08-05]
