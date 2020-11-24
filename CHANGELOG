@@ -4,7 +4,7 @@ django-sitetree changelog
 
 Unreleased
 ----------
-+ Fixed app config handling in INSTALLED_APPS (see #292).
+* Fixed app config handling in INSTALLED_APPS (see #292).
 
 
 v1.16.0 [2020-10-12]
