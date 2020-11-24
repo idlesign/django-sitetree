@@ -183,11 +183,9 @@ def import_project_sitetree_modules() -> List[ModuleType]:
     Returns a list of submodules.
 
     """
-    from django.conf import settings as django_settings
-
     submodules = []
-    for app in django_settings.INSTALLED_APPS:
-        module = import_app_sitetree_module(app)
+    for app_config in apps.app_configs.values():
+        module = import_app_sitetree_module(app_config.name)
         if module is not None:
             submodules.append(module)
 
