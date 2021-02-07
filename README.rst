@@ -2,12 +2,6 @@ django-sitetree
 ===============
 http://github.com/idlesign/django-sitetree
 
-.. image:: https://idlesign.github.io/lbc/py2-lbc.svg
-   :target: https://idlesign.github.io/lbc/
-   :alt: LBC Python 2
-
-----
-
 |release| |lic| |ci| |coverage|
 
 .. |release| image:: https://img.shields.io/pypi/v/django-sitetree.svg
