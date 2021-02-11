@@ -30,7 +30,7 @@ class Command(BaseCommand):
     args = '[tree_alias tree_alias ...]'
 
     def add_arguments(self, parser):
-        parser.add_argument('args', metavar='tree', nargs='?', help='Tree aliases.', default=[])
+        parser.add_argument('args', metavar='tree', nargs='*', help='Tree aliases.', default=[])
         get_options(parser.add_argument)
 
     def handle(self, *aliases, **options):

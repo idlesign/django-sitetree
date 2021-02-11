@@ -4,6 +4,7 @@ django-sitetree changelog
 
 Unreleased
 ----------
+* Fixed 'sitetreedump' command (see #295).
 * Fixed app config handling in INSTALLED_APPS (see #292).
 
 
