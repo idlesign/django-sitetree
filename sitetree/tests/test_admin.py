@@ -116,7 +116,7 @@ def test_admin_tree():
 def test_redirects_handler(request_get):
     from sitetree.admin import redirects_handler
 
-    def get_handler(referer, item_id=None):
+    def get_location(referer, item_id=None):
 
         req = request_get(referer)
         req.META['HTTP_REFERER'] = referer
@@ -126,16 +126,19 @@ def test_redirects_handler(request_get):
         if item_id is not None:
             kwargs['item_id'] = item_id
 
-        return redirects_handler(*args, **kwargs)
+        handler = redirects_handler(*args, **kwargs)
 
-    handler = get_handler('/')
-    assert handler._headers['location'][1] == '/../'
+        headers = getattr(handler, 'headers', None)
 
-    handler = get_handler('/delete/')
-    assert handler._headers['location'][1] == '/delete/../../'
+        if headers is None:
+            # pre 3.2
+            result = handler._headers['location'][1]
+        else:
+            result = headers['location']
 
-    handler = get_handler('/history/')
-    assert handler._headers['location'][1] == '/history/../../'
+        return result
 
-    handler = get_handler('/history/', 42)
-    assert handler._headers['location'][1] == '/history/../'
+    assert get_location('/') == '/../'
+    assert get_location('/delete/') == '/delete/../../'
+    assert get_location('/history/') == '/history/../../'
+    assert get_location('/history/', 42) == '/history/../'
