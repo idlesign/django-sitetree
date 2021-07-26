@@ -97,17 +97,41 @@ class TestPermissions():
         i1 = item('root', 'url', access_by_perms=perm)
         assert i1.permissions == [perm]
 
-    def test_bad_string_permissions(self):
-        from sitetree.toolbox import item
+    def test_bad_string_permissions(self, template_context, template_render_tag):
+        from sitetree.toolbox import register_dynamic_trees, tree, item, compose_dynamic_tree
+
+        register_dynamic_trees(compose_dynamic_tree([tree('bad', items=[
+            item('root', 'url', access_by_perms='bad name'),
+        ])]), reset_cache=True)
 
         with pytest.raises(ValueError):
-            item('root', 'url', access_by_perms='bad name')
+            template_render_tag(
+                'sitetree', f'sitetree_page_title from "bad"',
+                template_context(request='/'))
+
+    def test_unknown_name_permissions(self, template_context, template_render_tag):
+        from sitetree.toolbox import register_dynamic_trees, tree, item, compose_dynamic_tree
+
+        register_dynamic_trees(compose_dynamic_tree([tree('unknown', items=[
+            item('root', 'url', access_by_perms='unknown.name'),
+        ])]), reset_cache=True)
 
         with pytest.raises(ValueError):
-            item('root', 'url', access_by_perms='unknown.name')
+            template_render_tag(
+                'sitetree', f'sitetree_page_title from "unknown"',
+                template_context(request='/'))
 
-        with pytest.raises(ValueError):
-            item('root', 'url', access_by_perms=42.2)
+    def test_float_permissions(self, template_context, template_render_tag):
+        from sitetree.toolbox import register_dynamic_trees, tree, item, compose_dynamic_tree
+
+        register_dynamic_trees(compose_dynamic_tree([tree('fortytwodottwo', items=[
+            item('root', 'url', access_by_perms=42.2),
+        ])]), reset_cache=True)
+
+        with pytest.raises(ValueError) as e:
+            template_render_tag(
+                'sitetree', f'sitetree_page_title from "fortytwodottwo"',
+                template_context(request='/'))
 
     def test_access_restricted(self):
         from sitetree.toolbox import item
