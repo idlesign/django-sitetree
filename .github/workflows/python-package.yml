@@ -18,7 +18,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python ${{ matrix.python-version }} & Django ${{ matrix.django-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
@@ -29,6 +29,5 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.github_token }}
       run: |
-        echo "Python ${{ matrix.python-version }} & Django ${{ matrix.django-version }}"
         coverage run --source=sitetree setup.py test
         coveralls --service=github
