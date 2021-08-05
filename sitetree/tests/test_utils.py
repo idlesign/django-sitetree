@@ -42,10 +42,15 @@ def test_import_project_sitetree_modules():
 
     assert cls is Tree
 
+    model_old = settings.MODEL_TREE
     settings.MODEL_TREE = 'nowhere.Model'
 
-    with pytest.raises(ImproperlyConfigured):
-        get_model_class('MODEL_TREE')
+    try:
+        with pytest.raises(ImproperlyConfigured):
+            get_model_class('MODEL_TREE')
+
+    finally:
+        settings.MODEL_TREE = model_old
 
 
 def get_permission_and_name():
