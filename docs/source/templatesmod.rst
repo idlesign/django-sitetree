@@ -14,6 +14,12 @@ Nevertheless pay attention that menu template also uses two CSS classes marking 
   * **current_item** — marks item in the tree, corresponding to current page;
   * **current_branch** — marks all ancestors of current item, and current item itself.
 
+If needed, you can set extra CSS classes to the *ul* element with `extra_class_ul` variable. For example::
+
+  {% with extra_class_ul="flex-wrap flex-row" %}
+     {% sitetree_menu from "footer_3" include "trunk,topmenu" template "sitetree/menu_bootstrap5.html" %}
+  {% endwith %}
+
 
 .. _overriding-built-in-templates:
 
@@ -125,7 +131,11 @@ The following templates are bundled with SiteTree:
 
   * `sitetree/menu_bootstrap4.html`
 
-   The same as above but for Bootstrap version 3.
+   The same as above but for Bootstrap version 4.
+
+  * `sitetree/menu_bootstrap5.html`
+
+   The same as above but for Bootstrap version 5.
 
  * `sitetree/menu_bootstrap_dropdown.html`
 
@@ -138,6 +148,10 @@ The following templates are bundled with SiteTree:
  * `sitetree/menu_bootstrap4_dropdown.html`
 
    The same as above but for Bootstrap version 4.
+
+ * `sitetree/menu_bootstrap5_dropdown.html`
+
+   The same as above but for Bootstrap version 5.
 
  * `sitetree/menu_bootstrap_navlist.html`
 
