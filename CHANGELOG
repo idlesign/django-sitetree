@@ -2,8 +2,8 @@ django-sitetree changelog
 =========================
 
 
-Unreleased
-----------
+v1.17.0 [2021-08-06]
+--------------------
 + Add 'extra_class_ul' variable to Bootstrap and Foundation templates.
 + Add Bootstrap 5 templates.
 * Fixed 'sitetreedump' command (see #295).
