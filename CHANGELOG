@@ -4,8 +4,11 @@ django-sitetree changelog
 
 Unreleased
 ----------
++ Add 'extra_class_ul' variable to Bootstrap and Foundation templates.
++ Add Bootstrap 5 templates.
 * Fixed 'sitetreedump' command (see #295).
 * Fixed app config handling in INSTALLED_APPS (see #292).
+* Permissions in dynamic item are now lazy evaluated (see #302).
 
 
 v1.16.0 [2020-10-12]
