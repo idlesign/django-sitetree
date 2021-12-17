@@ -2,7 +2,7 @@ from typing import Tuple, Type, Optional
 
 from django import forms
 from django.conf import settings as django_settings
-from django.conf.urls import re_path
+from django.urls import re_path, path
 from django.contrib import admin
 from django.contrib import messages
 from django.contrib.admin.sites import NotRegistered
@@ -330,7 +330,7 @@ class TreeAdmin(admin.ModelAdmin):
         prefix_change = 'change/'
 
         sitetree_urls = [
-            re_path(r'^change/$', redirects_handler, name=get_tree_item_url_name('changelist')),
+            path('change/', redirects_handler, name=get_tree_item_url_name('changelist')),
 
             re_path(fr'^((?P<tree_id>\d+)/)?{prefix_change}item_add/$',
                 self.admin_site.admin_view(self.tree_admin.item_add), name=get_tree_item_url_name('add')),
@@ -352,7 +352,7 @@ class TreeAdmin(admin.ModelAdmin):
         ]
         if SMUGGLER_INSTALLED:
             sitetree_urls += (
-                re_path(r'^dump_all/$', self.admin_site.admin_view(self.dump_view), name='sitetree_dump'),
+                path('dump_all/', self.admin_site.admin_view(self.dump_view), name='sitetree_dump'),
             )
 
         return sitetree_urls + urls
