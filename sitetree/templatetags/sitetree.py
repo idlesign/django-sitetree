@@ -239,12 +239,12 @@ class SimpleNode(template.Node):
     def get_value(self, context):
         """Should return a computed value to be used in render()."""
 
-    def render(self, context):
+    def render(self, context) -> str:
         result = self.get_value(context)
         if self.as_var:
             context[self.as_var] = result
             return ''
-        return result
+        return f'{result}'
 
 
 class sitetree_urlNode(SimpleNode):

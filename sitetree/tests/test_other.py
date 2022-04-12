@@ -30,15 +30,19 @@ def test_stress(template_render_tag, template_context, template_strip_tags, buil
     assert description == 'Private Area Description'
     assert breadcrumbs == 'Home|&gt;|Russia|&gt;|Web|&gt;|Private'
 
-    assert template_strip_tags(menu) == 'Home|Users|Moderators|Ordinary|Articles|About cats|Good|Bad|Ugly|About dogs|' \
-                               'Contacts|Russia|Web|Public|Private|Postal|Australia|Darwin|China'
+    assert template_strip_tags(menu) == (
+        'Home|Users|Moderators|Ordinary|Articles|About cats|Good|Bad|Ugly|About dogs|'
+        'Contacts|Russia|Web|Public|my model|Private|Postal|Australia|Darwin|China'
+    )
     assert 'current_item current_branch">Private' in menu
 
     assert template_strip_tags(menu_other) == 'Root|Other title|Title_myval'
     assert 'current_item current_branch">Other title' in menu_other
 
-    assert tree == 'Home|Users|Moderators|Ordinary|Articles|About cats|Good|Bad|Ugly|About dogs|About mice|Contacts|' \
-                   'Russia|Web|Public|Private|Australia|Darwin|China'
+    assert tree == (
+        'Home|Users|Moderators|Ordinary|Articles|About cats|Good|Bad|Ugly|About dogs|About mice|Contacts|' 
+        'Russia|Web|Public|my model|Private|Australia|Darwin|China'
+    )
 
 
 def test_lazy_title(template_context):

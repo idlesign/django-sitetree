@@ -5,6 +5,7 @@ from django.utils.translation import activate, deactivate_all
 from sitetree.exceptions import SiteTreeError
 from sitetree.settings import ALIAS_THIS_ANCESTOR_CHILDREN, ALIAS_THIS_CHILDREN, ALIAS_THIS_PARENT_SIBLINGS, \
     ALIAS_THIS_SIBLINGS, ALIAS_TRUNK
+from sitetree.sitetreeapp import LazyTitle
 
 
 def test_items_hook(template_render_tag, template_context, common_tree):
@@ -142,10 +143,16 @@ def test_permissions(user_create, build_tree, template_render_tag, template_cont
     assert '"/contacts/australia/minjilang/"' not in result
 
 
-def test_title_vars(template_render_tag, template_context, common_tree):
+def test_title_vars(template_render_tag, template_context, common_tree, request_client):
     context = template_context({'subtitle': 'title_from_var'})
     result = template_render_tag('sitetree', 'sitetree_tree from "mytree"', context)
     assert 'Public title_from_var' in result
+
+
+def test_tpl_render(request_client, common_tree):
+    client = request_client()
+    out = client.get('/mymodel/').content.decode()
+    assert out == '\n-my model thisismine-\n'
 
 
 def test_urlpattern_resolve(monkeypatch, template_render_tag, template_context, common_tree):

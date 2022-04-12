@@ -2,6 +2,11 @@ django-sitetree changelog
 =========================
 
 
+Unreleased
+----------
+* Fixed LazyTitle issues in Django 4.
+
+
 v1.17.1 [2021-12-18]
 --------------------
 * Django 4.0 compatibility improved.

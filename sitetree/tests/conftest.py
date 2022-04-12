@@ -7,6 +7,9 @@ def hook(settings):
     apps = settings['INSTALLED_APPS']
     apps.remove('sitetree.tests.testapp')
     apps.append('sitetree.tests.testapp.conf.MyAppConfig')
+
+    settings['TEMPLATES'][0]['OPTIONS']['context_processors'].append('django.template.context_processors.request')
+
     return settings
 
 
@@ -94,6 +97,7 @@ def common_tree(build_tree):
                      'hint': 'The place', 'description': 'Russian Federation', 'children': [
                         {'title': 'Web', 'alias': 'ruweb', 'url': '/contacts/russia/web/', 'children': [
                             {'title': 'Public {{ subtitle }}', 'url': '/contacts/russia/web/public/'},
+                            {'title': 'my model {{ model }}', 'url': '/mymodel/'},
                             {'title': 'Private',
                              'url': '/contacts/russia/web/private/',
                              'hint': 'Private Area Hint',
