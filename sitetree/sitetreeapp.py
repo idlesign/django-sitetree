@@ -23,7 +23,8 @@ from .exceptions import SiteTreeError
 from .settings import (
     ALIAS_TRUNK, ALIAS_THIS_CHILDREN, ALIAS_THIS_SIBLINGS, ALIAS_THIS_PARENT_SIBLINGS, ALIAS_THIS_ANCESTOR_CHILDREN,
     UNRESOLVED_ITEM_MARKER, RAISE_ITEMS_ERRORS_ON_DEBUG, CACHE_TIMEOUT, CACHE_NAME, DYNAMIC_ONLY, ADMIN_APP_NAME,
-    SITETREE_CLS)
+    SITETREE_CLS,
+)
 from .utils import get_tree_model, get_tree_item_model, import_app_sitetree_module, generate_id_for
 
 if False:  # pragma: nocover
@@ -31,6 +32,7 @@ if False:  # pragma: nocover
     from .models import TreeItemBase, TreeBase
 
 TypeDynamicTrees = Dict[str, Union[Dict[str, List['TreeBase']], List['TreeBase']]]
+TypeStrExpr = Union[str, FilterExpression]
 
 MODEL_TREE_CLASS = get_tree_model()
 MODEL_TREE_ITEM_CLASS = get_tree_item_model()
@@ -750,7 +752,7 @@ class SiteTree:
 
         return tree_alias, sitetree_items
 
-    def get_current_page_title(self, tree_alias: str, context: Context) -> str:
+    def get_current_page_title(self, tree_alias: TypeStrExpr, context: Context) -> str:
         """Returns resolved from sitetree title for current page.
 
         :param tree_alias:
@@ -759,7 +761,7 @@ class SiteTree:
         """
         return self.get_current_page_attr('title_resolved', tree_alias, context)
 
-    def get_current_page_attr(self, attr_name: str, tree_alias: str, context: Context) -> str:
+    def get_current_page_attr(self, attr_name: str, tree_alias: TypeStrExpr, context: Context) -> str:
         """Returns an arbitrary attribute of a sitetree item resolved as current for current page.
 
         :param attr_name:
@@ -795,7 +797,7 @@ class SiteTree:
 
         return self.get_ancestor_level(current_item.parent, depth=depth-1)
 
-    def menu(self, tree_alias: str, tree_branches: str, context: Context) -> List['TreeItemBase']:
+    def menu(self, tree_alias: TypeStrExpr, tree_branches: TypeStrExpr, context: Context) -> List['TreeItemBase']:
         """Builds and returns menu structure for 'sitetree_menu' tag.
 
         :param tree_alias:
@@ -928,7 +930,7 @@ class SiteTree:
         """
         return user.get_all_permissions()
 
-    def breadcrumbs(self, tree_alias: str, context: Context) -> List['TreeItemBase']:
+    def breadcrumbs(self, tree_alias: TypeStrExpr, context: Context) -> List['TreeItemBase']:
         """Builds and returns breadcrumb trail structure for 'sitetree_breadcrumbs' tag.
 
         :param tree_alias:
@@ -969,7 +971,7 @@ class SiteTree:
 
         return items
 
-    def tree(self, tree_alias: str, context:  Context) -> List['TreeItemBase']:
+    def tree(self, tree_alias: TypeStrExpr, context:  Context) -> List['TreeItemBase']:
         """Builds and returns tree structure for 'sitetree_tree' tag.
 
         :param tree_alias:
@@ -989,7 +991,7 @@ class SiteTree:
 
     def children(
             self,
-            parent_item: 'TreeItemBase',
+            parent_item: Union[str, 'TreeItemBase'],
             navigation_type: str,
             use_template: str,
             context: Context
@@ -1116,7 +1118,7 @@ class SiteTree:
 
     def resolve_var(
             self,
-            varname: Union[str, 'TreeItemBase', FilterExpression],
+            varname: Union[TypeStrExpr, 'TreeItemBase'],
             context: Context = None
     ) -> Any:
         """Resolves name as a variable in a given context.
