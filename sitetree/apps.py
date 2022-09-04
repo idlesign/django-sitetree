@@ -7,3 +7,4 @@ class SitetreeConfig(AppConfig):
 
     name: str = 'sitetree'
     verbose_name: str = _('Site Trees')
+    default_auto_field = 'django.db.models.AutoField'
