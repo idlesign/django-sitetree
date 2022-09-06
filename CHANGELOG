@@ -2,8 +2,8 @@ django-sitetree changelog
 =========================
 
 
-Unreleased
-----------
+v1.17.3 [2022-09-06]
+--------------------
 * Defined 'default_auto_field' in 'SiteTreeConfig'.
 
 
