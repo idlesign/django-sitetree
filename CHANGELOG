@@ -2,6 +2,11 @@ django-sitetree changelog
 =========================
 
 
+Unreleased
+----------
+* Defined 'default_auto_field' in 'SiteTreeConfig'.
+
+
 v1.17.2 [2022-04-12]
 --------------------
 * Fixed LazyTitle issues in Django 4.
