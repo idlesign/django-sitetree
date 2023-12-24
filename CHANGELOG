@@ -4,7 +4,7 @@ django-sitetree changelog
 
 Unreleased
 ----------
-* Add QA for Python 3.11 and Django 5.0.
+* Add QA for Python 3.11 and Django 5.0. Dropped QA for Python 3.6
 
 
 v1.17.3 [2022-09-06]
