@@ -887,17 +887,17 @@ class SiteTree:
 
         return processor(tree_items=items, tree_sender=sender, context=self.current_page_context)
 
-    def check_access(self, item: 'TreeItemBase', context: Context) -> bool:
-        """Checks whether a current user has an access to a certain item.
+    def check_access_auth(self, item: 'TreeItemBase', context: Context) -> bool:
+        """Performs authentication related checks: whether the current user has an access to a certain item.
 
         :param item:
         :param context:
 
         """
-        if hasattr(self.current_request.user.is_authenticated, '__call__'):
-            authenticated = self.current_request.user.is_authenticated()
-        else:
-            authenticated = self.current_request.user.is_authenticated
+        authenticated = self.current_request.user.is_authenticated
+
+        if hasattr(authenticated, '__call__'):
+            authenticated = authenticated()
 
         if item.access_loggedin and not authenticated:
             return False
@@ -905,6 +905,15 @@ class SiteTree:
         if item.access_guest and authenticated:
             return False
 
+        return True
+
+    def check_access_perms(self, item: 'TreeItemBase', context: Context) -> bool:
+        """Performs permissions related checks: whether the current user has an access to a certain item.
+
+        :param item:
+        :param context:
+
+        """
         if item.access_restricted:
             user_perms = self._current_user_permissions
 
@@ -912,12 +921,49 @@ class SiteTree:
                 user_perms = self.get_permissions(self.current_request.user, item)
                 self._current_user_permissions = user_perms
 
+            perms = item.perms  # noqa dynamic attr
+
             if item.access_perm_type == MODEL_TREE_ITEM_CLASS.PERM_TYPE_ALL:
-                if len(item.perms) != len(item.perms.intersection(user_perms)):  # noqa dynamic attr
+                if len(perms) != len(perms.intersection(user_perms)):
                     return False
             else:
-                if not len(item.perms.intersection(user_perms)):  # noqa dynamic attr
+                if not len(perms.intersection(user_perms)):
                     return False
+
+        return True
+
+    def check_access_dyn(self, item: 'TreeItemBase', context: Context) -> Optional[bool]:
+        """Performs dynamic item access check.
+
+        :param item: The item is expected to have `access_check` callable attribute implementing the check.
+        :param context:
+
+        """
+        result = None
+        access_check_func = getattr(item, 'access_check', None)
+
+        if access_check_func:
+            return access_check_func(tree=self)
+
+        return None
+
+    def check_access(self, item: 'TreeItemBase', context: Context) -> bool:
+        """Checks whether a current user has an access to a certain item.
+
+        :param item:
+        :param context:
+
+        """
+        dyn_check = self.check_access_dyn(item, context)
+
+        if dyn_check is not None:
+            return dyn_check
+
+        if not self.check_access_auth(item, context):
+            return False
+
+        if not self.check_access_perms(item, context):
+            return False
 
         return True
 

@@ -104,3 +104,25 @@ in ``urls.py`` of your project.
 .. note:: If you use only dynamic trees you can set ``SITETREE_DYNAMIC_ONLY = True`` to prevent the application
     from querying trees and items stored in DB.
 
+
+Access check for dynamic items
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For dynamic trees you can implement access on per tree item basis.
+
+Pass an access checking function  in ``access_check`` argument.
+
+.. note:: This function must accept ``tree`` argument and support pickling (e.g. be exposed on a module level).
+
+
+.. code-block:: python
+
+    def check_user_is_staff(tree):
+        return tree.current_request.user.is_staff
+
+    ...
+
+    item('dynamic_2', 'dynamic_2_url', access_check=check_user_is_staff),
+
+    ...
+

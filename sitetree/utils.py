@@ -1,10 +1,11 @@
 from importlib import import_module
 from types import ModuleType
-from typing import Any, Sequence, Type, Union, List, Optional, Tuple
+from typing import Any, Sequence, Type, Union, List, Optional, Tuple, Callable
 
 from django.apps import apps
 from django.contrib.auth.models import Permission
 from django.core.exceptions import ImproperlyConfigured
+from django.template.context import Context
 from django.utils.functional import SimpleLazyObject
 from django.utils.module_loading import module_has_submodule
 
@@ -101,6 +102,7 @@ def item(
         access_by_perms: Union[TypePermission, List[TypePermission]] = None,
         perms_mode_all: bool = True,
         dynamic_attrs: Optional[dict] = None,
+        access_check: Optional[Callable[[Context], Optional[bool]]] = None,
         **kwargs
 ) -> 'TreeItemBase':
     """Dynamically creates and returns a sitetree item object.
@@ -141,7 +143,14 @@ def item(
                 True - user should have all the permissions;
                 False - user should have any of chosen permissions.
 
-    :param dynamic_attrs: dynamic attributes to be attached to the item runtime.
+    :param dynamic_attrs: dynamic attributes to be attached to the item runtime
+
+    :param access_check: a callable to perform a custom item access check
+            Requires to accept `tree` named parameter (current user is in `tree.current_request.user`).
+            Boolean return is considered as an access check result.
+            None return instructs sitetree to process with other common access checks.
+
+            .. note:: This callable must support pickling (e.g. be exposed on a module level).
 
     """
     item_obj = get_tree_item_model()(
@@ -161,10 +170,13 @@ def item(
     if access_by_perms:
         item_obj.access_restricted = True
 
-    if children is not None:
-        for child in children:
-            child.parent = item_obj
-            item_obj.dynamic_children.append(child)
+    if access_check:
+        item_obj.access_check = access_check
+
+    children = children or []
+    for child in children:
+        child.parent = item_obj
+        item_obj.dynamic_children.append(child)
 
     dynamic_attrs = dynamic_attrs or {}
     for key, value in dynamic_attrs.items():

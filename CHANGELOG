@@ -4,7 +4,8 @@ django-sitetree changelog
 
 Unreleased
 ----------
-+ Dynamic trees: add 'dynamic_attrs' parameter support for item().
++ Dynamic trees: add 'dynamic_attrs' parameter support for item() (closes #313).
++ Dynamic trees: add support for user-defined tree item access checks (closes #314).
 * Add QA for Python 3.11 and Django 5.0. Dropped QA for Python 3.6
 
 

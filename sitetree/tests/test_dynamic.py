@@ -16,6 +16,14 @@ def test_dynamic_only(template_render_tag, template_context, template_strip_tags
     assert 'dynamic1_1' in result
 
 
+dynamic_access_checked = []
+
+
+def dynamic_access_check_it(tree):
+    dynamic_access_checked.append('yes')
+    return True
+
+
 def test_dynamic_basic(template_render_tag, template_context, template_strip_tags):
 
     from sitetree.toolbox import compose_dynamic_tree, register_dynamic_trees, tree, item, get_dynamic_trees
@@ -24,9 +32,15 @@ def test_dynamic_basic(template_render_tag, template_context, template_strip_tag
     item_dyn_attrs = item('dynamic2_1', '/dynamic2_1_url', url_as_pattern=False, dynamic_attrs={'a': 'b'})
     assert item_dyn_attrs.a == 'b'
 
+    item_dyn_access_check = item(
+        'dynamic1_1', '/dynamic1_1_url', url_as_pattern=False, sort_order=2,
+        access_check=dynamic_access_check_it
+    )
+    assert item_dyn_access_check.access_check is dynamic_access_check_it
+
     trees = [
         compose_dynamic_tree([tree('dynamic1', items=[
-            item('dynamic1_1', '/dynamic1_1_url', url_as_pattern=False, sort_order=2),
+            item_dyn_access_check,
             item('dynamic1_2', '/dynamic1_2_url', url_as_pattern=False, sort_order=1),
         ])]),
         compose_dynamic_tree([tree('dynamic2', items=[
@@ -40,6 +54,7 @@ def test_dynamic_basic(template_render_tag, template_context, template_strip_tag
 
     assert 'dynamic1_1|dynamic1_2' in result
     assert 'dynamic2_1' not in result
+    assert dynamic_access_checked == ['yes']
 
     register_dynamic_trees(trees)
 
