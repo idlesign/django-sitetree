@@ -21,13 +21,16 @@ def test_dynamic_basic(template_render_tag, template_context, template_strip_tag
     from sitetree.toolbox import compose_dynamic_tree, register_dynamic_trees, tree, item, get_dynamic_trees
     from sitetree.sitetreeapp import _IDX_ORPHAN_TREES
 
+    item_dyn_attrs = item('dynamic2_1', '/dynamic2_1_url', url_as_pattern=False, dynamic_attrs={'a': 'b'})
+    assert item_dyn_attrs.a == 'b'
+
     trees = [
         compose_dynamic_tree([tree('dynamic1', items=[
             item('dynamic1_1', '/dynamic1_1_url', url_as_pattern=False, sort_order=2),
             item('dynamic1_2', '/dynamic1_2_url', url_as_pattern=False, sort_order=1),
         ])]),
         compose_dynamic_tree([tree('dynamic2', items=[
-            item('dynamic2_1', '/dynamic2_1_url', url_as_pattern=False),
+            item_dyn_attrs,
             item('dynamic2_2', '/dynamic2_2_url', url_as_pattern=False),
         ])]),
     ]

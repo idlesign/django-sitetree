@@ -100,6 +100,7 @@ def item(
         access_guest: bool = False,
         access_by_perms: Union[TypePermission, List[TypePermission]] = None,
         perms_mode_all: bool = True,
+        dynamic_attrs: Optional[dict] = None,
         **kwargs
 ) -> 'TreeItemBase':
     """Dynamically creates and returns a sitetree item object.
@@ -140,6 +141,8 @@ def item(
                 True - user should have all the permissions;
                 False - user should have any of chosen permissions.
 
+    :param dynamic_attrs: dynamic attributes to be attached to the item runtime.
+
     """
     item_obj = get_tree_item_model()(
         title=title, url=url, urlaspattern=url_as_pattern,
@@ -162,6 +165,10 @@ def item(
         for child in children:
             child.parent = item_obj
             item_obj.dynamic_children.append(child)
+
+    dynamic_attrs = dynamic_attrs or {}
+    for key, value in dynamic_attrs.items():
+        setattr(item_obj, key, value)
 
     return item_obj
 
