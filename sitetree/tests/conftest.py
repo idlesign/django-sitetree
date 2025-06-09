@@ -6,7 +6,7 @@ from pytest_djangoapp import configure_djangoapp_plugin
 def hook(settings):
     apps = settings['INSTALLED_APPS']
     # apps.remove('sitetree.tests.testapp')
-    apps.append('sitetree.tests.testapp.conf.MyAppConfig')
+    # apps.append('sitetree.tests.testapp.conf.MyAppConfig')
 
     settings['TEMPLATES'][0]['OPTIONS']['context_processors'].append('django.template.context_processors.request')
 
