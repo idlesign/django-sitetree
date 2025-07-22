@@ -2,7 +2,9 @@
 <ul class="dropdown-menu">
     {% for item in sitetree_items %}
         <li {% if item.is_current or item.in_current_branch %}class="active"{% endif %}>
-            <a href="{% sitetree_url for item %}" {% if item.hint %}title="{{ item.hint }}"{% endif %}>{{ item.title_resolved }}</a>
+            <a href="{% sitetree_url for item %}" {% if item.hint %}title="{{ item.hint }}"{% endif %}>
+                {% block title %}{{ item.title_resolved }}{% endblock title %}
+            </a>
         </li>
     {% endfor %}
 </ul>

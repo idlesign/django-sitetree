@@ -4,7 +4,9 @@
 	{% for item in sitetree_items %}
 		{% if item.insitetree  %}
 			<li>
-				<a href="{% sitetree_url for item %}" {% if item.hint %}title="{{ item.hint }}"{% endif %}>{{ item.title_resolved }}</a>
+				<a href="{% sitetree_url for item %}" {% if item.hint %}title="{{ item.hint }}"{% endif %}>
+					{% block title %}{{ item.title_resolved }}{% endblock title %}
+				</a>
 				{% if item.has_children %}
 					{% sitetree_children of item for sitetree template "sitetree/tree.html" %}
 				{% endif %}

@@ -2,7 +2,9 @@
 <ul class="nav-bar {{ extra_class_ul }}">
 	{% for item in sitetree_items %}
 	<li class="{% if item.is_current or item.in_current_branch %}active{% endif %} {% if item.has_children %}has-flyout{% endif %}">
-        <a href="{% if item.has_children %}#{% else %}{% sitetree_url for item %}{% endif %}">{{ item.title_resolved }}</a>
+        <a href="{% if item.has_children %}#{% else %}{% sitetree_url for item %}{% endif %}">
+            {% block title %}{{ item.title_resolved }}{% endblock title %}
+        </a>
 		{% if item.has_children %}
             <a href="#" class="flyout-toggle"><span> </span></a>
 			{% sitetree_children of item for menu template "sitetree/menu_foundation_flyout.html" %}
