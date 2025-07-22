@@ -3,7 +3,7 @@
     {% for item in sitetree_items %}
         <li class="nav-item {% if item.has_children %}dropdown{% endif %}">
             <a href="{% if item.has_children %}#{% else %}{% sitetree_url for item %}{% endif %}" class="nav-link {% if item.is_current or item.in_current_branch %}active{% endif %} {% if item.has_children %}dropdown-toggle" aria-haspopup="true" id="navitem-{{ item.id }}" data-toggle="dropdown{% endif %}">
-                {{ item.title_resolved }}
+                {% block title %}{{ item.title_resolved }}{% endblock title %}
             </a>
             {% if item.has_children %}
                 {% sitetree_children of item for menu template "sitetree/menu_bootstrap4_dropdown.html" %}
