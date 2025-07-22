@@ -41,6 +41,22 @@ To customize visual representation of navigation elements you should override th
   5. See :ref:`Advanced SiteTree tags section <tags-advanced>` for clarification on two advanced SiteTree template tags.
 
 
+Adding HTML to menu item titles
+-------------------------------
+
+To add HTML content (such as Font Awesome icons) to menu item titles, you can override the ``title`` block in sitetree templates. Most menu templates now include ``{% block title %}{{ item.title_resolved }}{% endblock title %}`` which allows you to customize how titles are rendered. For semantic menu templates with dropdown functionality, use ``{% block title_dropdown %}`` for parent items and ``{% block title %}`` for regular items. Simply extend the desired template and override the title block to include your custom HTML::
+
+    {% extends "sitetree/menu_bootstrap5.html" %}
+    
+    {% block title %}
+        {{ item.title_resolved|safe }}
+    {% endblock title %}
+
+.. warning::
+
+    **Security Warning**: When using HTML in sitetree titles, always ensure that the content is properly sanitized to prevent cross-site scripting (XSS) attacks. Only use the ``|safe`` filter when you are certain that the content is trusted and does not contain malicious code. In systems where users have access to edit sitetree items, consider implementing additional validation or sanitization of HTML content before storage.
+
+
 Templates for Foundation Framework
 ----------------------------------
 
