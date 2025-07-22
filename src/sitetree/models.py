@@ -21,7 +21,7 @@ class CharFieldNullable(models.CharField):
 class TreeBase(models.Model):
 
     title = models.CharField(
-        _('Title'), max_length=100, help_text=_('Site tree title for presentational purposes.'), blank=True)
+        _('Title'), max_length=256, help_text=_('Site tree title for presentational purposes.'), blank=True)
 
     alias = models.CharField(
         _('Alias'), max_length=80,
@@ -51,7 +51,7 @@ class TreeItemBase(models.Model):
     }
 
     title = models.CharField(
-        _('Title'), max_length=100,
+        _('Title'), max_length=256,
         help_text=_('Site tree item title. Can contain template variables E.g.: {{ mytitle }}.'))
 
     hint = models.CharField(
