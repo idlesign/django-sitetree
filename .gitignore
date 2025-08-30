@@ -1,7 +1,9 @@
-*.pyc
 .project
 .pydevproject
 .idea
 .tox
-django_sitetree.egg-info
-docs/build
+__pycache__
+*.pyc
+*.pyo
+*.egg-info
+docs/_build/
