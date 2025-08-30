@@ -2,8 +2,8 @@ from django.contrib.admin.sites import site
 
 
 def get_item_admin():
-    from sitetree.models import TreeItem
     from sitetree.admin import TreeItemAdmin
+    from sitetree.models import TreeItem
     admin = TreeItemAdmin(TreeItem, site)
     return admin
 
@@ -47,7 +47,7 @@ def test_admin_tree_item_basic(request_get, common_tree):
 
 
 def test_admin_tree_item_move(common_tree):
-    from sitetree.models import TreeItem, Tree
+    from sitetree.models import Tree, TreeItem
 
     main_tree = Tree(alias='main')
     main_tree.save()

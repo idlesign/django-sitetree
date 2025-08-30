@@ -1,7 +1,6 @@
 from django.urls import re_path
 
-from .views import index, listing, detailed
-
+from .views import detailed, index, listing
 
 urlpatterns = [
     re_path(r'^$', index, name='index'),

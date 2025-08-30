@@ -1,13 +1,10 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 from django.shortcuts import get_list_or_404, redirect
 
-from .models import Article
-from .utils import render_themed
-
 from sitetree.toolbox import register_i18n_trees
 
+from .models import Article
+from .utils import render_themed
 
 register_i18n_trees(['main'])
 

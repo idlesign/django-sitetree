@@ -1,11 +1,11 @@
-from typing import Optional, List
+from typing import List, Optional
 
 from django import template
 from django.template import Context
 from django.template.base import FilterExpression, Parser, Token
 from django.template.loader import get_template
 
-from ..sitetreeapp import get_sitetree, TypeStrExpr
+from ..sitetreeapp import TypeStrExpr, get_sitetree
 
 if False:  # pragma: nocover
     from ..models import TreeItemBase  # noqa

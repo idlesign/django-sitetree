@@ -2,9 +2,8 @@ from django.core import serializers
 from django.core.management.base import BaseCommand, CommandError
 from django.db import DEFAULT_DB_ALIAS
 
-from sitetree.utils import get_tree_model, get_tree_item_model
 from sitetree.compat import CommandOption, options_getter
-
+from sitetree.utils import get_tree_item_model, get_tree_model
 
 MODEL_TREE_CLASS = get_tree_model()
 MODEL_TREE_ITEM_CLASS = get_tree_item_model()

@@ -60,7 +60,7 @@ def get_permission_and_name():
     return perm, perm_name
 
 
-class TestPermissions():
+class TestPermissions:
 
     def test_permission_any(self):
         from sitetree.toolbox import item
@@ -98,7 +98,7 @@ class TestPermissions():
         assert i1.permissions == [perm]
 
     def test_bad_string_permissions(self, template_context, template_render_tag):
-        from sitetree.toolbox import register_dynamic_trees, tree, item, compose_dynamic_tree
+        from sitetree.toolbox import compose_dynamic_tree, item, register_dynamic_trees, tree
 
         register_dynamic_trees(compose_dynamic_tree([tree('bad', items=[
             item('root', 'url', access_by_perms='bad name'),
@@ -106,11 +106,11 @@ class TestPermissions():
 
         with pytest.raises(ValueError):
             template_render_tag(
-                'sitetree', f'sitetree_page_title from "bad"',
+                'sitetree', 'sitetree_page_title from "bad"',
                 template_context(request='/'))
 
     def test_unknown_name_permissions(self, template_context, template_render_tag):
-        from sitetree.toolbox import register_dynamic_trees, tree, item, compose_dynamic_tree
+        from sitetree.toolbox import compose_dynamic_tree, item, register_dynamic_trees, tree
 
         register_dynamic_trees(compose_dynamic_tree([tree('unknown', items=[
             item('root', 'url', access_by_perms='unknown.name'),
@@ -118,11 +118,11 @@ class TestPermissions():
 
         with pytest.raises(ValueError):
             template_render_tag(
-                'sitetree', f'sitetree_page_title from "unknown"',
+                'sitetree', 'sitetree_page_title from "unknown"',
                 template_context(request='/'))
 
     def test_float_permissions(self, template_context, template_render_tag):
-        from sitetree.toolbox import register_dynamic_trees, tree, item, compose_dynamic_tree
+        from sitetree.toolbox import compose_dynamic_tree, item, register_dynamic_trees, tree
 
         register_dynamic_trees(compose_dynamic_tree([tree('fortytwodottwo', items=[
             item('root', 'url', access_by_perms=42.2),
@@ -130,7 +130,7 @@ class TestPermissions():
 
         with pytest.raises(ValueError) as e:
             template_render_tag(
-                'sitetree', f'sitetree_page_title from "fortytwodottwo"',
+                'sitetree', 'sitetree_page_title from "fortytwodottwo"',
                 template_context(request='/'))
 
     def test_access_restricted(self):

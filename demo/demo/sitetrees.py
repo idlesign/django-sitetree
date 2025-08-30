@@ -1,5 +1,4 @@
-from sitetree.utils import tree, item
-
+from sitetree.utils import item, tree
 
 sitetrees = (
     tree('books', items=[

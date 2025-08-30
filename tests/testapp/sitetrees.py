@@ -1,5 +1,4 @@
-from sitetree.toolbox import tree, item
-
+from sitetree.toolbox import item, tree
 
 sitetrees = [
     tree('dynamic3', items=[

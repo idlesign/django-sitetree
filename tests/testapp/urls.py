@@ -1,7 +1,8 @@
-from django.shortcuts import render
-from django.urls import re_path, path
 from django.contrib import admin
+from django.shortcuts import render
+from django.urls import path, re_path
 from django.views.defaults import server_error
+
 from .models import MyModel
 
 

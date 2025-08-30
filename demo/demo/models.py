@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 from django.db import models
 
@@ -18,7 +16,7 @@ customized_sitetree_models = False
 
 if customized_sitetree_models:
 
-    from sitetree.models import TreeItemBase, TreeBase
+    from sitetree.models import TreeBase, TreeItemBase
 
 
     class MyTree(TreeBase):

@@ -2,7 +2,7 @@ import pytest
 
 
 def test_dynamic_only(template_render_tag, template_context, template_strip_tags, monkeypatch):
-    from sitetree.toolbox import compose_dynamic_tree, register_dynamic_trees, tree, item
+    from sitetree.toolbox import compose_dynamic_tree, item, register_dynamic_trees, tree
 
     # If DYNAMIC_ONLY is not set, pytest-django will tell: "Database access not allowed" on any DB access attempt.
     monkeypatch.setattr('sitetree.sitetreeapp.DYNAMIC_ONLY', 'UNKNOWN')
@@ -26,8 +26,8 @@ def dynamic_access_check_it(tree):
 
 def test_dynamic_basic(template_render_tag, template_context, template_strip_tags):
 
-    from sitetree.toolbox import compose_dynamic_tree, register_dynamic_trees, tree, item, get_dynamic_trees
     from sitetree.sitetreeapp import _IDX_ORPHAN_TREES
+    from sitetree.toolbox import compose_dynamic_tree, get_dynamic_trees, item, register_dynamic_trees, tree
 
     item_dyn_attrs = item('dynamic2_1', '/dynamic2_1_url', url_as_pattern=False, dynamic_attrs={'a': 'b'})
     assert item_dyn_attrs.a == 'b'
@@ -71,7 +71,7 @@ def test_dynamic_basic(template_render_tag, template_context, template_strip_tag
 
 def test_dynamic_attach(template_render_tag, template_context, template_strip_tags, common_tree):
 
-    from sitetree.toolbox import compose_dynamic_tree, register_dynamic_trees, tree, item
+    from sitetree.toolbox import compose_dynamic_tree, item, register_dynamic_trees, tree
 
     children = [
         item('dynamic2_2_child', '/dynamic2_2_url_child', url_as_pattern=False),

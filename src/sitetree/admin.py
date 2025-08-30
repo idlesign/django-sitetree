@@ -1,18 +1,16 @@
-from typing import Tuple, Type, Optional
+from typing import Optional, Tuple, Type
 
 from django import forms
 from django.conf import settings as django_settings
-from django.urls import re_path, path
-from django.contrib import admin
-from django.contrib import messages
+from django.contrib import admin, messages
 from django.contrib.admin.sites import NotRegistered
-from django.http import HttpResponseRedirect, HttpRequest, HttpResponse
-from django.urls import get_urlconf, get_resolver
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.urls import get_resolver, get_urlconf, path, re_path
 from django.utils.translation import gettext_lazy as _
 
 from .fields import TreeItemChoiceField
 from .settings import MODEL_TREE, MODEL_TREE_ITEM
-from .utils import get_tree_model, get_tree_item_model, get_app_n_model
+from .utils import get_app_n_model, get_tree_item_model, get_tree_model
 
 if False:  # pragma: nocover
     from .models import TreeItemBase, TreeBase  # noqa

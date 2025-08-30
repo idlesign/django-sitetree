@@ -1,6 +1,5 @@
 from django.conf import settings
 
-
 SITETREE_CLS: str = getattr(settings, 'SITETREE_CLS', None)
 """Allows deep tree handling customization. Accepts sitetreeap.SiteTree subclass."""
 
@@ -13,7 +12,7 @@ MODEL_TREE_ITEM: str = getattr(settings, 'SITETREE_MODEL_TREE_ITEM', 'sitetree.T
 APP_MODULE_NAME: str = getattr(settings, 'SITETREE_APP_MODULE_NAME', 'sitetrees')
 """Module name where applications store trees shipped with them."""
 
-UNRESOLVED_ITEM_MARKER: str = getattr(settings, 'SITETREE_UNRESOLVED_ITEM_MARKER', u'#unresolved')
+UNRESOLVED_ITEM_MARKER: str = getattr(settings, 'SITETREE_UNRESOLVED_ITEM_MARKER', '#unresolved')
 """This string is place instead of item URL if actual URL cannot be resolved."""
 
 RAISE_ITEMS_ERRORS_ON_DEBUG: bool = getattr(settings, 'SITETREE_RAISE_ITEMS_ERRORS_ON_DEBUG', True)

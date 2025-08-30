@@ -1,14 +1,14 @@
+import sys
 from collections import defaultdict
 
-import sys
 from django.core import serializers
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management.color import no_style
-from django.db import connections, router, transaction, DEFAULT_DB_ALIAS
+from django.db import DEFAULT_DB_ALIAS, connections, router
 
 from sitetree.compat import CommandOption, options_getter
-from sitetree.utils import get_tree_model, get_tree_item_model
+from sitetree.utils import get_tree_item_model, get_tree_model
 
 MODEL_TREE_CLASS = get_tree_model()
 MODEL_TREE_ITEM_CLASS = get_tree_item_model()
@@ -71,7 +71,7 @@ class Command(BaseCommand):
 
             self.stdout.write(f'Loading fixture from `{fixture_file}` ...\n')
 
-            fixture = open(fixture_file, 'r')
+            fixture = open(fixture_file)
 
             try:
                 objects = serializers.deserialize('json', fixture, using=using)

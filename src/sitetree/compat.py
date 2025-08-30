@@ -6,7 +6,7 @@ try:
     TOKEN_TEXT = TokenType.TEXT
     TOKEN_VAR = TokenType.VAR
 except ImportError:
-    from django.template.base import TOKEN_BLOCK, TOKEN_TEXT, TOKEN_VAR
+    from django.template.base import TOKEN_BLOCK, TOKEN_TEXT, TOKEN_VAR  # noqa
 
 
 class CommandOption:

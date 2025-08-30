@@ -3,9 +3,13 @@ from django.template.base import TemplateSyntaxError
 from django.utils.translation import activate, deactivate_all
 
 from sitetree.exceptions import SiteTreeError
-from sitetree.settings import ALIAS_THIS_ANCESTOR_CHILDREN, ALIAS_THIS_CHILDREN, ALIAS_THIS_PARENT_SIBLINGS, \
-    ALIAS_THIS_SIBLINGS, ALIAS_TRUNK
-from sitetree.sitetreeapp import LazyTitle
+from sitetree.settings import (
+    ALIAS_THIS_ANCESTOR_CHILDREN,
+    ALIAS_THIS_CHILDREN,
+    ALIAS_THIS_PARENT_SIBLINGS,
+    ALIAS_THIS_SIBLINGS,
+    ALIAS_TRUNK,
+)
 
 
 def test_items_hook(template_render_tag, template_context, common_tree):
@@ -13,7 +17,7 @@ def test_items_hook(template_render_tag, template_context, common_tree):
     from sitetree.toolbox import register_items_hook
 
     with pytest.raises(SiteTreeError):
-        register_items_hook(lambda: [])
+        register_items_hook(list)
 
     def my_processor(tree_items, tree_sender):
         for item in tree_items:

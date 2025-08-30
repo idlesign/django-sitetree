@@ -1,11 +1,10 @@
 from django.core.management.base import BaseCommand
 from django.db import DEFAULT_DB_ALIAS
 
-from sitetree.utils import get_tree_model, import_project_sitetree_modules
+from sitetree.compat import CommandOption, options_getter
 from sitetree.settings import APP_MODULE_NAME
 from sitetree.sitetreeapp import Cache
-from sitetree.compat import CommandOption, options_getter
-
+from sitetree.utils import get_tree_model, import_project_sitetree_modules
 
 MODEL_TREE_CLASS = get_tree_model()
 

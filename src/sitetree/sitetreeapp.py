@@ -4,16 +4,15 @@ from copy import deepcopy
 from inspect import getfullargspec
 from sys import exc_info
 from threading import local
-from typing import Callable, List, Optional, Dict, Union, Sequence, Any, Tuple
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 from django.conf import settings
 from django.core.cache import caches
-from django.db.models import signals, QuerySet
-from django.template.base import (
-    FilterExpression, Lexer, Parser, Variable, VariableDoesNotExist, VARIABLE_TAG_START)
+from django.db.models import QuerySet, signals
+from django.template.base import VARIABLE_TAG_START, FilterExpression, Lexer, Parser, Variable, VariableDoesNotExist
 from django.template.context import Context
 from django.template.loader import get_template
-from django.urls import reverse, NoReverseMatch
+from django.urls import NoReverseMatch, reverse
 from django.utils import module_loading
 from django.utils.encoding import iri_to_uri
 from django.utils.translation import get_language
@@ -21,11 +20,20 @@ from django.utils.translation import get_language
 from .compat import TOKEN_TEXT, TOKEN_VAR
 from .exceptions import SiteTreeError
 from .settings import (
-    ALIAS_TRUNK, ALIAS_THIS_CHILDREN, ALIAS_THIS_SIBLINGS, ALIAS_THIS_PARENT_SIBLINGS, ALIAS_THIS_ANCESTOR_CHILDREN,
-    UNRESOLVED_ITEM_MARKER, RAISE_ITEMS_ERRORS_ON_DEBUG, CACHE_TIMEOUT, CACHE_NAME, DYNAMIC_ONLY, ADMIN_APP_NAME,
+    ADMIN_APP_NAME,
+    ALIAS_THIS_ANCESTOR_CHILDREN,
+    ALIAS_THIS_CHILDREN,
+    ALIAS_THIS_PARENT_SIBLINGS,
+    ALIAS_THIS_SIBLINGS,
+    ALIAS_TRUNK,
+    CACHE_NAME,
+    CACHE_TIMEOUT,
+    DYNAMIC_ONLY,
+    RAISE_ITEMS_ERRORS_ON_DEBUG,
     SITETREE_CLS,
+    UNRESOLVED_ITEM_MARKER,
 )
-from .utils import get_tree_model, get_tree_item_model, import_app_sitetree_module, generate_id_for
+from .utils import generate_id_for, get_tree_item_model, get_tree_model, import_app_sitetree_module
 
 if False:  # pragma: nocover
     from django.contrib.auth.models import User  # noqa
@@ -545,7 +553,7 @@ class SiteTree:
         if not parents:
             parents = defaultdict(list)
             for item in sitetree:
-                parent = getattr(item, 'parent')
+                parent = item.parent
                 parents[parent].append(item)
             set_cache_entry('parents', alias, parents)
 
@@ -896,7 +904,7 @@ class SiteTree:
         """
         authenticated = self.current_request.user.is_authenticated
 
-        if hasattr(authenticated, '__call__'):
+        if callable(authenticated):
             authenticated = authenticated()
 
         if item.access_loggedin and not authenticated:

@@ -1,5 +1,4 @@
 import pytest
-
 from pytest_djangoapp import configure_djangoapp_plugin
 
 
@@ -34,8 +33,9 @@ def build_tree():
         )
 
     """
-    from sitetree.models import Tree, TreeItem
     from django.contrib.auth.models import Permission
+
+    from sitetree.models import Tree, TreeItem
 
     def build(tree_dict, items):
 

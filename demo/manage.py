@@ -2,7 +2,6 @@
 import os
 import sys
 
-
 PATH_DEMO = os.path.dirname(__file__)
 PATH_SITETREE = os.path.dirname(PATH_DEMO)
 

@@ -1,4 +1,4 @@
-from sitetree.admin import TreeItemAdmin, TreeAdmin, override_tree_admin, override_item_admin
+from sitetree.admin import TreeAdmin, TreeItemAdmin, override_item_admin, override_tree_admin
 
 
 class CustomTreeAdmin(TreeAdmin):

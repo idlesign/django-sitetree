@@ -1,6 +1,6 @@
 from importlib import import_module
 from types import ModuleType
-from typing import Any, Sequence, Type, Union, List, Optional, Tuple, Callable
+from typing import Any, Callable, List, Optional, Sequence, Tuple, Type, Union
 
 from django.apps import apps
 from django.contrib.auth.models import Permission
