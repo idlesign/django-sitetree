@@ -1,3 +1,0 @@
-[run]
-include = sitetree/*
-omit = sitetree/migrations/*, sitetree/south_migrations/*, sitetree/tests/*, sitetree/runtests.py, sitetree/config.py

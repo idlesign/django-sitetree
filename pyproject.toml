@@ -74,7 +74,9 @@ addopts = "--pyargs"
 source = [
     "src/",
 ]
-omit = []
+omit = [
+    "src/sitetree/migrations/*"
+]
 
 [tool.coverage.report]
 fail_under = 90.00
