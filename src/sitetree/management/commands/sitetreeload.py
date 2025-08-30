@@ -1,7 +1,6 @@
 import sys
 import traceback
 from collections import defaultdict
-from pathlib import Path
 
 from django.core import serializers
 from django.core.exceptions import ObjectDoesNotExist
@@ -74,7 +73,7 @@ class Command(BaseCommand):
 
             self.stdout.write(f'Loading fixture from `{fixture_file}` ...\n')
 
-            fixture = Path.open(fixture_file)
+            fixture = open(fixture_file)  # noqa: PTH123
 
             try:
                 objects = serializers.deserialize('json', fixture, using=using)
