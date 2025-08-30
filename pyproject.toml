@@ -1,0 +1,112 @@
+[project]
+name = "django-sitetree"
+dynamic = ["version"]
+description = "This reusable Django app introduces site tree, menu and breadcrumbs navigation elements."
+authors = [
+    { name = "Igor Starikov", email = "idlesign@yandex.ru" }
+]
+readme = "README.md"
+
+classifiers = [
+    "Development Status :: 5 - Production/Stable", #   3 - Alpha; 5 - Production/Stable
+    "Framework :: Django",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "License :: OSI Approved :: BSD License"
+]
+
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+keywords = ["navigation", "django"]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/idlesign/django-sitetree"
+Documentation = "https://django-sitetree.readthedocs.io/"
+
+[dependency-groups]
+dev = [
+    {include-group = "docs"},
+    {include-group = "linters"},
+    {include-group = "tests"},
+]
+docs = [
+    "mkdocs-material",
+    "mkdocs-apidescribed-plugin",
+    "mkdocs-navsorted-plugin",
+]
+linters = [
+    "ruff",
+]
+tests = [
+    "pytest",
+    "pytest-djangoapp>=1.4.1",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/sitetree/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sitetree"]
+
+[tool.hatch.build.targets.sdist]
+packages = ["src/"]
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests",
+]
+addopts = "--pyargs"
+
+[tool.coverage.run]
+source = [
+    "src/",
+]
+omit = []
+
+[tool.coverage.report]
+fail_under = 90.00
+exclude_also = [
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+]
+
+[tool.tox]
+skip_missing_interpreters = true
+env_list = [
+  "py{38,39}-dj{30,31,32,40,41,42}",
+  "py{310,311}-dj{30,31,32,40,41,42,50,51,52}",
+  "py{312,313}-dj{40,41,42,50,51,52}",
+]
+
+[tool.tox.env_run_base]
+dependency_groups = ["tests"]
+deps = [
+    "dj20: Django>=2.0,<2.1",
+    "dj21: Django>=2.1,<2.2",
+    "dj22: Django>=2.2,<2.3",
+    "dj30: Django>=3.0,<3.1",
+    "dj31: Django>=3.1,<3.2",
+    "dj32: Django>=3.2,<3.3",
+    "dj40: Django>=4.0,<4.1",
+    "dj41: Django>=4.1,<4.2",
+    "dj42: Django>=4.2,<4.3",
+    "dj50: Django>=5.0,<5.1",
+    "dj51: Django>=5.1,<5.2",
+    "dj52: Django>=5.2,<5.3",
+]
+commands = [
+  ["pytest", { replace = "posargs", default = ["tests"], extend = true }],
+]
