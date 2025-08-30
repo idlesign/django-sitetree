@@ -1,0 +1,65 @@
+target-version = "py38"
+line-length = 120
+extend-exclude = [
+    "migrations",
+]
+
+[format]
+quote-style = "single"
+exclude = []
+
+[lint]
+select = [
+    "B",  # possible bugs
+    "BLE",  # broad exception
+    "C4",  # comprehensions
+    "DTZ",  # work with datetimes
+    "E",  # code style
+    "ERA",  # commented code
+    "EXE",  # check executables
+    "F",  # misc
+    "FA",  # future annotations
+    "FBT",  # booleans
+    "FURB",  # modernizing
+    "G",  # logging format
+    "I",  # imports
+    "ICN",  # import conventions
+    "INT",  # i18n
+    "ISC",  # stringc concat
+    "PERF",  # perfomance
+    "PIE",  # misc
+    "PLC",  # misc
+    "PLE",  # misc err
+    "PT",  # pytest
+    "PTH",  # pathlib
+    "PYI",  # typing
+    "RSE", # exc raise
+    "SLOT",  # slots related
+    "TC",  # typing
+    "UP",  # py upgrade
+]
+
+ignore = []
+
+
+[lint.extend-per-file-ignores]
+
+"demo/*" = [
+    "ERA001",
+    "B904",
+    "F401",
+]
+
+"src/*" = [
+    "FA100",
+]
+
+"src/sitetree/sitetreeapp.py" = [
+    "TC001",
+]
+
+"tests/*" = [
+    "E731",
+    "PLC0415",
+    "C408",
+]
