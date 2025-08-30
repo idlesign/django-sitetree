@@ -109,7 +109,7 @@ def test_dynamic_attach_from_module(template_render_tag, template_context, templ
     assert 'dynamic4_1' in result
 
     settings.DEBUG = True
-    with pytest.warns(UserWarning):
+    with pytest.warns(UserWarning, match='Unable to register dynamic sitetree'):
         compose_dynamic_tree('nonexistent')
 
     from sitetree.sitetreeapp import _DYNAMIC_TREES

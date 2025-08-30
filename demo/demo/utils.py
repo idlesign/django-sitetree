@@ -4,7 +4,7 @@ from django.shortcuts import render
 def render_themed(request, view_type, context):
     theme = request.theme
     context.update({
-        'tpl_head': '_head%s.html' % theme,
-        'tpl_realm': '%s%s.html' % (view_type, theme)
+        'tpl_head': f'_head{theme}.html',
+        'tpl_realm': f'{view_type}{theme}.html'
     })
-    return render(request, '%s.html' % view_type, context)
+    return render(request, f'{view_type}.html', context)

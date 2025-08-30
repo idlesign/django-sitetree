@@ -79,8 +79,8 @@ class TreeItemBase(models.Model):
         _('Alias'), max_length=80,
         help_text=_(
             'Short name to address site tree item from a template.<br />'
-            '<b>Reserved aliases:</b> "%s".' % '", "'.join(TREE_ITEMS_ALIASES)
-        ),
+            '<b>Reserved aliases:</b> "%s".'
+        ) % '", "'.join(TREE_ITEMS_ALIASES),
         db_index=True, blank=True, null=True)
 
     description = models.TextField(
@@ -132,7 +132,7 @@ class TreeItemBase(models.Model):
         _('Sort order'),
         help_text=_('Item position among other site tree items under the same parent.'), db_index=True, default=0)
 
-    def save(self, force_insert=False, force_update=False, **kwargs):
+    def save(self, force_insert=False, force_update=False, **kwargs):  # noqa: FBT002
         # Ensure that item is not its own parent, since this breaks
         # the sitetree (and possibly the entire site).
         if self.parent == self:

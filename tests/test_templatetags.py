@@ -215,8 +215,8 @@ def test_sitetree_children(template_render_tag, template_context, common_tree):
 
 
 def test_sitetree_breadcrumbs(template_render_tag, template_context, common_tree):
-
-    result = template_render_tag('sitetree', 'sitetree_breadcrumbs from "notree"', template_context())  # non-existing tree
+    # non-existing tree
+    result = template_render_tag('sitetree', 'sitetree_breadcrumbs from "notree"', template_context())
 
     assert result.strip() == '<ul>\n\t\n</ul>'
 

@@ -10,7 +10,7 @@ def test_model_tree():
     assert str(tree) == tree.alias
     assert tree.get_title() == tree.alias
 
-    with pytest.raises(Exception):
+    with pytest.raises(Exception, match='constraint failed'):
         Tree(alias='test').save()  # Unique alias
 
 
@@ -43,5 +43,5 @@ def test_model_tree_item():
 
     assert item3.sort_order == item3.id  # Automatic ordering
 
-    with pytest.raises(Exception):
+    with pytest.raises(Exception, match='constraint failed'):
         TreeItem(tree=tree1, alias='only').save()  # Unique alias within tree

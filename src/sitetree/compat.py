@@ -24,7 +24,7 @@ def options_getter(command_options):
 
     """
     def get_options(option_func: Callable = None):
-        from optparse import make_option
+        from optparse import make_option  # noqa: PLC0415
 
         func = option_func or make_option
         options = tuple([func(*option.args, **option.kwargs) for option in command_options])

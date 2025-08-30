@@ -54,5 +54,5 @@ class Command(BaseCommand):
         try:
             return serializers.serialize('json', objects, indent=indent)
 
-        except Exception as e:
-            raise CommandError(f'Unable to serialize sitetree(s): {e}')
+        except Exception as e:  # noqa: BLE001
+            raise CommandError(f'Unable to serialize sitetree(s): {e}') from None

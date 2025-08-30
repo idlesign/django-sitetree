@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 import os
 import sys
+from pathlib import Path
 
-PATH_DEMO = os.path.dirname(__file__)
-PATH_SITETREE = os.path.dirname(PATH_DEMO)
+PATH_DEMO = Path(__file__).parent
+PATH_SITETREE = PATH_DEMO.parent
 
 sys.path = [PATH_DEMO, PATH_SITETREE] + sys.path
 

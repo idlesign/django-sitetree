@@ -281,7 +281,7 @@ def compose_dynamic_tree(
 
         except ImportError as e:
             if settings.DEBUG:
-                warnings.warn(f'Unable to register dynamic sitetree(s) for `{src}` application: {e}. ')
+                warnings.warn(f'Unable to register dynamic sitetree(s) for `{src}` application: {e}.', stacklevel=2)
             return {}
 
     return result(src)
@@ -334,7 +334,7 @@ class Cache:
         Could be used to show up tree changes made in a different process.
 
         """
-        cache.set('sitetrees_reset', True)
+        cache.set('sitetrees_reset', True)  # noqa: FBT003
 
     def init(self):
         """Initializes local cache from Django cache."""
@@ -581,8 +581,7 @@ class SiteTree:
                         item.permissions if getattr(item, 'is_dynamic', False)
                         else item.access_permissions.all())
 
-                    item.perms = set(
-                        [f'{perm.content_type.app_label}.{perm.codename}' for perm in permissions_src])
+                    item.perms = {f'{perm.content_type.app_label}.{perm.codename}' for perm in permissions_src}
 
             # Contextual properties.
             item.url_resolved = url(item)
@@ -697,8 +696,7 @@ class SiteTree:
             if ' ' in url:
                 view_path = url.split(' ')
                 # We should try to resolve URL parameters from site tree item.
-                for view_argument in view_path[1:]:
-                    all_arguments.append(resolve_var(view_argument))
+                all_arguments.extend(resolve_var(view_argument) for view_argument in view_path[1:])
 
                 view_path = view_path[0].strip('"\' ')
 
@@ -947,7 +945,6 @@ class SiteTree:
         :param context:
 
         """
-        result = None
         access_check_func = getattr(item, 'access_check', None)
 
         if access_check_func:

@@ -32,16 +32,18 @@ class TreeItemChoiceField(ChoiceField):
     def __init__(
             self,
             tree: 'TreeBase' = None,
+            *args,
             required: bool = True,
             widget=None,
             label=None,
             initial=None,
             help_text=None,
-            *args, **kwargs
+            **kwargs
     ):
         super().__init__(
+            *args,
             required=required, widget=widget, label=label, initial=initial,
-            help_text=help_text, *args, **kwargs)
+            help_text=help_text, **kwargs)
 
         self.tree = None
         self.choices_init(tree)

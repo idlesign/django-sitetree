@@ -19,8 +19,9 @@ get_options = options_getter((
 
 class Command(BaseCommand):
 
-    help = 'Places sitetrees of the project applications (defined in `app_name.sitetree.py`) into DB, ' \
-           'replacing old ones if any.'
+    help = (
+        'Places sitetrees of the project applications (defined in `app_name.sitetree.py`) into DB, '
+        'replacing old ones if any.')
 
     args = '[app_name app_name ...]'
 

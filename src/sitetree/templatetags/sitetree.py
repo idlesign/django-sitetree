@@ -38,7 +38,8 @@ def sitetree_tree(parser: Parser, token: Token) -> 'sitetree_treeNode':
         return sitetree_treeNode(tree_alias, use_template)
 
     raise template.TemplateSyntaxError(
-        '%r tag requires two arguments. E.g. {%% sitetree_tree from "mytree" %%}.' % tokens[0])
+        f'{tokens[0]} tag requires two arguments. '
+        'E.g. {%% sitetree_tree from "mytree" %%}.')
 
 
 @register.tag
@@ -68,8 +69,8 @@ def sitetree_children(parser: Parser, token: Token) -> 'sitetree_childrenNode':
         return sitetree_childrenNode(tree_item, navigation_type, use_template)
 
     raise template.TemplateSyntaxError(
-        '%r tag requires six arguments. '
-        'E.g. {%% sitetree_children of someitem for menu template "sitetree/mychildren.html" %%}.' % tokens[0])
+        f'{tokens[0]} tag requires six arguments. '
+        'E.g. {%% sitetree_children of someitem for menu template "sitetree/mychildren.html" %%}.')
 
 
 @register.tag
@@ -96,7 +97,8 @@ def sitetree_breadcrumbs(parser: Parser, token: Token) -> 'sitetree_breadcrumbsN
         return sitetree_breadcrumbsNode(tree_alias, use_template)
 
     raise template.TemplateSyntaxError(
-        '%r tag requires two arguments. E.g. {%% sitetree_breadcrumbs from "mytree" %%}.' % tokens[0])
+        f'{tokens[0]} tag requires two arguments. '
+        'E.g. {%% sitetree_breadcrumbs from "mytree" %%}.')
 
 
 @register.tag
@@ -128,8 +130,8 @@ def sitetree_menu(parser: Parser, token: Token) -> 'sitetree_menuNode':
         return sitetree_menuNode(tree_alias, tree_branches, use_template)
 
     raise template.TemplateSyntaxError(
-        '%r tag requires four arguments. '
-        'E.g. {%% sitetree_menu from "mytree" include "trunk,1,level3" %%}.' % tokens[0])
+        f'{tokens[0]} tag requires four arguments. '
+        'E.g. {%% sitetree_menu from "mytree" include "trunk,1,level3" %%}.')
 
 
 @register.tag

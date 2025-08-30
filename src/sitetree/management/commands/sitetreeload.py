@@ -1,5 +1,7 @@
 import sys
+import traceback
 from collections import defaultdict
+from pathlib import Path
 
 from django.core import serializers
 from django.core.exceptions import ObjectDoesNotExist
@@ -52,7 +54,8 @@ class Command(BaseCommand):
                 items_into_tree = MODEL_TREE_CLASS.objects.get(alias=items_into_tree)
             except ObjectDoesNotExist:
                 raise CommandError(
-                    f'Target tree aliased `{items_into_tree}` does not exist. Please create it before import.')
+                    f'Target tree aliased `{items_into_tree}` does not exist. Please create it before import.'
+                ) from None
             else:
                 mode = 'append'
 
@@ -71,7 +74,7 @@ class Command(BaseCommand):
 
             self.stdout.write(f'Loading fixture from `{fixture_file}` ...\n')
 
-            fixture = open(fixture_file)
+            fixture = Path.open(fixture_file)
 
             try:
                 objects = serializers.deserialize('json', fixture, using=using)
@@ -158,8 +161,7 @@ class Command(BaseCommand):
             except (SystemExit, KeyboardInterrupt):
                 raise
 
-            except Exception:
-                import traceback
+            except Exception:  # noqa: BLE001
                 fixture.close()
 
                 self.stderr.write(

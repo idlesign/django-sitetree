@@ -21,11 +21,11 @@ SMUGGLER_INSTALLED = 'smuggler' in django_settings.INSTALLED_APPS
 MODEL_TREE_CLASS = get_tree_model()
 MODEL_TREE_ITEM_CLASS = get_tree_item_model()
 
-_TREE_ADMIN = lambda: TreeAdmin
-_ITEM_ADMIN = lambda: TreeItemAdmin
+_TREE_ADMIN = lambda: TreeAdmin  # noqa: E731
+_ITEM_ADMIN = lambda: TreeItemAdmin  # noqa: E731
 
 
-def get_model_url_name(model_nfo: Tuple[str, str], page: str, with_namespace: bool = False) -> str:
+def get_model_url_name(model_nfo: Tuple[str, str], page: str, with_namespace: bool = False) -> str:  # noqa: FBT001, FBT002
     """Returns a URL for a given Tree admin page type."""
     prefix = ''
     if with_namespace:
@@ -33,21 +33,21 @@ def get_model_url_name(model_nfo: Tuple[str, str], page: str, with_namespace: bo
     return (f'{prefix}%s_{page}' % '%s_%s' % model_nfo).lower()
 
 
-def get_tree_url_name(page: str, with_namespace: bool = False) -> str:
+def get_tree_url_name(page: str, with_namespace: bool = False) -> str:  # noqa: FBT001, FBT002
     """Returns a URL for a given Tree admin page type."""
     return get_model_url_name(get_app_n_model('MODEL_TREE'), page, with_namespace)
 
 
-def get_tree_item_url_name(page: str, with_namespace: bool = False) -> str:
+def get_tree_item_url_name(page: str, with_namespace: bool = False) -> str:  # noqa: FBT001, FBT002
     """Returns a URL for a given Tree Item admin page type."""
     return get_model_url_name(get_app_n_model('MODEL_TREE_ITEM'), page, with_namespace)
 
 
 _TREE_URLS = {
     'app': get_app_n_model('MODEL_TREE')[0],
-    'change': get_tree_url_name('change', True),
-    'changelist': get_tree_url_name('changelist', True),
-    'treeitem_change': get_tree_item_url_name('change', True)
+    'change': get_tree_url_name('change', with_namespace=True),
+    'changelist': get_tree_url_name('changelist', with_namespace=True),
+    'treeitem_change': get_tree_item_url_name('change', with_namespace=True)
 }
 
 
@@ -69,7 +69,7 @@ def override_tree_admin(admin_class: Type['TreeAdmin']):
 
     """
     global _TREE_ADMIN
-    _TREE_ADMIN = lambda: admin_class
+    _TREE_ADMIN = lambda: admin_class  # noqa: E731
     _reregister_tree_admin()
 
 
@@ -80,7 +80,7 @@ def override_item_admin(admin_class: Type['TreeItemAdmin']):
 
     """
     global _ITEM_ADMIN
-    _ITEM_ADMIN = lambda: admin_class
+    _ITEM_ADMIN = lambda: admin_class  # noqa: E731
     _reregister_tree_admin()
 
 
@@ -183,7 +183,7 @@ class TreeItemAdmin(admin.ModelAdmin):
 
             resolver = get_resolver(get_urlconf())
 
-            for ns, (url_prefix, ns_resolver) in resolver.namespace_dict.items():
+            for ns, (_url_prefix, ns_resolver) in resolver.namespace_dict.items():
                 if ns != 'admin':
                     self._stack_known_urls(ns_resolver.reverse_dict, ns)
 
@@ -264,7 +264,7 @@ class TreeItemAdmin(admin.ModelAdmin):
 
         return HttpResponseRedirect('../../')
 
-    def save_model(self, request: HttpRequest, obj: 'TreeItemBase', form, change: bool):
+    def save_model(self, request: HttpRequest, obj: 'TreeItemBase', form, change: bool):  # noqa: FBT001
         """Saves TreeItem model under certain Tree.
         Handles item's parent assignment exception.
 
@@ -274,7 +274,8 @@ class TreeItemAdmin(admin.ModelAdmin):
             if obj.parent is not None and obj.parent.id == obj.id:
                 obj.parent = self.previous_parent
                 messages.warning(
-                    request, _("Item's parent left unchanged. Item couldn't be parent to itself."), '', True)
+                    request, _("Item's parent left unchanged. Item couldn't be parent to itself."), '',
+                    fail_silently=True)
 
         obj.tree = self.tree
         obj.save()
@@ -362,7 +363,7 @@ class TreeAdmin(admin.ModelAdmin):
         :param request:
 
         """
-        from smuggler.views import dump_to_response
+        from smuggler.views import dump_to_response  # noqa: PLC0415
         return dump_to_response(request, [MODEL_TREE, MODEL_TREE_ITEM], filename_prefix='sitetrees')
 
 

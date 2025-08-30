@@ -58,14 +58,17 @@ def clean_permission(permission: TypePermission) -> Union[int, Permission]:
         # Get permission object from string
         try:
             app, codename = permission.split('.')
+
         except ValueError:
             raise ValueError(
                 f'Wrong permission string format: supplied - `{permission}`; '
-                'expected - `<app_name>.<permission_name>`.')
+                'expected - `<app_name>.<permission_name>`.') from None
         try:
             return Permission.objects.get(codename=codename, content_type__app_label=app)
+
         except Permission.DoesNotExist:
-            raise ValueError(f'Permission `{app}.{codename}` does not exist.')
+            raise ValueError(f'Permission `{app}.{codename}` does not exist.') from None
+
     elif not isinstance(permission, (int, Permission)):
         raise ValueError('Permissions must be given as strings, ints, or `Permission` instances.')
 
@@ -90,6 +93,7 @@ def item(
         title: str,
         url: str,
         children: Sequence['TreeItemBase'] = None,
+        *,
         url_as_pattern: bool = True,
         hint: str = '',
         alias: str = '',
@@ -229,7 +233,7 @@ def get_app_n_model(settings_entry_name: str) -> Tuple[str, str]:
 
     except ValueError:
         raise ImproperlyConfigured(
-            f'`SITETREE_{settings_entry_name}` must have the following format: `app_name.model_name`.')
+            f'`SITETREE_{settings_entry_name}` must have the following format: `app_name.model_name`.') from None
 
     return app_name, model_name
 
