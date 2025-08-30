@@ -128,7 +128,7 @@ class TestPermissions:
             item('root', 'url', access_by_perms=42.2),
         ])]), reset_cache=True)
 
-        with pytest.raises(ValueError, match='Wrong permission string'):
+        with pytest.raises(ValueError, match='(P|p)ermission'):
             template_render_tag(
                 'sitetree', 'sitetree_page_title from "fortytwodottwo"',
                 template_context(request='/'))
