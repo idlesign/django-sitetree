@@ -102,7 +102,7 @@ def test_dynamic_attach_from_module(template_render_tag, template_context, templ
 
     from sitetree.toolbox import compose_dynamic_tree, register_dynamic_trees
 
-    register_dynamic_trees(compose_dynamic_tree('sitetree.tests.testapp', include_trees=['dynamic4']))
+    register_dynamic_trees(compose_dynamic_tree('tests.testapp', include_trees=['dynamic4']))
 
     result = template_strip_tags(template_render_tag('sitetree', 'sitetree_tree from "dynamic4"', template_context()))
 

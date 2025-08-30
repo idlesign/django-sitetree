@@ -48,7 +48,7 @@ linters = [
 ]
 tests = [
     "pytest",
-    "pytest-djangoapp>=1.4.1",
+    "pytest-djangoapp>=1.4.2",
 ]
 
 [build-system]

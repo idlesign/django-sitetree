@@ -4,10 +4,6 @@ from pytest_djangoapp import configure_djangoapp_plugin
 
 
 def hook(settings):
-    apps = settings['INSTALLED_APPS']
-    # apps.remove('sitetree.tests.testapp')
-    # apps.append('sitetree.tests.testapp.conf.MyAppConfig')
-
     settings['TEMPLATES'][0]['OPTIONS']['context_processors'].append('django.template.context_processors.request')
 
     return settings
@@ -15,7 +11,7 @@ def hook(settings):
 
 pytest_plugins = configure_djangoapp_plugin(
     settings=dict(
-        SITETREE_CLS='sitetree.tests.testapp.mysitetree.MySiteTree',
+        SITETREE_CLS='tests.testapp.mysitetree.MySiteTree',
     ),
     admin_contrib=True,
     settings_hook=hook
