@@ -79,7 +79,7 @@ omit = [
 ]
 
 [tool.coverage.report]
-fail_under = 90.00
+fail_under = 96.00
 exclude_also = [
     "raise NotImplementedError",
     "if TYPE_CHECKING:",
