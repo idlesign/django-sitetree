@@ -1,0 +1,54 @@
+site_name: django-sitetree
+site_url: !ENV READTHEDOCS_CANONICAL_URL
+
+copyright: Copyright &copy; 2010-2025, Igor Starikov
+
+repo_url: https://github.com/idlesign/django-sitetree
+edit_uri: edit/master/docs/
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/idlesign
+
+plugins:
+  - search
+  - navsorted
+  - apidescribed
+
+theme:
+  name: material
+  palette:
+    primary: green
+  features:
+    - content.action.edit
+    - content.action.view
+    - content.code.copy
+    - navigation.indexes
+    - navigation.tab
+    - navigation.tabs.sticky
+    - navigation.top
+    - toc.follow
+
+markdown_extensions:
+  - abbr
+  - footnotes
+  - pymdownx.betterem
+  - pymdownx.caret
+  - pymdownx.mark
+  - pymdownx.highlight:
+      anchor_linenums: true
+      linenums: true
+      line_spans: __span
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.smartsymbols
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tilde
+  - tables
+  - toc:
+      permalink: true
