@@ -33,6 +33,8 @@ jobs:
           - python-version: 3.14
             django-version: 4.0
           - python-version: 3.14
+            django-version: 5.0
+          - python-version: 3.14
             django-version: 5.1
 
           - python-version: 3.13
@@ -47,6 +49,10 @@ jobs:
             django-version: 3.1
           - python-version: 3.13
             django-version: 3.2
+          - python-version: 3.13
+            django-version: 4.0
+          - python-version: 3.13
+            django-version: 5.0
 
           - python-version: 3.12
             django-version: 2.0
@@ -55,19 +61,25 @@ jobs:
           - python-version: 3.12
             django-version: 2.2
           - python-version: 3.12
+            django-version: 3.0
+          - python-version: 3.12
             django-version: 3.1
 
+          - python-version: 3.11
+            django-version: 2.0
           - python-version: 3.11
             django-version: 2.1
           - python-version: 3.11
             django-version: 6.0
 
           - python-version: 3.10
+            django-version: 2.0
+          - python-version: 3.10
             django-version: 6.0
 
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python ${{ matrix.python-version }} & Django ${{ matrix.django-version }}
+    - name: Set up Python ${{ matrix.python-version }} & django ${{ matrix.django-version }}
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
@@ -76,7 +88,7 @@ jobs:
     - name: Install deps
       run: |
         uv sync --only-group tests
-        uv pip install coveralls "Django~=${{ matrix.django-version }}.0"
+        uv pip install coveralls "django~=${{ matrix.django-version }}.0"
     - name: Run tests
       env:
         GITHUB_TOKEN: ${{ secrets.github_token }}
