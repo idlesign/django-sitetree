@@ -84,32 +84,3 @@ exclude_also = [
     "raise NotImplementedError",
     "if TYPE_CHECKING:",
 ]
-
-[tool.tox]
-skip_missing_interpreters = true
-env_list = [
-  "py{38,39}-dj{30,31,32,40,41,42}",
-  "py{310,311}-dj{30,31,32,40,41,42,50,51,52,60}",
-  "py{312,313}-dj{40,41,42,50,51,52,60}",
-]
-
-[tool.tox.env_run_base]
-dependency_groups = ["tests"]
-deps = [
-    "dj20: Django>=2.0,<2.1",
-    "dj21: Django>=2.1,<2.2",
-    "dj22: Django>=2.2,<2.3",
-    "dj30: Django>=3.0,<3.1",
-    "dj31: Django>=3.1,<3.2",
-    "dj32: Django>=3.2,<3.3",
-    "dj40: Django>=4.0,<4.1",
-    "dj41: Django>=4.1,<4.2",
-    "dj42: Django>=4.2,<4.3",
-    "dj50: Django>=5.0,<5.1",
-    "dj51: Django>=5.1,<5.2",
-    "dj52: Django>=5.2,<5.3",
-    "dj60: Django>=6.0,<6.1",
-]
-commands = [
-  ["pytest", { replace = "posargs", default = ["tests"], extend = true }],
-]
