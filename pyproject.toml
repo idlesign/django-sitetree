@@ -48,7 +48,7 @@ linters = [
 ]
 tests = [
     "pytest",
-    "pytest-djangoapp>=1.4.2",
+    "pytest-djangoapp>=1.7.0",
 ]
 
 [build-system]
@@ -89,8 +89,8 @@ exclude_also = [
 skip_missing_interpreters = true
 env_list = [
   "py{38,39}-dj{30,31,32,40,41,42}",
-  "py{310,311}-dj{30,31,32,40,41,42,50,51,52}",
-  "py{312,313}-dj{40,41,42,50,51,52}",
+  "py{310,311}-dj{30,31,32,40,41,42,50,51,52,60}",
+  "py{312,313}-dj{40,41,42,50,51,52,60}",
 ]
 
 [tool.tox.env_run_base]
@@ -108,6 +108,7 @@ deps = [
     "dj50: Django>=5.0,<5.1",
     "dj51: Django>=5.1,<5.2",
     "dj52: Django>=5.2,<5.3",
+    "dj60: Django>=6.0,<6.1",
 ]
 commands = [
   ["pytest", { replace = "posargs", default = ["tests"], extend = true }],
