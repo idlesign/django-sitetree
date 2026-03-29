@@ -39,9 +39,7 @@ docs = [
     "mkdocs-apidescribed-plugin",
     "mkdocs-navsorted-plugin",
 ]
-linters = [
-    "ruff",
-]
+linters = []
 tests = [
     "pytest",
     "pytest-djangoapp>=1.7.0",
@@ -79,4 +77,9 @@ fail_under = 96.00
 exclude_also = [
     "raise NotImplementedError",
     "if TYPE_CHECKING:",
+]
+
+[tool.makeapp.tests]
+deps = [
+    "django~=${{ django-version }}.0",
 ]
