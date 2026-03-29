@@ -1,5 +1,9 @@
 # django-sitetree changelog
 
+### Unreleased
+* ** Add QA for Python 3.14 (see #333). Drop QA for Python 3.8, 3.9.
+* ** Made Django 6 compatible.
+
 ### v1.18.0 [2023-12-24]
 * ++ Dynamic trees: add 'dynamic_attrs' parameter support for item() (closes #313).
 * ++ Dynamic trees: add support for user-defined tree item access checks (closes #314).

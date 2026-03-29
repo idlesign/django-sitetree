@@ -132,7 +132,7 @@ class TreeItemBase(models.Model):
         _('Sort order'),
         help_text=_('Item position among other site tree items under the same parent.'), db_index=True, default=0)
 
-    def save(self, force_insert=False, force_update=False, **kwargs):  # noqa: FBT002
+    def save(self, *args, **kwargs):  # noqa: FBT002
         # Ensure that item is not its own parent, since this breaks
         # the sitetree (and possibly the entire site).
         if self.parent == self:
@@ -143,7 +143,7 @@ class TreeItemBase(models.Model):
         if id_ and self.sort_order == 0:
             self.sort_order = id_
         
-        super().save(force_insert, force_update, **kwargs)
+        super().save(*args, **kwargs)
 
         # Set item's sort order to its primary key if not already set.
         if self.sort_order == 0:
