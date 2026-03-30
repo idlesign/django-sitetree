@@ -1,6 +1,6 @@
 # django-sitetree changelog
 
-### Unreleased
+### v1.18.1 [2026-03-30]
 * ** Add QA for Python 3.14 (see #333). Drop QA for Python 3.8, 3.9.
 * ** Made Django 6 compatible.
 
