@@ -32,8 +32,8 @@ Sitetree also allows you to define dynamic trees in your code instead of Admin i
 
 ## Requirements
 
-1. Python 3.8+
-2. Django 2.0+
+1. Python 3.10+
+2. Django 3.2+
 3. Auth Django contrib package
 4. Admin site Django contrib package (optional)
 
