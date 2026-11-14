@@ -4,6 +4,7 @@ from django import forms
 from django.conf import settings as django_settings
 from django.contrib import admin, messages
 from django.contrib.admin.sites import NotRegistered
+from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.urls import get_resolver, get_urlconf, path, re_path
 from django.utils.translation import gettext_lazy as _
@@ -219,8 +220,22 @@ class TreeItemAdmin(admin.ModelAdmin):
         return self.tree
 
     def item_add(self, request: HttpRequest, tree_id: int) -> HttpResponse:
+
+        if not self.has_add_tree_item_permission(request):
+            raise PermissionDenied
+
         tree = self.get_tree(request, tree_id)
         return self.add_view(request, extra_context={'tree': tree})
+
+    def has_add_tree_item_permission(self, request: HttpRequest) -> bool:
+        """Decides whether the 'Add site tree item' button is shown
+        and tree item addition is allowed.
+
+        By default delegates to `has_add_permission()`. Override it
+        for a finer-grained control.
+
+        """
+        return self.has_add_permission(request)
 
     def item_edit(self, request: HttpRequest, item_id: int, tree_id: int = None) -> HttpResponse:
         tree = self.get_tree(request, tree_id, item_id)
@@ -320,6 +335,7 @@ class TreeAdmin(admin.ModelAdmin):
 
     def render_change_form(self, request, context, **kwargs):
         context['icon_ext'] = '.svg'
+        context['has_add_tree_item_permission'] = self.tree_admin.has_add_tree_item_permission(request)
         return super().render_change_form(request, context, **kwargs)
 
     def get_urls(self):

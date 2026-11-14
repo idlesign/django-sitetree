@@ -31,6 +31,26 @@ override_tree_admin(CustomTreeAdmin)
 override_item_admin(CustomTreeItemAdmin)
 ```
 
+### Finer control over item addition
+
+`TreeItemAdmin` exposes `has_add_tree_item_permission()`, which decides whether
+the "Add site tree item" button is shown and item addition is allowed.
+By default it delegates to `has_add_permission()`, so you can override it
+to allow editing items while disallowing their addition:
+
+```python title="admin.py"
+from sitetree.admin import TreeItemAdmin, override_item_admin
+
+
+class CustomTreeItemAdmin(TreeItemAdmin):
+
+    def has_add_tree_item_permission(self, request):
+        return False  # No new items can be added.
+
+
+override_item_admin(CustomTreeItemAdmin)
+```
+
 !!! note
     You might also be interested in using custom tree handler.
 

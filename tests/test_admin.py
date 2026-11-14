@@ -142,3 +142,29 @@ def test_redirects_handler(request_get):
     assert get_location('/delete/') == '/delete/../../'
     assert get_location('/history/') == '/history/../../'
     assert get_location('/history/', 42) == '/history/../'
+
+
+def test_admin_tree_item_add_permission(request_client, build_tree, user_create, monkeypatch):
+
+    tree_items = build_tree(
+        {"alias": "tree1"},
+        [{"title": "one", "url": "/one/"}],
+    )
+    tree_id = tree_items["/one/"].tree_id
+
+    client = request_client(user=user_create(superuser=True))
+
+    response = client.get(f"/admin/sitetree/tree/{tree_id}/change/item_add/")
+    assert response.status_code == 200
+
+    response = client.get(("admin:sitetree_tree_change", dict(object_id=tree_id)))
+    assert b"Add Site Tree item" in response.content
+
+    from sitetree.admin import TreeItemAdmin
+    monkeypatch.setattr(TreeItemAdmin, "has_add_tree_item_permission", lambda self, request: False)
+
+    response = client.get(f"/admin/sitetree/tree/{tree_id}/change/item_add/")
+    assert response.status_code == 403
+
+    response = client.get(("admin:sitetree_tree_change", dict(object_id=tree_id)))
+    assert b"Add Site Tree item" not in response.content
