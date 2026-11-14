@@ -6,6 +6,7 @@
 * ++ Dynamic trees may now be attached into other dynamic trees (attachment by item alias works for items of dynamic trees, nested chains supported) (close #280).
 * ** Documented a recipe for rendering HTML in tree item titles on a per-item basis (close #305).
 * ** Sitetree now fully works on Admin pages (breadcrumbs included); context-dependent processing is disabled only when explicitly requested with the st_unprocessed context marker, which the tree item dropdown now sets (close #226).
+* ** Tree and tree item titles can now be up to 256 characters long (close #325).
 
 ### v1.18.1 [2026-03-30]
 * ** Add QA for Python 3.14 (see #333). Drop QA for Python 3.8, 3.9.
