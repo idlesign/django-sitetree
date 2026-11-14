@@ -1,6 +1,6 @@
 # django-sitetree changelog
 
-### Unreleased
+### v1.19.0 [2026-11-14]
 * ++ Added perms_caching handler attribute: PERMS_CACHING_PER_ITEM enables item-dependent (e.g. object-level) permission checks with per-item caching (close #263).
 * ++ Added TreeItemAdmin.has_add_tree_item_permission() for finer control over tree item addition in the Admin (close #277).
 * ++ Dynamic trees may now be attached into other dynamic trees (attachment by item alias works for items of dynamic trees, nested chains supported) (close #280).
