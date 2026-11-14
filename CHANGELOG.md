@@ -3,6 +3,7 @@
 ### Unreleased
 * ++ Added perms_caching handler attribute: PERMS_CACHING_PER_ITEM enables item-dependent (e.g. object-level) permission checks with per-item caching (close #263).
 * ++ Added TreeItemAdmin.has_add_tree_item_permission() for finer control over tree item addition in the Admin (close #277).
+* ++ Dynamic trees may now be attached into other dynamic trees (attachment by item alias works for items of dynamic trees, nested chains supported) (close #280).
 * ** Documented a recipe for rendering HTML in tree item titles on a per-item basis (close #305).
 * ** Sitetree now fully works on Admin pages (breadcrumbs included); context-dependent processing is disabled only when explicitly requested with the st_unprocessed context marker, which the tree item dropdown now sets (close #226).
 
