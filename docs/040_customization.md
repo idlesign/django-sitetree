@@ -12,6 +12,11 @@ with the help of `SITETREE_CLS` setting.
 
 1. Subclass `sitetreeapp.SiteTree` and place that class into a separate module for convenience.
 2. You may now override **.apply_hook()** to manipulate tree items before render, or any other method to customize handler to your exact needs.
+
+   For item-level (e.g. object-level) permission checks set `perms_caching` to
+   `SiteTree.PERMS_CACHING_PER_ITEM` on your subclass: `get_permissions()` will then be called
+   for every tree item (results are cached by item id). The default `PERMS_CACHING_GLOBAL`
+   fetches permissions once per request.
 3. Define `SITETREE_CLS` in `settings.py` of your project, showing it a dotted path to the subclass.
 
 

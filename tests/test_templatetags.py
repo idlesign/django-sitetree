@@ -373,3 +373,73 @@ def test_sitetree_menu(template_render_tag, template_context, common_tree):
 
     assert '"/home/"' not in result
     assert '"/contacts/russia/web/public/"' in result
+
+
+def test_permissions_global_caching(user_create, build_tree, template_render_tag, template_context, monkeypatch):
+
+    from sitetree.sitetreeapp import SiteTree
+
+    calls = []
+    get_permissions_original = SiteTree.get_permissions
+
+    def get_permissions_counting(self, user, item):
+        calls.append(item.id)
+        return get_permissions_original(self, user, item)
+
+    monkeypatch.setattr(SiteTree, "get_permissions", get_permissions_counting)
+
+    build_tree(
+        {"alias": "restricted_tree_global"},
+        [
+            {"title": "One", "access_restricted": True, "url": "/one/"},
+            {"title": "Two", "access_restricted": True, "url": "/two/"},
+        ],
+    )
+
+    context = template_context(user=user_create())
+    template_render_tag('sitetree', 'sitetree_tree from "restricted_tree_global"', context)
+
+    assert len(calls) == 1
+
+
+def test_permissions_per_item_caching(user_create, build_tree, template_render_tag, template_context, monkeypatch):
+
+    from sitetree.models import TreeItem
+    from sitetree.sitetreeapp import SiteTree
+
+    calls = []
+
+    class CustomSiteTree(SiteTree):
+
+        perms_caching = SiteTree.PERMS_CACHING_PER_ITEM
+
+        def get_permissions(self, user, item):
+            calls.append(item.id)
+
+            if item.title == "Two":
+                return {"sitetree.add_tree"}
+
+            return set()
+
+    from sitetree import sitetreeapp
+
+    monkeypatch.setattr(sitetreeapp, "_SITETREE_CLS", CustomSiteTree)
+    # The handler is a thread-singleton, so drop the cached instance.
+    monkeypatch.delattr(sitetreeapp._THREAD_LOCAL, sitetreeapp._THREAD_SITETREE, raising=False)
+
+    build_tree(
+        {"alias": "restricted_tree_per_item"},
+        [
+            {"title": "One", "access_restricted": True, "access_perm_type": TreeItem.PERM_TYPE_ANY,
+             "access_permissions": ["add_tree"], "url": "/one/"},
+            {"title": "Two", "access_restricted": True, "access_perm_type": TreeItem.PERM_TYPE_ANY,
+             "access_permissions": ["add_tree"], "url": "/two/"},
+        ],
+    )
+
+    context = template_context(user=user_create())
+    result = template_render_tag('sitetree', 'sitetree_tree from "restricted_tree_per_item"', context)
+
+    assert '"/two/"' in result
+    assert '"/one/"' not in result
+    assert len(calls) == 2

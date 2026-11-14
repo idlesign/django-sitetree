@@ -392,7 +392,16 @@ class Cache:
 class SiteTree:
     """Main logic handler."""
 
+    PERMS_CACHING_GLOBAL = "global"
+    """Fetch permissions once per request."""
+
+    PERMS_CACHING_PER_ITEM = "per-item"
+    """Fetch permissions for every tree item, caching them by item id."""
+
     cache_cls = Cache  # Allow customizations.
+
+    perms_caching = PERMS_CACHING_GLOBAL
+    """Permissions caching strategy: PERMS_CACHING_GLOBAL (default) or PERMS_CACHING_PER_ITEM."""
 
     def __init__(self):
         self.init(context=None)
@@ -420,6 +429,7 @@ class SiteTree:
         self._current_app_is_admin = current_app == ADMIN_APP_NAME
         self._current_app = current_app
         self._current_user_permissions = _UNSET
+        self._current_user_permissions_per_item = {}
         self._items_urls = {}  # Resolved urls are cache for a request.
         self._current_items = {}
 
@@ -921,11 +931,21 @@ class SiteTree:
 
         """
         if item.access_restricted:
-            user_perms = self._current_user_permissions
 
-            if user_perms is _UNSET:
-                user_perms = self.get_permissions(self.current_request.user, item)
-                self._current_user_permissions = user_perms
+            if self.perms_caching == self.PERMS_CACHING_PER_ITEM:
+                perms_cache = self._current_user_permissions_per_item
+
+                if item.id not in perms_cache:
+                    perms_cache[item.id] = self.get_permissions(self.current_request.user, item)
+
+                user_perms = perms_cache[item.id]
+
+            else:
+                user_perms = self._current_user_permissions
+
+                if user_perms is _UNSET:
+                    user_perms = self.get_permissions(self.current_request.user, item)
+                    self._current_user_permissions = user_perms
 
             perms = item.perms  # noqa dynamic attr
 
