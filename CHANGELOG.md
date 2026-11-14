@@ -1,6 +1,7 @@
 # django-sitetree changelog
 
 ### Unreleased
+* ++ Added TreeItemAdmin.has_add_tree_item_permission() for finer control over tree item addition in the Admin (close #277).
 * ** Documented a recipe for rendering HTML in tree item titles on a per-item basis (close #305).
 
 ### v1.18.1 [2026-03-30]
