@@ -443,3 +443,32 @@ def test_permissions_per_item_caching(user_create, build_tree, template_render_t
     assert '"/two/"' in result
     assert '"/one/"' not in result
     assert len(calls) == 2
+
+
+def test_breadcrumbs_admin(template_render_tag, template_context, common_tree):
+
+    context = template_context(request="/contacts/russia/web/private/", current_app="admin")
+    result = template_render_tag('sitetree', 'sitetree_breadcrumbs from "mytree"', context)
+
+    assert '"/contacts/russia/web/"' in result
+    assert '"/contacts/russia/"' in result
+    assert '"/home/"' in result
+
+
+def test_st_unprocessed(build_tree, template_render_tag, template_context):
+
+    build_tree(
+        {"alias": "unprocessed_tree"},
+        [
+            {"title": "Visible", "url": "/visible/"},
+            {"title": "Hidden", "url": "/hidden/", "hidden": True},
+        ],
+    )
+
+    result = template_render_tag('sitetree', 'sitetree_tree from "unprocessed_tree"', template_context())
+    assert '"/visible/"' in result
+    assert '"/hidden/"' not in result
+
+    context = template_context({"st_unprocessed": True})
+    result = template_render_tag('sitetree', 'sitetree_tree from "unprocessed_tree"', context)
+    assert '"/hidden/"' in result

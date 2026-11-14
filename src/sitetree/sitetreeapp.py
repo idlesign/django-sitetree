@@ -427,6 +427,7 @@ class SiteTree:
         )
 
         self._current_app_is_admin = current_app == ADMIN_APP_NAME
+        self._unprocessed = bool((context or {}).get('st_unprocessed'))  # No request-context processing.
         self._current_app = current_app
         self._current_user_permissions = _UNSET
         self._current_user_permissions_per_item = {}
@@ -537,8 +538,8 @@ class SiteTree:
 
         caching_required = False
 
-        if not self._current_app_is_admin:
-            # We do not need i18n for a tree rendered in Admin dropdown.
+        if not self._unprocessed:
+            # No need for i18n when rendering without request context processing.
             alias = self.resolve_tree_i18n_alias(alias)
 
         sitetree = get_cache_entry('sitetrees', alias)
@@ -654,7 +655,7 @@ class SiteTree:
 
         current_item = None
 
-        if self._current_app_is_admin:
+        if self._unprocessed:
             self._current_items[tree_alias] = current_item
             return None
 
@@ -1103,8 +1104,8 @@ class SiteTree:
         :param item:
 
         """
-        if not self._current_app_is_admin:
-            # We do not need i18n for a tree rendered in Admin dropdown.
+        if not self._unprocessed:
+            # No need for i18n when rendering without request context processing.
             tree_alias = self.resolve_tree_i18n_alias(tree_alias)
 
         return self.cache.get_entry('parents', tree_alias)[item]
@@ -1130,13 +1131,13 @@ class SiteTree:
     def filter_items(self, items: List['TreeItemBase'], navigation_type: str = None) -> List['TreeItemBase']:
         """Filters sitetree item's children if hidden and by navigation type.
 
-        NB: We do not apply any filters to sitetree in admin app.
+        NB: We do not apply any filters when rendering without request context processing.
 
         :param items:
         :param navigation_type: sitetree, breadcrumbs, menu
 
         """
-        if self._current_app_is_admin:
+        if self._unprocessed:
             return items
 
         items_filtered = []

@@ -67,7 +67,7 @@ class TreeItemChoiceField(ChoiceField):
         """Build choices list runtime using 'sitetree_tree' tag"""
         tree_token = f'sitetree_tree from "{self.tree}" template "{self.template}"'
 
-        context_kwargs = {'current_app': 'admin'}
+        context_kwargs = {'st_unprocessed': True}
         context = template.Context(context_kwargs)
         context.update({'request': object()})
 
