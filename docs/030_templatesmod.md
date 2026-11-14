@@ -36,6 +36,39 @@ To customize visual representation of navigation elements you should override th
 5. See section on advanced tags for clarification on two advanced SiteTree template tags.
 
 
+### Recipe: HTML in item titles
+
+By default item titles are HTML-escaped. This is a deliberate decision: if menu editing
+is available to non-technical staff, unescaped HTML would open a door to XSS.
+
+If you need HTML in titles (e.g. to render icons), you can do it explicitly per item:
+
+1. Create a custom tree item model with a flag field (see Custom Models page for details):
+
+    ```python title="myapp/models.py"
+    from sitetree.models import TreeItemBase
+
+
+    class MyTreeItem(TreeItemBase):
+        title_render_html = models.BooleanField('Render title as HTML', default=False)
+    ```
+
+2. Point SiteTree to your model in `settings.py`:
+
+    ```python
+    SITETREE_MODEL_TREE_ITEM = 'myapp.MyTreeItem'
+    ```
+
+3. Override the menu template(s) you use (e.g. `templates/sitetree/menu.html` in your project)
+   to respect the flag:
+
+    ```html
+    {% if item.title_render_html %}{{ item.title_resolved|safe }}{% else %}{{ item.title_resolved }}{% endif %}
+    ```
+
+This way rendering HTML is an explicit per-item decision made in the Admin interface.
+
+
 ## Templates for Frameworks
 
 ### Foundation
