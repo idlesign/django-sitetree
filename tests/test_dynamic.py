@@ -1,9 +1,10 @@
 import pytest
 
+from sitetree.sitetreeapp import _DYNAMIC_TREES, _IDX_ORPHAN_TREES
+from sitetree.toolbox import compose_dynamic_tree, get_dynamic_trees, item, register_dynamic_trees, tree
+
 
 def test_dynamic_only(template_render_tag, template_context, template_strip_tags, monkeypatch):
-    from sitetree.toolbox import compose_dynamic_tree, item, register_dynamic_trees, tree
-
     # If DYNAMIC_ONLY is not set, pytest-django will tell: "Database access not allowed" on any DB access attempt.
     monkeypatch.setattr('sitetree.sitetreeapp.DYNAMIC_ONLY', 'UNKNOWN')
 
@@ -25,9 +26,6 @@ def dynamic_access_check_it(tree):
 
 
 def test_dynamic_basic(template_render_tag, template_context, template_strip_tags):
-
-    from sitetree.sitetreeapp import _IDX_ORPHAN_TREES
-    from sitetree.toolbox import compose_dynamic_tree, get_dynamic_trees, item, register_dynamic_trees, tree
 
     item_dyn_attrs = item('dynamic2_1', '/dynamic2_1_url', url_as_pattern=False, dynamic_attrs={'a': 'b'})
     assert item_dyn_attrs.a == 'b'
@@ -65,13 +63,10 @@ def test_dynamic_basic(template_render_tag, template_context, template_strip_tag
     trees = get_dynamic_trees()
     assert len(trees[_IDX_ORPHAN_TREES]) == 2
 
-    from sitetree.sitetreeapp import _DYNAMIC_TREES
     _DYNAMIC_TREES.clear()
 
 
 def test_dynamic_attach(template_render_tag, template_context, template_strip_tags, common_tree):
-
-    from sitetree.toolbox import compose_dynamic_tree, item, register_dynamic_trees, tree
 
     children = [
         item('dynamic2_2_child', '/dynamic2_2_url_child', url_as_pattern=False),
@@ -94,13 +89,10 @@ def test_dynamic_attach(template_render_tag, template_context, template_strip_ta
     assert 'Web|dynamic2_1|dynamic2_2' in result
     assert 'China|dynamic1_1|dynamic1_2' in result
 
-    from sitetree.sitetreeapp import _DYNAMIC_TREES
     _DYNAMIC_TREES.clear()
 
 
 def test_dynamic_attach_from_module(template_render_tag, template_context, template_strip_tags, settings):
-
-    from sitetree.toolbox import compose_dynamic_tree, register_dynamic_trees
 
     register_dynamic_trees(compose_dynamic_tree('tests.testapp', include_trees=['dynamic4']))
 
@@ -112,13 +104,10 @@ def test_dynamic_attach_from_module(template_render_tag, template_context, templ
     with pytest.warns(UserWarning, match='Unable to register dynamic sitetree'):
         compose_dynamic_tree('nonexistent')
 
-    from sitetree.sitetreeapp import _DYNAMIC_TREES
     _DYNAMIC_TREES.clear()
 
 
 def test_dynamic_attach_dynamic_into_dynamic(template_render_tag, template_context, template_strip_tags):
-
-    from sitetree.toolbox import compose_dynamic_tree, item, register_dynamic_trees, tree
 
     register_dynamic_trees([
         compose_dynamic_tree([tree("base_dyn", items=[
@@ -134,5 +123,4 @@ def test_dynamic_attach_dynamic_into_dynamic(template_render_tag, template_conte
     assert "base item" in result
     assert "attached item" in result
 
-    from sitetree.sitetreeapp import _DYNAMIC_TREES
     _DYNAMIC_TREES.clear()

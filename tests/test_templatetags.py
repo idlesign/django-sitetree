@@ -2,7 +2,9 @@ import pytest
 from django.template.base import TemplateSyntaxError
 from django.utils.translation import activate, deactivate_all
 
+from sitetree import sitetreeapp
 from sitetree.exceptions import SiteTreeError
+from sitetree.models import TreeItem
 from sitetree.settings import (
     ALIAS_THIS_ANCESTOR_CHILDREN,
     ALIAS_THIS_CHILDREN,
@@ -10,11 +12,11 @@ from sitetree.settings import (
     ALIAS_THIS_SIBLINGS,
     ALIAS_TRUNK,
 )
+from sitetree.sitetreeapp import SiteTree
+from sitetree.toolbox import register_i18n_trees, register_items_hook
 
 
 def test_items_hook(template_render_tag, template_context, common_tree):
-
-    from sitetree.toolbox import register_items_hook
 
     with pytest.raises(SiteTreeError):
         register_items_hook(list)
@@ -52,8 +54,6 @@ def test_items_hook(template_render_tag, template_context, common_tree):
 
 
 def test_i18n(build_tree, template_render_tag, template_context):
-
-    from sitetree.toolbox import register_i18n_trees
 
     build_tree(
         {'alias': 'i18tree'},
@@ -115,8 +115,6 @@ def test_restricted(user_create, template_render_tag, template_context, common_t
 
 
 def test_permissions(user_create, build_tree, template_render_tag, template_context):
-
-    from sitetree.models import TreeItem
 
     build_tree(
         {'alias': 'restricted_tree'},
@@ -377,8 +375,6 @@ def test_sitetree_menu(template_render_tag, template_context, common_tree):
 
 def test_permissions_global_caching(user_create, build_tree, template_render_tag, template_context, monkeypatch):
 
-    from sitetree.sitetreeapp import SiteTree
-
     calls = []
     get_permissions_original = SiteTree.get_permissions
 
@@ -404,9 +400,6 @@ def test_permissions_global_caching(user_create, build_tree, template_render_tag
 
 def test_permissions_per_item_caching(user_create, build_tree, template_render_tag, template_context, monkeypatch):
 
-    from sitetree.models import TreeItem
-    from sitetree.sitetreeapp import SiteTree
-
     calls = []
 
     class CustomSiteTree(SiteTree):
@@ -420,8 +413,6 @@ def test_permissions_per_item_caching(user_create, build_tree, template_render_t
                 return {"sitetree.add_tree"}
 
             return set()
-
-    from sitetree import sitetreeapp
 
     monkeypatch.setattr(sitetreeapp, "_SITETREE_CLS", CustomSiteTree)
     # The handler is a thread-singleton, so drop the cached instance.

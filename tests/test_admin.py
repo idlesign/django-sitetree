@@ -1,9 +1,10 @@
 from django.contrib.admin.sites import site
 
+from sitetree.admin import TreeAdmin, TreeItemAdmin, redirects_handler
+from sitetree.models import Tree, TreeItem
+
 
 def get_item_admin():
-    from sitetree.admin import TreeItemAdmin
-    from sitetree.models import TreeItem
     admin = TreeItemAdmin(TreeItem, site)
     return admin
 
@@ -47,8 +48,6 @@ def test_admin_tree_item_basic(request_get, common_tree):
 
 
 def test_admin_tree_item_move(common_tree):
-    from sitetree.models import Tree, TreeItem
-
     main_tree = Tree(alias='main')
     main_tree.save()
 
@@ -104,9 +103,6 @@ def test_admin_tree_item_save_model(request_get, common_tree):
 
 
 def test_admin_tree():
-    from sitetree.admin import TreeAdmin
-    from sitetree.models import Tree
-
     admin = TreeAdmin(Tree, site)
     urls = admin.get_urls()
 
@@ -114,8 +110,6 @@ def test_admin_tree():
 
 
 def test_redirects_handler(request_get):
-    from sitetree.admin import redirects_handler
-
     def get_location(referer, item_id=None):
 
         req = request_get(referer)
@@ -160,7 +154,6 @@ def test_admin_tree_item_add_permission(request_client, build_tree, user_create,
     response = client.get(("admin:sitetree_tree_change", dict(object_id=tree_id)))
     assert b"Add Site Tree item" in response.content
 
-    from sitetree.admin import TreeItemAdmin
     monkeypatch.setattr(TreeItemAdmin, "has_add_tree_item_permission", lambda self, request: False)
 
     response = client.get(f"/admin/sitetree/tree/{tree_id}/change/item_add/")
