@@ -95,6 +95,11 @@ register_dynamic_trees(
     If you use only dynamic trees you can set `SITETREE_DYNAMIC_ONLY = True` to prevent the application
     from querying trees and items stored in DB.
 
+!!! note
+    Dynamic trees may also be attached into other dynamic trees: `target_tree_alias` may point
+    to a dynamic tree alias, and `parent_tree_item_alias` — to an item alias within it.
+    Nested chains are supported (parents are attached first).
+
 
 #### Access check
 
