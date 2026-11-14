@@ -478,42 +478,56 @@ class SiteTree:
         trees = deepcopy(_DYNAMIC_TREES)
 
         items = []
-        if not src_tree_items:
-            if _IDX_ORPHAN_TREES in trees and tree_alias in trees[_IDX_ORPHAN_TREES]:
-                for tree in trees[_IDX_ORPHAN_TREES][tree_alias]:
-                    items.extend(tree.dynamic_items)
-        else:
 
-            # TODO Seems to be underoptimized %)
+        if src_tree_items:
+            items.extend(src_tree_items)
 
-            # Tree item attachment by alias.
-            for static_item in list(src_tree_items):
-                items.append(static_item)
-                if not static_item.alias:
-                    continue
+        elif _IDX_ORPHAN_TREES in trees and tree_alias in trees[_IDX_ORPHAN_TREES]:
+            for tree in trees[_IDX_ORPHAN_TREES][tree_alias]:
+                items.extend(tree.dynamic_items)
 
-                idx = _IDX_TPL % (tree_alias, static_item.alias)
-                if idx not in trees:
-                    continue
+        # Attach dynamic trees by item alias. The queue also covers freshly
+        # attached items, so that dynamic trees may be attached into other
+        # dynamic trees (parents first, then children).
+        seen = set()
+        queue = list(items)
 
-                for tree in trees[idx]:
-                    tree.alias = tree_alias
+        while queue:
+            base_item = queue.pop(0)
 
-                    for dyn_item in tree.dynamic_items:  # noqa dynamic attr
-                        if dyn_item.parent is None:
-                            dyn_item.parent = static_item
-                        # Unique IDs are required for the same trees attached
-                        # to different parents.
-                        dyn_item.id = generate_id_for(dyn_item)
-                        items.append(dyn_item)
+            if not base_item.alias:
+                continue
 
-            # Tree root attachment.
-            idx = _IDX_TPL % (tree_alias, None)
-            if idx in _DYNAMIC_TREES:
-                trees = deepcopy(_DYNAMIC_TREES)
-                for tree in trees[idx]:
-                    tree.alias = tree_alias
-                    items.extend(tree.dynamic_items)  # noqa dynamic attr
+            idx = _IDX_TPL % (tree_alias, base_item.alias)
+
+            if idx in seen or idx not in trees:
+                continue
+
+            seen.add(idx)
+
+            insert_at = items.index(base_item) + 1
+
+            for tree in trees[idx]:
+                tree.alias = tree_alias
+
+                for dyn_item in tree.dynamic_items:  # noqa dynamic attr
+                    if dyn_item.parent is None:
+                        dyn_item.parent = base_item
+                    # Unique IDs are required for the same trees attached
+                    # to different parents.
+                    dyn_item.id = generate_id_for(dyn_item)
+                    items.insert(insert_at, dyn_item)
+                    insert_at += 1
+                    queue.append(dyn_item)
+
+        # Tree root attachment (provided the tree exists in some form).
+        idx = _IDX_TPL % (tree_alias, None)
+
+        if items and idx in _DYNAMIC_TREES:
+            trees = deepcopy(_DYNAMIC_TREES)
+            for tree in trees[idx]:
+                tree.alias = tree_alias
+                items.extend(tree.dynamic_items)  # noqa dynamic attr
 
         return items
 

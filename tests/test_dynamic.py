@@ -114,3 +114,25 @@ def test_dynamic_attach_from_module(template_render_tag, template_context, templ
 
     from sitetree.sitetreeapp import _DYNAMIC_TREES
     _DYNAMIC_TREES.clear()
+
+
+def test_dynamic_attach_dynamic_into_dynamic(template_render_tag, template_context, template_strip_tags):
+
+    from sitetree.toolbox import compose_dynamic_tree, item, register_dynamic_trees, tree
+
+    register_dynamic_trees([
+        compose_dynamic_tree([tree("base_dyn", items=[
+            item("base item", "/base/", url_as_pattern=False, alias="base_item"),
+        ])]),
+        compose_dynamic_tree([tree("attached_dyn", items=[
+            item("attached item", "/attached/", url_as_pattern=False),
+        ])], target_tree_alias="base_dyn", parent_tree_item_alias="base_item"),
+    ], reset_cache=True)
+
+    result = template_strip_tags(template_render_tag('sitetree', 'sitetree_tree from "base_dyn"', template_context()))
+
+    assert "base item" in result
+    assert "attached item" in result
+
+    from sitetree.sitetreeapp import _DYNAMIC_TREES
+    _DYNAMIC_TREES.clear()
