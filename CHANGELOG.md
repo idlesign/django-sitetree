@@ -1,6 +1,7 @@
 # django-sitetree changelog
 
 ### Unreleased
+* ++ Added perms_caching handler attribute: PERMS_CACHING_PER_ITEM enables item-dependent (e.g. object-level) permission checks with per-item caching (close #263).
 * ++ Added TreeItemAdmin.has_add_tree_item_permission() for finer control over tree item addition in the Admin (close #277).
 * ** Documented a recipe for rendering HTML in tree item titles on a per-item basis (close #305).
 
