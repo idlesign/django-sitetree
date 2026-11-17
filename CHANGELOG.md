@@ -1,5 +1,9 @@
 # django-sitetree changelog
 
+### Unreleased
+* ++ Added breadcrumbs_bootstrap5.html template.
+* ** Fixed Bootstrap 4 leftovers in menu_bootstrap5.html (ms-auto class, aria-expanded attribute); documented that Bootstrap 4 navpills templates suit Bootstrap 5 as is.
+
 ### v1.19.0 [2026-11-14]
 * ++ Added perms_caching handler attribute: PERMS_CACHING_PER_ITEM enables item-dependent (e.g. object-level) permission checks with per-item caching (close #263).
 * ++ Added TreeItemAdmin.has_add_tree_item_permission() for finer control over tree item addition in the Admin (close #277).

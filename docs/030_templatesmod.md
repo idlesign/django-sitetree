@@ -123,6 +123,10 @@ The following templates are bundled with SiteTree:
 
     The same as above but for Bootstrap version 4.
 
+* `sitetree/breadcrumbs_bootstrap5.html`
+
+    The same as above but for Bootstrap version 5.
+
 * `sitetree/menu_bootstrap.html`
   
     This template can be used to construct *menu contents* for Bootstrap Navbar.
@@ -206,6 +210,10 @@ The following templates are bundled with SiteTree:
 * `sitetree/menu_bootstrap4_navpills-stacked.html`
 
     The same as above but for Bootstrap version 4.
+
+!!! note
+    Bootstrap 5 does not change navs and pills markup compared to Bootstrap 4,
+    so both Bootstrap 4 navpills templates work with Bootstrap 5 as is.
 
 
 You can find Bootstrap navigation elements examples at <https://getbootstrap.com/docs/5.3/components/navbar/>
