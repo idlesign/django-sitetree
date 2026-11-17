@@ -1,0 +1,15 @@
+{%  load sitetree %}
+
+<div class="container mx-auto">
+
+    <div class="navbar bg-base-100 shadow-sm">
+        {% sitetree_menu from "main" include "trunk" template "sitetree/menu_daisyui.html" %}
+    </div>
+
+    <div class="mt-4">
+        {% sitetree_breadcrumbs from "main" template "sitetree/breadcrumbs_daisyui.html" %}
+
+        {% include '_listing_contents.html' %}
+    </div>
+
+</div>

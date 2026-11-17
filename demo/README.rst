@@ -5,7 +5,11 @@ http://github.com/idlesign/django-sitetree
 
 This Django project demonstrates sitetree basic features and bundled templates.
 
-Expects Django 1.11+
+Expects Django 5.2+
+
+The project uses `uv <https://docs.astral.sh/uv/>`_ for dependency management
+and installs django-sitetree from the local sources (repository root),
+so bundled template changes are visible right away.
 
 
 How to run
@@ -20,8 +24,8 @@ Docker
 Manually
 ~~~~~~~~
 
-1. Install the requirements with `pip install -r requirements.txt`
-2. Run the server `python manage.py runserver`
+1. Install the dependencies with `uv sync`
+2. Run the server `uv run python manage.py runserver`
 3. Go to http://localhost:8000
 
 Admin
@@ -31,4 +35,3 @@ Admin (http://localhost:8000) credentials:
 
     Login: `demo`
     Password: `demodemo`
-    

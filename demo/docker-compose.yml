@@ -1,11 +1,11 @@
-version: '3'
-
 services:
   web:
     restart: always
-    build: .
-    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    build:
+      context: ..
+      dockerfile: demo/Dockerfile
+    command: sh -c "uv sync && uv run python manage.py migrate && uv run python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - .:/code
+      - ..:/code
     ports:
       - "8000:8000"
