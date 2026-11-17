@@ -1,6 +1,6 @@
 # django-sitetree changelog
 
-### Unreleased
+### v1.20.0 [2026-11-17]
 * ++ Added breadcrumbs_bootstrap5.html template.
 * ++ Added DaisyUI (component plugin for Tailwind CSS) templates: breadcrumbs_daisyui.html, menu_daisyui.html, menu_daisyui_dropdown.html.
 * ** Fixed Bootstrap 4 leftovers in menu_bootstrap5.html (ms-auto class, aria-expanded attribute); documented that Bootstrap 4 navpills templates suit Bootstrap 5 as is.
