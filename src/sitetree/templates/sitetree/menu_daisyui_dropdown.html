@@ -1,0 +1,6 @@
+{% load sitetree %}
+<ul class="bg-base-100 rounded-box p-2 shadow">
+    {% for item in sitetree_items %}
+        <li><a href="{% sitetree_url for item %}" {% if item.is_current or item.in_current_branch %}class="menu-active"{% endif %} {% if item.hint %}title="{{ item.hint }}"{% endif %}>{{ item.title_resolved }}</a></li>
+    {% endfor %}
+</ul>

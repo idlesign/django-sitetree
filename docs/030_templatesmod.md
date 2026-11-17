@@ -219,6 +219,35 @@ The following templates are bundled with SiteTree:
 You can find Bootstrap navigation elements examples at <https://getbootstrap.com/docs/5.3/components/navbar/>
 
 
+### DaisyUI
+
+DaisyUI is a component plugin for Tailwind CSS, framework-agnostic and JavaScript-free.
+Information about DaisyUI is available at <https://daisyui.com/>
+
+The following templates are bundled with SiteTree:
+
+* `sitetree/breadcrumbs_daisyui.html`
+
+    This template can be used to construct a breadcrumb navigation from a sitetree.
+
+* `sitetree/menu_daisyui.html`
+
+    This template can be used to construct *menu contents* for DaisyUI Navbar.
+
+    !!! warning
+        The template renders only menu contents, but not Navbar container itself,
+        so one should wrap `sitetree_menu` call into an appropriately styled div
+        (e.g. having `navbar bg-base-100` classes).
+
+    !!! note
+        The template renders no more than two levels of a tree. Dropdowns for root items
+        having children are based on `details`/`summary` elements and require no JavaScript.
+
+* `sitetree/menu_daisyui_dropdown.html`
+
+    One level deep dropdown menu.
+
+
 ### Semantic UI
 
 Information about Semantic UI Framework is available at https://semantic-ui.com/

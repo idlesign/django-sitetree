@@ -1,0 +1,15 @@
+{% load sitetree %}
+<ul class="menu menu-horizontal px-1 {{ extra_class_ul }}">
+    {% for item in sitetree_items %}
+        <li>
+            {% if item.has_children %}
+                <details>
+                    <summary {% if item.is_current or item.in_current_branch %}class="menu-active"{% endif %}>{{ item.title_resolved }}</summary>
+                    {% sitetree_children of item for menu template "sitetree/menu_daisyui_dropdown.html" %}
+                </details>
+            {% else %}
+                <a href="{% sitetree_url for item %}" {% if item.is_current or item.in_current_branch %}class="menu-active"{% endif %}>{{ item.title_resolved }}</a>
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
